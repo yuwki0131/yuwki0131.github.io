@@ -1,0 +1,38 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<rss version='2.0' xmlns:atom='http://www.w3.org/2005/Atom'>
+<channel>
+<atom:link href='http://ea0003.jp/' rel='self' type='application/rss+xml'/>
+<title>
+yuwki0132-blog
+</title>
+<link>
+http://ea0003.jp/
+</link>
+<description>
+This blog is a cartesian closed category
+</description>
+<lastBuildDate>
+Wed, 02 Aug 2017 18:48:36 +0900
+</lastBuildDate>
+<generator>
+clj-rss
+</generator>
+<item>
+<guid>
+http://ea0003.jp/blog/posts-output/2017-08-01-quickstart/
+</guid>
+<link>
+http://ea0003.jp/blog/posts-output/2017-08-01-quickstart/
+</link>
+<title>
+CryogenでブログのQuick Startをしてみた
+</title>
+<description>
+&lt;h3 id=&quot;ブログを書く時の物理的/心理的ハードル&quot;&gt;ブログを書く時の物理的/心理的ハードル&lt;/h3&gt;&lt;p&gt;長らくGoogle Bloggerを使ってプログラミング関連をネタとしたブログを書いてきました。&lt;/p&gt;&lt;p&gt;Google Bloggerも良かったのですが、自前のサーバーでもブログ書きたいなとか、記事がmarkdownで書けないとか、 そもそもEmacsで書けないとか不満が色々出てきました。&lt;/p&gt;&lt;p&gt;そして何より、気づいたら、ブログを書くハードルが高くなってました。&lt;/p&gt;&lt;p&gt;色々思う所があり、1記事書くのにかかるコスト感が半端ない感じで上がりました。&lt;/p&gt;&lt;p&gt;以下、色々思う所です。&lt;/p&gt;&lt;ul&gt;&lt;li&gt;HelloWorld的な基礎的な内容や簡単な備忘録程度ならわざわざブログに書く必要性が感じられない。&lt;/li&gt;&lt;li&gt;日本語で他の記事を参照すれば分かるような内容は書きたくない(書く意味がない)。&lt;/li&gt;&lt;li&gt;リファレンスは? エビデンスは?&lt;/li&gt;&lt;li&gt;(他人がどう思うかはとりあえず置いとくとして、そもそも)自分が面白いと思える内容なのか?&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;しかし以上の思い込みは、アウトプットする行為と比較すると非常に下らない考えです。&lt;/p&gt;&lt;p&gt;この心理的ハードルをEmacsとMarkdwonとClojureの力で下げたい!&lt;/p&gt;&lt;h3 id=&quot;cryogenでマイクロ技術ブログ的な何かを行う試み。&quot;&gt;Cryogenでマイクロ技術ブログ的な何かを行う試み。&lt;/h3&gt;&lt;p&gt;というわけで、Google Bloggerより手軽に記事を書ける環境を探していた所、 Cryogen使えばいいじゃんという結論に落ち着きました。。。&lt;/p&gt;&lt;p&gt;Cryogenは、Clojureで作られた静的サイトジェネレータです。ClojureのWebサーバringと一緒に使うことで、ブログサイトを簡単に構築できます。 以下の公式ページを見た方が早いですが、非常に簡単にblogが立ち上がります。&lt;/p&gt;&lt;p&gt;&lt;div style=&quot;text-align: center;&quot;&gt;&lt;a href='https://github.com/cryogen-project/cryogen'&gt;Cryogen&lt;/a&gt;&lt;/div&gt;&lt;/p&gt;&lt;p&gt;基本的にサーバでCryogenのプロジェクトを走らせといて、適当なディレクトリ (プロジェクト・ルート/resources/templates/md/posts/配下)に Markdown(or AsciiDocも使えます)を突っ込んどけば、サーバ側でいい感じに静的なブログを作ってくれるという仕組みです。 RSSフィードなども自動生成してくれるようで有りがたいです。&lt;/p&gt;&lt;p&gt;また、金銭的な都合で、Github Pagesを使うことにしました。&lt;/p&gt;
+</description>
+<pubDate>
+Tue, 01 Aug 2017 00:00:00 +0900
+</pubDate>
+</item>
+</channel>
+</rss>
