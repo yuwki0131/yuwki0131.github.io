@@ -12,7 +12,7 @@ https://yuwki0131.github.io/
 This blog is a cartesian closed category
 </description>
 <lastBuildDate>
-Thu, 03 Aug 2017 17:44:41 +0900
+Thu, 03 Aug 2017 20:47:10 +0900
 </lastBuildDate>
 <generator>
 clj-rss
@@ -45,7 +45,7 @@ https://yuwki0131.github.io/posts-output/2017-08-02-cryogen-workflow/
 Cryogen/Github-Pagesでブログを書く
 </title>
 <description>
-&lt;p&gt;とりあえず、一通り、Cryogen/Github-Pagesで静的なWebページの公開までたどり着いたので、その紹介などをざっくりと書きます。&lt;/p&gt;&lt;h3 id=&quot;cryogenでブログ作成〜github-pagesで公開まで&quot;&gt;Cryogenでブログ作成〜Github-Pagesで公開まで&lt;/h3&gt;&lt;p&gt;主にやったこととしては、&lt;/p&gt;&lt;ol&gt;&lt;li&gt;Cryogenのプロジェクトをリモートリポジトリ(BitBucket&lt;a href='#fn-1' id='fnref1'&gt;&lt;sup&gt;1&lt;/sup&gt;&lt;/a&gt;)にまるごと登録&lt;/li&gt;&lt;li&gt;諸々の設定ファイルを修正&lt;/li&gt;&lt;li&gt;とりあえず、最初の記事を書く&lt;/li&gt;&lt;li&gt;ローカル環境で表示確認のテスト&lt;/li&gt;&lt;li&gt;username.github.ioのリポジトリを作成&lt;/li&gt;&lt;li&gt;Cryogenで作成生成されたpublicファイルをgithub.ioのリポジトリに登録&lt;ul&gt;&lt;li&gt;とりあえず静的Webサイト(ブログ一式)が公開される&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;li&gt;ビーコン設置&lt;/li&gt;&lt;/ol&gt;&lt;p&gt;といった流れで作成しました。&lt;/p&gt;&lt;p&gt;Cryogenでのブログ作成については、公式の&lt;a href='https://github.com/cryogen-project/cryogen/blob/master/README.md'&gt;README.md&lt;/a&gt; を見ながら作ったという感じです。&lt;/p&gt;&lt;p&gt;ドキュメント(&lt;a href='http://cryogenweb.org'&gt;cryogenweb.org&lt;/a&gt; )も整備されていたりします。&lt;/p&gt;&lt;p&gt;設定ファイルですが、主に以下のファイルに必要な情報を書き込んでいきます。&lt;/p&gt;&lt;pre&gt;&lt;code&gt;プロジェクトルート/resources/templates/config.edn
+&lt;p&gt;とりあえず、一通り、Cryogen/Github-Pagesで静的なWebページの公開までたどり着いたので、その紹介などをざっくりと書きます。&lt;/p&gt;&lt;h3 id=&quot;cryogenでブログ作成〜github-pagesで公開まで&quot;&gt;Cryogenでブログ作成〜Github-Pagesで公開まで&lt;/h3&gt;&lt;p&gt;主にやったこととしては、&lt;/p&gt;&lt;ol&gt;&lt;li&gt;Cryogenのプロジェクトをリモートリポジトリ(BitBucket&lt;a href='#fn-1' id='fnref1'&gt;&lt;sup&gt;1&lt;/sup&gt;&lt;/a&gt;)にまるごと登録&lt;/li&gt;&lt;li&gt;諸々の設定ファイルを修正&lt;/li&gt;&lt;li&gt;とりあえず、最初の記事を書く&lt;/li&gt;&lt;li&gt;ローカル環境で表示確認のテスト&lt;/li&gt;&lt;li&gt;username.github.ioのリポジトリを作成&lt;/li&gt;&lt;li&gt;Cryogenで作成生成されたpublicファイルをgithub.ioのリポジトリに登録&lt;ul&gt;&lt;li&gt;とりあえず静的Webサイト(ブログ一式)が公開される&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;li&gt;ビーコン設置&lt;/li&gt;&lt;/ol&gt;&lt;p&gt;といった流れで作成しました。&lt;/p&gt;&lt;p&gt;Cryogenでのブログ作成については、公式の&lt;a href='https://github.com/cryogen-project/cryogen/blob/master/README.md'&gt;README.md&lt;/a&gt; を見ながら作ったという感じです。&lt;/p&gt;&lt;p&gt;ドキュメント(&lt;a href='http://cryogenweb.org'&gt;cryogenweb.org&lt;/a&gt;)も整備されていたりします。&lt;/p&gt;&lt;p&gt;設定ファイルですが、主に以下のファイルに必要な情報を書き込んでいきます。&lt;/p&gt;&lt;pre&gt;&lt;code&gt;プロジェクトルート/resources/templates/config.edn
 &lt;/code&gt;&lt;/pre&gt;&lt;p&gt;テーマは、今後変更する予定ですが、とりあえずデフォルトのテーマを使うことにしてます。&lt;/p&gt;&lt;pre&gt;&lt;code&gt;プロジェクトルート/resources/templates/themes/blue
 &lt;/code&gt;&lt;/pre&gt;&lt;p&gt;デフォルトのテーマは上記にあるので、その辺りを自分好みに修正しました。 今後は、もっと修正をかけまくる or 別テーマにする予定です。今のテーマ、 残念ながら私好みでないので。。。&lt;/p&gt;&lt;p&gt;ブログ記事の生成は通常のleiningenを走らせるのと同様、&lt;/p&gt;&lt;pre&gt;&lt;code&gt;lein run
 &lt;/code&gt;&lt;/pre&gt;&lt;p&gt;で生成できます。ローカルで生成結果を確認したい場合は、&lt;/p&gt;&lt;pre&gt;&lt;code&gt;lein ring server

@@ -1,16 +1,20 @@
 h1, h2, h3, h4, h5, h6 {
-    font-family: 'Alegreya';
+    font-family: 'Mplus 1p', 'Alegreya';
 }
 
 body {
     color: #333;
     background-color: #f2f2f2;
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    font-size: 16px;
+    font-family: 'Helvetica Neue', 'Mplus 1p', Helvetica, Arial, sans-serif;
+    font-size: 14px;
 }
 
 .container {
     max-width: 1000px;
+}
+
+.container h3 {
+    font-size: 16px;
 }
 
 .right {
@@ -24,7 +28,7 @@ body {
 }
 
 .navbar-default {
-    background-color: #428bca;
+    background-color: #2198a6;
     border: none;
 }
 
@@ -91,10 +95,11 @@ footer {
 }
 
 .post-header {
-    margin-bottom: 20px;
+    margin-bottom: 40px;
 }
 .post-header h2 {
-    font-size: 32px;
+    font-size: 20px;
+    color: #ff6600;
 }
 
 #post-meta {
@@ -107,7 +112,7 @@ footer {
     margin-bottom: 20px;
 }
 #page-header h2 {
-    font-size: 32px;
+    font-size: 20px;
 }
 
 pre {
