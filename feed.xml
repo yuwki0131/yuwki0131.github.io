@@ -12,11 +12,28 @@ https://yuwki0131.github.io/
 This blog is a cartesian closed category
 </description>
 <lastBuildDate>
-Wed, 02 Aug 2017 21:38:58 +0900
+Thu, 03 Aug 2017 17:44:41 +0900
 </lastBuildDate>
 <generator>
 clj-rss
 </generator>
+<item>
+<guid>
+https://yuwki0131.github.io/posts-output/2017-08-03-haskell-points/
+</guid>
+<link>
+https://yuwki0131.github.io/posts-output/2017-08-03-haskell-points/
+</link>
+<title>
+Haskellの躓きポイントまとめのまとめ
+</title>
+<description>
+&lt;p&gt;Haskellの躓きポイント。上が、Tatsuki氏によるもの。下が、るじゃ氏によるもの。&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;a href='http://qiita.com/Tatsuki-I/items/01d7f4ce9c0a2fff94a2'&gt;Haskellで躓いた(躓いてる)ポイントまとめ #Haskell - Qiita&lt;/a&gt;&lt;/p&gt;&lt;p&gt;&lt;a href='http://lugendre.hatenablog.com/entry/2017/08/02/200542'&gt;Haskellでつまずいた所まとめ - 中級プログラマを目指す&lt;/a&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;躓きポイントがわかると、勉強対象が明確になって良いですね。&lt;/p&gt;&lt;p&gt;※ちなみにこの投稿は、Cryogen向けのEmacsの設定のテストを兼ねています。&lt;/p&gt;
+</description>
+<pubDate>
+Thu, 03 Aug 2017 00:00:00 +0900
+</pubDate>
+</item>
 <item>
 <guid>
 https://yuwki0131.github.io/posts-output/2017-08-02-cryogen-workflow/
