@@ -38,7 +38,7 @@ body {
 }
 
 .navbar-default .navbar-brand:hover {
-    color: #000;
+    color: #ff6600;
 }
 
 .navbar-default .navbar-nav li a {
@@ -46,16 +46,17 @@ body {
 }
 
 .navbar-default .navbar-nav li a:hover {
-    color: #000;
+    color: #ffffff;
     background-color: #0997b6;
 }
 
 .navbar-default .navbar-nav .active a {
-    color: #000;
+    color: #ffffff;
     background-color: #0997b6;
 }
 
 .navbar-default .navbar-toggle:hover{
+    color: #ffffff;
     background-color: #0997b6;
 }
 
