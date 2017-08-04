@@ -33,12 +33,15 @@ body {
 }
 
 .navbar-default .navbar-brand {
+    font-size: 20px;
     color: #0997b6;
     font-family: 'Fira Sans', 'Mplus 1p', Helvetica, Arial, sans-serif;
 }
 
 .navbar-default .navbar-brand:hover {
+    font-size: 20px;
     color: #ff6600;
+    font-family: 'Fira Sans', 'Mplus 1p', Helvetica, Arial, sans-serif;
 }
 
 .navbar-default .navbar-nav li a {
@@ -142,7 +145,7 @@ pre, code, .hljs {
         padding: 30px 20px;
     }
     .navbar-default .navbar-brand {
-        font-size: 36px;
+        font-size: 20px;
         padding: 25px 15px;
     }
     #content{
@@ -156,7 +159,7 @@ pre, code, .hljs {
         font-size: 14px;
     }
     .navbar-default .navbar-brand {
-        font-size: 30px;
+        font-size: 20px;
     }
     #content{
         padding: 15px;
