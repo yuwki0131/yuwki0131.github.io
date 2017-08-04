@@ -65,6 +65,7 @@
   </div>
   <h2><img src="/img/frame/bird.png" width="32" />&emsp;Cryogen/Github-Pagesでブログを書く</h2>
 </div>
+<hr/>
 <div>
   <ol class="content"><li><a href="#cryogenでブログ作成〜github-pagesで公開まで">Cryogenでブログ作成〜Github-Pagesで公開まで</a></li><li><a href="#今後の記事を書く流れ">今後の記事を書く流れ</a></li><li><a href="#感想など">感想など</a></li></ol>
   <p>とりあえず、一通り、Cryogen/Github-Pagesで静的なWebページの公開までたどり着いたので、その紹介などをざっくりと書きます。</p><h3 id="cryogenでブログ作成〜github-pagesで公開まで">Cryogenでブログ作成〜Github-Pagesで公開まで</h3><p>主にやったこととしては、</p><ol><li>Cryogenのプロジェクトをリモートリポジトリ(BitBucket<a href='#fn-1' id='fnref1'><sup>1</sup></a>)にまるごと登録</li><li>諸々の設定ファイルを修正</li><li>とりあえず、最初の記事を書く</li><li>ローカル環境で表示確認のテスト</li><li>username.github.ioのリポジトリを作成</li><li>Cryogenで作成生成されたpublicファイルをgithub.ioのリポジトリに登録<ul><li>とりあえず静的Webサイト(ブログ一式)が公開される</li></ul></li><li>ビーコン設置</li></ol><p>といった流れで作成しました。</p><p>Cryogenでのブログ作成については、公式の<a href='https://github.com/cryogen-project/cryogen/blob/master/README.md'>README.md</a> を見ながら作ったという感じです。</p><p>ドキュメント(<a href='http://cryogenweb.org'>cryogenweb.org</a>)も整備されていたりします。</p><p>設定ファイルですが、主に以下のファイルに必要な情報を書き込んでいきます。</p><pre><code>プロジェクトルート/resources/templates/config.edn
@@ -86,6 +87,7 @@
   <a href="/tags-output/blog/">blog</a>
   
 </div>
+<hr/>
 
 
     <div id="prev-next">

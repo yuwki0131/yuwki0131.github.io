@@ -65,6 +65,7 @@
   </div>
   <h2><img src="/img/frame/bird.png" width="32" />&emsp;CryogenでブログのQuick Startをしてみた</h2>
 </div>
+<hr/>
 <div>
   <ol class="content"><li><a href="#ブログを書く時の物理的/心理的ハードル">ブログを書く時の物理的/心理的ハードル</a></li><li><a href="#cryogenでマイクロ技術ブログ的な何かを行う試み。">Cryogenでマイクロ技術ブログ的な何かを行う試み。</a></li></ol>
   <h3 id="ブログを書く時の物理的/心理的ハードル">ブログを書く時の物理的/心理的ハードル</h3><p>長らくGoogle Bloggerを使ってプログラミング関連をネタとしたブログを書いてきました。</p><p>Google Bloggerも良かったのですが、自前のサーバーでもブログ書きたいなとか、記事がmarkdownで書けないとか、 そもそもEmacsで書けないとか不満が色々出てきました。</p><p>そして何より、気づいたら、ブログを書くハードルが高くなってました。</p><p>色々思う所があり、1記事書くのにかかるコスト感が半端ない感じで上がりました。</p><p>以下、色々思う所です。</p><ul><li>HelloWorld的な基礎的な内容や簡単な備忘録程度ならわざわざブログに書く必要性が感じられない。</li><li>日本語で他の記事を参照すれば分かるような内容は書きたくない(書く意味がない)。</li><li>リファレンスは? エビデンスは?</li><li>(他人がどう思うかはとりあえず置いとくとして、そもそも)自分が面白いと思える内容なのか?</li></ul><p>しかし以上の思い込みは、アウトプットする行為と比較すると非常に下らない考えです。</p><p>この心理的ハードルをEmacsとMarkdwonとClojureの力で下げたい!</p><h3 id="cryogenでマイクロ技術ブログ的な何かを行う試み。">Cryogenでマイクロ技術ブログ的な何かを行う試み。</h3><p>というわけで、Google Bloggerより手軽に記事を書ける環境を探していた所、 Cryogen使えばいいじゃんという結論に落ち着きました。。。</p><p>Cryogenは、Clojureで作られた静的サイトジェネレータです。ClojureのWebサーバringと一緒に使うことで、ブログサイトを簡単に構築できます。 以下の公式ページを見た方が早いですが、非常に簡単にblogが立ち上がります。</p><p><div style="text-align: center;"><a href='https://github.com/cryogen-project/cryogen'>Cryogen</a></div></p><p>基本的にサーバでCryogenのプロジェクトを走らせといて、適当なディレクトリ (プロジェクト・ルート/resources/templates/md/posts/配下)に Markdown(or AsciiDocも使えます)を突っ込んどけば、サーバ側でいい感じに静的なブログを作ってくれるという仕組みです。 RSSフィードなども自動生成してくれるようで有りがたいです。</p><p>また、金銭的な都合で、Github Pagesを使うことにしました。</p>
@@ -78,6 +79,7 @@
   <a href="/tags-output/blog/">blog</a>
   
 </div>
+<hr/>
 
 
     <div id="prev-next">
