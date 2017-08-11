@@ -2,8 +2,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
   <head>
     <meta charset="utf-8"/>
-    <title>何で走っているのだろう: キーワード</title>
-    <link rel="canonical" href="https://yuwki0131.github.io/tags/">
+    <title>何で走っているのだろう: Scalaで、再代入時にOptionを使おうとしたらtype-mismatch</title>
+    <link rel="canonical" href="https://yuwki0131.github.io/posts-output/2017-08-11-scala-type-mismatch-option/">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href='http://fonts.googleapis.com/css?family=Alegreya:400italic,700italic,400,700' rel='stylesheet'
           type='text/css'>
@@ -59,26 +59,65 @@
         <div class="col-lg-9">
           <div id="content">
             
-<div id="tags-page">
-    <div id="page-header">
-        <h2>Tags</h2>
+<div id="post">
+    <div class="post-header">
+  <div id="post-meta" class="row">
+    <div class="col-lg-6">2017/08/11</div>
+    
+  </div>
+  <h2><img src="/img/frame/bird.png" width="32" />&emsp;Scalaで、再代入時にOptionを使おうとしたらtype-mismatch</h2>
+</div>
+<hr/>
+<div>
+  
+  <p>Scalaに入門して少し経ちましたが、コードを書いていると早速、型推論でのエラーが発生して少し悩みました。 Option型で再代入可能な変数(varで宣言した変数)に再代入しようとした箇所に、エラーが発生。</p><p>ざっくりと書くと、以下のような感じでエラーが発生しました。。。</p><pre><code>scala&gt; var x = None
+var x = None
+x: None.type = None
+
+scala&gt; x = Some&#40;10&#41;
+x = Some&#40;10&#41;
+&lt;console&gt;:8: error: type mismatch;
+ found   : Some&#91;Int&#93;
+ required: None.type
+       x = Some&#40;10&#41;
+               &#94;
+</code></pre><p>実際のコードは上記と異なり、replで実行したコードではなく、 メソッド内でvarの変数を定義し、そこに再代入を行う以下のような処理ですが、意味的には上記と同じような状況です。</p><pre><code>var x = None
+
+// 様々な処理
+
+x = Some&#40;10&#41;
+</code></pre><p>先に変数xにNoneを代入しておいて、あとから、Some(〜)を再代入しようとした処理を書くという流れです。</p><p>Noneを初期値として入れておいた変数xに後からSome(〜)を代入する処理を書こうとすれば、当然、コンパイラの側でOption型を 推論してくれるものと思っていたのですが、甘かった。</p><p>replだとなんとなく分かりますが、初期値を代入した時点では、var xの型はNone.typeとなってしまい、Option型ではありません。 問題は、コンパイラが後から変数xはNone.typeではなく、Option[Int]型であるといった推論をしてくれないことにあります。</p><p>先にNoneを代入した後に、Someを代入する場合は、変数がOption型であることを先に明示しておく必要があります。 型注釈を以下のようにつけると、変数がOption型であることを認識して、Option型の再代入が可能になります。</p><pre><code>scala&gt; var x = None:Option&#91;Int&#93;
+var x = None:Option&#91;Int&#93;
+x: Option&#91;Int&#93; = None
+
+scala&gt; x = Some&#40;10&#41;
+x = Some&#40;10&#41;
+x: Option&#91;Int&#93; = Some&#40;10&#41;
+</code></pre><p>そもそもなんでこんな言語仕様なのか、なぜ、このような挙動をするのか、詳しく調べた訳ではないですが、 以下にそれらしい内容が載っていました。</p><p><a href='https://togetter.com/li/219702'>Scalaの型推論について - Togetterまとめ</a></p><ul><li>Scalaの型推論では、基本的に前方から順に型推論し、後方で想定外の型であると型エラーが発生する仕組みになっている。</li><li>強力な型推論を行った場合、型エラーが分かりづらくなるため、上記のような弱い推論方法を採用しているのかも知れない。</li></ul><p>とのこと。</p><p>時代的にみてもScalaは、SystemFが登場した後に設計された(2001年ごろ〜)言語で、 すでにHaskellやOCamlなど強力な型推論システムを持つ実用的な言語が既に登場しています。 にも関わらず、このような設計にっているのは、型エラーの複雑さ(わかりづらさ)を回避したい狙いがあった、ということのようです。</p><p>前方から型推論していくと考えると、型エラーの分かりづらさはかなり軽減されそうです。 上記のエラーは、その辺りのトレードオフを考えてた上での、型エラーとという事のなのでしょう。</p>
+</div>
+
+<div id="post-tags">
+  <b><img src="/img/frame/tag.png" width="16"/>&nbsp;</b>
+  
+  <a href="/tags-output/型推論/">型推論</a>
+  
+  <a href="/tags-output/デバッグ/">デバッグ</a>
+  
+  <a href="/tags-output/Scala/">Scala</a>
+  
+</div>
+<hr/>
+
+
+    <div id="prev-next">
+        
+        
+        <a class="right" href="/posts-output/2017-08-05-rename-title/">ブログのタイトル変えました &raquo;</a>
+        
     </div>
 
-    <ul>
-        
-        <li><a href="/tags-output/型推論/">型推論</a></li>
-        
-        <li><a href="/tags-output/デバッグ/">デバッグ</a></li>
-        
-        <li><a href="/tags-output/Scala/">Scala</a></li>
-        
-        <li><a href="/tags-output/blog/">blog</a></li>
-        
-        <li><a href="/tags-output/Haskell/">Haskell</a></li>
-        
-        <li><a href="/tags-output/Cryogen/">Cryogen</a></li>
-        
-    </ul>
+    
+
 </div>
 
           </div>
@@ -153,7 +192,11 @@
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
     <script src="/js/highlight.pack.js" type="text/javascript"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    
+     <link rel="stylesheet" type="text/css" href=nil>
+<script>
+window.klipse_settings = null;
+</script>
+<script src=nil></script> 
     
   </body>
 </html>

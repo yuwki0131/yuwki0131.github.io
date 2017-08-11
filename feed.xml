@@ -12,11 +12,51 @@ https://yuwki0131.github.io/
 This blog is a cartesian closed category
 </description>
 <lastBuildDate>
-Sun, 06 Aug 2017 03:44:00 +0900
+Fri, 11 Aug 2017 14:27:59 +0900
 </lastBuildDate>
 <generator>
 clj-rss
 </generator>
+<item>
+<guid>
+https://yuwki0131.github.io/posts-output/2017-08-11-scala-type-mismatch-option/
+</guid>
+<link>
+https://yuwki0131.github.io/posts-output/2017-08-11-scala-type-mismatch-option/
+</link>
+<title>
+Scalaで、再代入時にOptionを使おうとしたらtype-mismatch
+</title>
+<description>
+&lt;p&gt;Scalaに入門して少し経ちましたが、コードを書いていると早速、型推論でのエラーが発生して少し悩みました。 Option型で再代入可能な変数(varで宣言した変数)に再代入しようとした箇所に、エラーが発生。&lt;/p&gt;&lt;p&gt;ざっくりと書くと、以下のような感じでエラーが発生しました。。。&lt;/p&gt;&lt;pre&gt;&lt;code&gt;scala&amp;gt; var x = None
+var x = None
+x: None.type = None
+
+scala&amp;gt; x = Some&amp;#40;10&amp;#41;
+x = Some&amp;#40;10&amp;#41;
+&amp;lt;console&amp;gt;:8: error: type mismatch;
+ found   : Some&amp;#91;Int&amp;#93;
+ required: None.type
+       x = Some&amp;#40;10&amp;#41;
+               &amp;#94;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;実際のコードは上記と異なり、replで実行したコードではなく、 メソッド内でvarの変数を定義し、そこに再代入を行う以下のような処理ですが、意味的には上記と同じような状況です。&lt;/p&gt;&lt;pre&gt;&lt;code&gt;var x = None
+
+// 様々な処理
+
+x = Some&amp;#40;10&amp;#41;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;先に変数xにNoneを代入しておいて、あとから、Some(〜)を再代入しようとした処理を書くという流れです。&lt;/p&gt;&lt;p&gt;Noneを初期値として入れておいた変数xに後からSome(〜)を代入する処理を書こうとすれば、当然、コンパイラの側でOption型を 推論してくれるものと思っていたのですが、甘かった。&lt;/p&gt;&lt;p&gt;replだとなんとなく分かりますが、初期値を代入した時点では、var xの型はNone.typeとなってしまい、Option型ではありません。 問題は、コンパイラが後から変数xはNone.typeではなく、Option[Int]型であるといった推論をしてくれないことにあります。&lt;/p&gt;&lt;p&gt;先にNoneを代入した後に、Someを代入する場合は、変数がOption型であることを先に明示しておく必要があります。 型注釈を以下のようにつけると、変数がOption型であることを認識して、Option型の再代入が可能になります。&lt;/p&gt;&lt;pre&gt;&lt;code&gt;scala&amp;gt; var x = None:Option&amp;#91;Int&amp;#93;
+var x = None:Option&amp;#91;Int&amp;#93;
+x: Option&amp;#91;Int&amp;#93; = None
+
+scala&amp;gt; x = Some&amp;#40;10&amp;#41;
+x = Some&amp;#40;10&amp;#41;
+x: Option&amp;#91;Int&amp;#93; = Some&amp;#40;10&amp;#41;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;そもそもなんでこんな言語仕様なのか、なぜ、このような挙動をするのか、詳しく調べた訳ではないですが、 以下にそれらしい内容が載っていました。&lt;/p&gt;&lt;p&gt;&lt;a href='https://togetter.com/li/219702'&gt;Scalaの型推論について - Togetterまとめ&lt;/a&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Scalaの型推論では、基本的に前方から順に型推論し、後方で想定外の型であると型エラーが発生する仕組みになっている。&lt;/li&gt;&lt;li&gt;強力な型推論を行った場合、型エラーが分かりづらくなるため、上記のような弱い推論方法を採用しているのかも知れない。&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;とのこと。&lt;/p&gt;&lt;p&gt;時代的にみてもScalaは、SystemFが登場した後に設計された(2001年ごろ〜)言語で、 すでにHaskellやOCamlなど強力な型推論システムを持つ実用的な言語が既に登場しています。 にも関わらず、このような設計にっているのは、型エラーの複雑さ(わかりづらさ)を回避したい狙いがあった、ということのようです。&lt;/p&gt;&lt;p&gt;前方から型推論していくと考えると、型エラーの分かりづらさはかなり軽減されそうです。 上記のエラーは、その辺りのトレードオフを考えてた上での、型エラーとという事のなのでしょう。&lt;/p&gt;
+</description>
+<pubDate>
+Fri, 11 Aug 2017 00:00:00 +0900
+</pubDate>
+</item>
 <item>
 <guid>
 https://yuwki0131.github.io/posts-output/2017-08-05-rename-title/

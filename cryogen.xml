@@ -12,52 +12,10 @@ https://yuwki0131.github.io/
 This blog is a cartesian closed category
 </description>
 <lastBuildDate>
-Sun, 06 Aug 2017 03:44:00 +0900
+Fri, 11 Aug 2017 14:27:59 +0900
 </lastBuildDate>
 <generator>
 clj-rss
 </generator>
-<item>
-<guid>
-https://yuwki0131.github.io/posts-output/2017-08-02-cryogen-workflow/
-</guid>
-<link>
-https://yuwki0131.github.io/posts-output/2017-08-02-cryogen-workflow/
-</link>
-<title>
-Cryogen/Github-Pagesでブログを書く
-</title>
-<description>
-&lt;p&gt;とりあえず、一通り、Cryogen/Github-Pagesで静的なWebページの公開までたどり着いたので、その紹介などをざっくりと書きます。&lt;/p&gt;&lt;h3 id=&quot;cryogenでブログ作成〜github-pagesで公開まで&quot;&gt;Cryogenでブログ作成〜Github-Pagesで公開まで&lt;/h3&gt;&lt;p&gt;主にやったこととしては、&lt;/p&gt;&lt;ol&gt;&lt;li&gt;Cryogenのプロジェクトをリモートリポジトリ(BitBucket&lt;a href='#fn-1' id='fnref1'&gt;&lt;sup&gt;1&lt;/sup&gt;&lt;/a&gt;)にまるごと登録&lt;/li&gt;&lt;li&gt;諸々の設定ファイルを修正&lt;/li&gt;&lt;li&gt;とりあえず、最初の記事を書く&lt;/li&gt;&lt;li&gt;ローカル環境で表示確認のテスト&lt;/li&gt;&lt;li&gt;username.github.ioのリポジトリを作成&lt;/li&gt;&lt;li&gt;Cryogenで作成生成されたpublicファイルをgithub.ioのリポジトリに登録&lt;ul&gt;&lt;li&gt;とりあえず静的Webサイト(ブログ一式)が公開される&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;li&gt;ビーコン設置&lt;/li&gt;&lt;/ol&gt;&lt;p&gt;といった流れで作成しました。&lt;/p&gt;&lt;p&gt;Cryogenでのブログ作成については、公式の&lt;a href='https://github.com/cryogen-project/cryogen/blob/master/README.md'&gt;README.md&lt;/a&gt; を見ながら作ったという感じです。&lt;/p&gt;&lt;p&gt;ドキュメント(&lt;a href='http://cryogenweb.org'&gt;cryogenweb.org&lt;/a&gt;)も整備されていたりします。&lt;/p&gt;&lt;p&gt;設定ファイルですが、主に以下のファイルに必要な情報を書き込んでいきます。&lt;/p&gt;&lt;pre&gt;&lt;code&gt;プロジェクトルート/resources/templates/config.edn
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;テーマは、今後変更する予定ですが、とりあえずデフォルトのテーマを使うことにしてます。&lt;/p&gt;&lt;pre&gt;&lt;code&gt;プロジェクトルート/resources/templates/themes/blue
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;デフォルトのテーマは上記にあるので、その辺りを自分好みに修正しました。 今後は、もっと修正をかけまくる or 別テーマにする予定です。今のテーマ、 残念ながら私好みでないので。。。&lt;/p&gt;&lt;p&gt;ブログ記事の生成は通常のleiningenを走らせるのと同様、&lt;/p&gt;&lt;pre&gt;&lt;code&gt;lein run
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;で生成できます。ローカルで生成結果を確認したい場合は、&lt;/p&gt;&lt;pre&gt;&lt;code&gt;lein ring server
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;などとするとページが表示され確認可能です。&lt;/p&gt;&lt;p&gt;この時、サーバを立ち上げっぱなしにしておくと、記事を修正とブラウザの更新を繰り返すことで 記事を書きながらその内容を即座に確認するといったことが可能になります。&lt;/p&gt;&lt;p&gt;記事は日付とタイトルを付けて以下に格納します。&lt;/p&gt;&lt;pre&gt;&lt;code&gt;プロジェクトルート/resources/templates/md/posts/YYYY-MM-dd-post-title.md
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Cryogenでは、resource/template配下のファイルを読み取り、resource/public配下に公開可能な静的Webコンテンツ一式を出力します。&lt;/p&gt;&lt;pre&gt;&lt;code&gt;プロジェクトルート/resources/templates
-&lt;/code&gt;&lt;/pre&gt;&lt;pre&gt;&lt;code&gt;プロジェクトルート/resources/public
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Github PagesのリポジトリにCryogenで生成したpublic下ファイルを登録することで、ブログとして公開できます。&lt;/p&gt;&lt;p&gt;後は、アクセス情報なんかも欲しいので、以下の記事を見ながら、ga-beaconを使って見ました。&lt;/p&gt;&lt;p&gt;&lt;a href='http://qiita.com/kabayan55/items/f15c822939b2ab7dba35'&gt;GitHub Pagesでga-beaconを使ってリアルタイムアクセス解析 - Quiita&lt;/a&gt;&lt;/p&gt;&lt;p&gt;以下の記事を見た感じだと、Cryogenでページ生成した場合、Google Analiticsを使う場合は、 やっぱり、base.html&lt;a href='#fn-2' id='fnref2'&gt;&lt;sup&gt;2&lt;/sup&gt;&lt;/a&gt;下にタグを埋め込む(人が多い)のかなぁ、といった感じです。&lt;/p&gt;&lt;p&gt;&lt;a href='https://github.com/cryogen-project/cryogen/issues/88'&gt;feature request - google analytics support (solved if i add docs :-)) #88&lt;/a&gt;&lt;/p&gt;&lt;pre&gt;&lt;code&gt;プロジェクトルート/resources/templates/themes/blue/html/base.html
-&lt;/code&gt;&lt;/pre&gt;&lt;h3 id=&quot;今後の記事を書く流れ&quot;&gt;今後の記事を書く流れ&lt;/h3&gt;&lt;p&gt;今後の記事公開までの主な流れとしては、&lt;/p&gt;&lt;ol&gt;&lt;li&gt;ローカルでブログ記事を書く&lt;/li&gt;&lt;li&gt;ページ生成とローカルで記事の表示テスト&lt;/li&gt;&lt;li&gt;リモートリポジトリにまるごと差分をコミット&lt;/li&gt;&lt;li&gt;生成されたページをGithub-Pagesにコミット/プッシュで、公開&lt;/li&gt;&lt;/ol&gt;&lt;p&gt;かな、と思ってます。&lt;/p&gt;&lt;p&gt;あとは、ブログのデザインについても適宜修正していく予定です。 特に最近は、&lt;a href='https://www.flaticon.com/'&gt;flaticon.com&lt;/a&gt; がお気に入りなので、 ぜひ使わせていただければと考えています。&lt;/p&gt;&lt;h3 id=&quot;感想など&quot;&gt;感想など&lt;/h3&gt;&lt;p&gt;色々、設定は面倒ですが、Emacsで記事が書けるようになった点が幸せですね。 また、手元でファイル管理できるという点も既存のブログサイトの利用より、メリットがあるのではと思っています。 versionコントロールもしやすいので。 &lt;ol class='footnotes'&gt;&lt;li id='fn-1'&gt;別にGithubに登録してもよかったのですが、無駄にリポジトリは公開したくない主義なので。。。&lt;a href='#fnref1'&gt;&amp;#8617;&lt;/a&gt;&lt;/li&gt;&lt;li id='fn-2'&gt;base.htmlは、テーマ直下にあるテンプレートのベースとなるhtmlです。&lt;a href='#fnref2'&gt;&amp;#8617;&lt;/a&gt;&lt;/li&gt;&lt;/ol&gt;&lt;/p&gt;
-</description>
-<pubDate>
-Wed, 02 Aug 2017 00:00:00 +0900
-</pubDate>
-</item>
-<item>
-<guid>
-https://yuwki0131.github.io/posts-output/2017-08-01-quickstart/
-</guid>
-<link>
-https://yuwki0131.github.io/posts-output/2017-08-01-quickstart/
-</link>
-<title>
-CryogenでブログのQuick Startをしてみた
-</title>
-<description>
-&lt;h3 id=&quot;ブログを書く時の物理的/心理的ハードル&quot;&gt;ブログを書く時の物理的/心理的ハードル&lt;/h3&gt;&lt;p&gt;長らくGoogle Bloggerを使ってプログラミング関連をネタとしたブログを書いてきました。&lt;/p&gt;&lt;p&gt;Google Bloggerも良かったのですが、自前のサーバーでもブログ書きたいなとか、記事がmarkdownで書けないとか、 そもそもEmacsで書けないとか不満が色々出てきました。&lt;/p&gt;&lt;p&gt;そして何より、気づいたら、ブログを書くハードルが高くなってました。&lt;/p&gt;&lt;p&gt;色々思う所があり、1記事書くのにかかるコスト感が半端ない感じで上がりました。&lt;/p&gt;&lt;p&gt;以下、色々思う所です。&lt;/p&gt;&lt;ul&gt;&lt;li&gt;HelloWorld的な基礎的な内容や簡単な備忘録程度ならわざわざブログに書く必要性が感じられない。&lt;/li&gt;&lt;li&gt;日本語で他の記事を参照すれば分かるような内容は書きたくない(書く意味がない)。&lt;/li&gt;&lt;li&gt;リファレンスは? エビデンスは?&lt;/li&gt;&lt;li&gt;(他人がどう思うかはとりあえず置いとくとして、そもそも)自分が面白いと思える内容なのか?&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;しかし以上の思い込みは、アウトプットする行為と比較すると非常に下らない考えです。&lt;/p&gt;&lt;p&gt;この心理的ハードルをEmacsとMarkdwonとClojureの力で下げたい!&lt;/p&gt;&lt;h3 id=&quot;cryogenでマイクロ技術ブログ的な何かを行う試み。&quot;&gt;Cryogenでマイクロ技術ブログ的な何かを行う試み。&lt;/h3&gt;&lt;p&gt;というわけで、Google Bloggerより手軽に記事を書ける環境を探していた所、 Cryogen使えばいいじゃんという結論に落ち着きました。。。&lt;/p&gt;&lt;p&gt;Cryogenは、Clojureで作られた静的サイトジェネレータです。ClojureのWebサーバringと一緒に使うことで、ブログサイトを簡単に構築できます。 以下の公式ページを見た方が早いですが、非常に簡単にblogが立ち上がります。&lt;/p&gt;&lt;p&gt;&lt;div style=&quot;text-align: center;&quot;&gt;&lt;a href='https://github.com/cryogen-project/cryogen'&gt;Cryogen&lt;/a&gt;&lt;/div&gt;&lt;/p&gt;&lt;p&gt;基本的にサーバでCryogenのプロジェクトを走らせといて、適当なディレクトリ (プロジェクト・ルート/resources/templates/md/posts/配下)に Markdown(or AsciiDocも使えます)を突っ込んどけば、サーバ側でいい感じに静的なブログを作ってくれるという仕組みです。 RSSフィードなども自動生成してくれるようで有りがたいです。&lt;/p&gt;&lt;p&gt;また、金銭的な都合で、Github Pagesを使うことにしました。&lt;/p&gt;
-</description>
-<pubDate>
-Tue, 01 Aug 2017 00:00:00 +0900
-</pubDate>
-</item>
 </channel>
 </rss>
