@@ -12,11 +12,33 @@ https://yuwki0131.github.io/
 This blog is a cartesian closed category
 </description>
 <lastBuildDate>
-Fri, 11 Aug 2017 14:27:59 +0900
+Sat, 26 Aug 2017 13:28:44 +0900
 </lastBuildDate>
 <generator>
 clj-rss
 </generator>
+<item>
+<guid>
+https://yuwki0131.github.io/posts-output/2017-08-26-make-a-lisp-minimum/
+</guid>
+<link>
+https://yuwki0131.github.io/posts-output/2017-08-26-make-a-lisp-minimum/
+</link>
+<title>
+最低限のLispを作るためのマイルストーン
+</title>
+<description>
+&lt;p&gt;最低限のLispを作るためのメモです。&lt;/p&gt;&lt;h1 id=&quot;言語のアウトラインをパクる(r7rs)&quot;&gt;言語のアウトラインをパクる(R7RS)&lt;/h1&gt;&lt;p&gt;言語のアウトライン(特にSyntax)は一度見ておいた方がいい。 最低限のLispという点でCommon LispよりはScheme寄りになると思う。 独自のLispを作るのでR7RSの実装からは外れていくだろうが、実際の仕様書がどのように書かれているのかは一応参考にはなる。&lt;/p&gt;&lt;h1 id=&quot;lexer/parserを書く&quot;&gt;lexer/parserを書く&lt;/h1&gt;&lt;p&gt;最近はparser comibnatorがあるし、Lispは括弧で囲まれたリストとシンボルだけという基本的なシンタックスなので、 lexerとparserはまとめて実装できるはず。最初は代数的データ型やcase class(または普通のクラス?)も最低限の記法で間に合うかと。 動的型付け言語なら、もっとシンプルに普通にリストと(シンボルを表す)文字列というデータ型でいけてしまうかも。 後で、必要に応じて拡張していけばいい。&lt;/p&gt;&lt;h1 id=&quot;eval関数と環境を実装&amp;#95;(とりあえず、(+&amp;#95;1&amp;#95;2)が評価出来る所まで実装)&quot;&gt;eval関数と環境を実装 (とりあえず、(+ 1 2)が評価出来る所まで実装)&lt;/h1&gt;&lt;p&gt;eval関数を実装して、Lispの最も初歩的な文法である&lt;code&gt;&amp;#40;+ 1 2&amp;#41;&lt;/code&gt;が実行可能な所まで持っていく。 ちなみにLispでは、&lt;code&gt;+&lt;/code&gt;は演算子ではなく、関数。 ここまで行くと、モチベーションが格段に上がるので、&lt;code&gt;&amp;#40;+ 1 2&amp;#41;&lt;/code&gt;で結果が返ってくるような形まで作っておきたい。&lt;/p&gt;&lt;p&gt;必要になってくるのは、&lt;code&gt;&amp;#40;+ 1 2&amp;#41;&lt;/code&gt;を評価するための関数(evalと呼ばれるやつ)と、環境(変数名と値のペアのリスト)、 プリミティブ関数&lt;code&gt;+&lt;/code&gt;、number型(int型?)の実装。また、この時の&lt;code&gt;&amp;#40;+ 1 2&amp;#41;&lt;/code&gt;は、ネストさせて&lt;code&gt;&amp;#40;+ 1 &amp;#40;+ 2 3&amp;#41;&amp;#41;&lt;/code&gt;と書いても動くように しておくことが求められる。eval関数は再帰的に実装すること。 環境に関しては、環境から値を検索し取り出すための関数も必要となる。&lt;/p&gt;&lt;h1 id=&quot;プリミティブ(定数と関数)を実装&quot;&gt;プリミティブ(定数と関数)を実装&lt;/h1&gt;&lt;p&gt;&lt;code&gt;&amp;#40;+ 1 2&amp;#41;&lt;/code&gt;を評価できるeval関数が実装できたら、後はそれを引き伸ばしていくだけ。&lt;/p&gt;&lt;p&gt;booleanとnumberを操作する一連の関数を実装する。 booleanとnumberで計算が出来るレベルとなると、電卓っぽくなる。&lt;/p&gt;&lt;h1 id=&quot;ifを実装&quot;&gt;ifを実装&lt;/h1&gt;&lt;p&gt;最初の制御構文的な機能、&lt;code&gt;if&lt;/code&gt;を実装する。が、これは実際すごく簡単。&lt;/p&gt;&lt;pre&gt;&lt;code&gt;&amp;#40;if condition then-clause else-close&amp;#41;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;に対して、&lt;code&gt;condition&lt;/code&gt;を評価して、その結果のtrue/falseに合わせて、 &lt;code&gt;then-clause&lt;/code&gt;もしくは&lt;code&gt;else-clause&lt;/code&gt;のどちらかを評価し、その結果を返すだけ。&lt;/p&gt;&lt;h1 id=&quot;変数を実装(letを実装)&quot;&gt;変数を実装(letを実装)&lt;/h1&gt;&lt;p&gt;letは実際のところ、ラムダ抽象へ置換可能ので、最低限の機能を持ったLisp実装する上では、 態々実装する必要はない。しかし、letを先に実装しておくと、後のラムダ抽象の実装が楽になる。&lt;/p&gt;&lt;h1 id=&quot;ラムダ抽象と関数適用の追加実装&quot;&gt;ラムダ抽象と関数適用の追加実装&lt;/h1&gt;&lt;p&gt;ラムダ抽象&lt;a href='#fn-1' id='fnref1'&gt;&lt;sup&gt;1&lt;/sup&gt;&lt;/a&gt;は大体、以下のような式。&lt;/p&gt;&lt;pre&gt;&lt;code&gt;&amp;#40;lambda &amp;#40;x&amp;#41; ...&amp;#41;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;このラムダ抽象の実装は、eval関数に、ラムダ抽象が与えられた場合にクロージャを返す処理を追加し、 関数適用にクロージャが関数として与えられた場合の処理を追加する。&lt;/p&gt;&lt;h1 id=&quot;ひとまずゴール&amp;#95;-&amp;#95;足りない機能はラムダ計算で補う&quot;&gt;ひとまずゴール - 足りない機能はラムダ計算で補う&lt;/h1&gt;&lt;p&gt;ここまでくれば、ひとまず、プログラミング言語としては完成。&lt;/p&gt;&lt;p&gt;ループはYコンビネータによる再帰で実現させる。&lt;/p&gt;&lt;p&gt;ラムダ抽象(と関数適用)を実装したことで、Yコンビネータによる再帰が可能になる。 YコンビネータとはSchemeで書くと以下のような式。&lt;/p&gt;&lt;pre&gt;&lt;code&gt;&amp;#40;lambda &amp;#40;f&amp;#41; &amp;#40;&amp;#40;lambda &amp;#40;p&amp;#41; &amp;#40;f &amp;#40;lambda &amp;#40;a&amp;#41; &amp;#40;&amp;#40;p p&amp;#41; a&amp;#41;&amp;#41;&amp;#41;&amp;#41; &amp;#40;lambda &amp;#40;p&amp;#41; &amp;#40;f &amp;#40;lambda &amp;#40;a&amp;#41; &amp;#40;&amp;#40;p p&amp;#41; a&amp;#41;&amp;#41;&amp;#41;&amp;#41;&amp;#41;&amp;#41;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;このコンビネータに対して、例えば、以下の再帰的な関数fibを(引数として)与える。&lt;/p&gt;&lt;pre&gt;&lt;code&gt;&amp;#40;lambda &amp;#40;fib&amp;#41; &amp;#40;lambda &amp;#40;n&amp;#41; &amp;#40;if &amp;#40;= n 0&amp;#41; 0 &amp;#40;if &amp;#40;= n 1&amp;#41; 1 &amp;#40;+ &amp;#40;fib &amp;#40;- n 1&amp;#41;&amp;#41; &amp;#40;fib &amp;#40;- n 2&amp;#41;&amp;#41;&amp;#41;&amp;#41;&amp;#41;&amp;#41;&amp;#41;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;すると、以下の式のクロージャが生成される。この時のクロージャが持つ環境の変数fibには自分自身の以下の式が束縛されている。&lt;/p&gt;&lt;pre&gt;&lt;code&gt;&amp;#40;lambda &amp;#40;n&amp;#41; &amp;#40;if &amp;#40;= n 0&amp;#41; 0 &amp;#40;if &amp;#40;= n 1&amp;#41; 1 &amp;#40;+ &amp;#40;fib &amp;#40;- n 1&amp;#41;&amp;#41; &amp;#40;fib &amp;#40;- n 2&amp;#41;&amp;#41;&amp;#41;&amp;#41;&amp;#41;&amp;#41;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;このクロージャfibに&lt;code&gt;&amp;#40;fib 10&amp;#41;&lt;/code&gt;などの関数適用を行うことで再帰呼出しが実現する。&lt;/p&gt;&lt;p&gt;また、データ構造も実装してないように思えるかも知れないが、これまたラムダ計算でcons/car/cdrを表現する手法がある。 したがって、ラムダ抽象を実装した時点で、すでにリスト構造の実装も終わっていた。&lt;/p&gt;&lt;p&gt;というわけで、最低限の機能を持ったプログラミング言語が実装できたと結論付ける。&lt;/p&gt;&lt;h1 id=&quot;その他のtodo&quot;&gt;その他のTODO&lt;/h1&gt;&lt;p&gt;以上から、プログラミング言語を実装したも同然だが、当然、言語としては物足りない。&lt;/p&gt;&lt;p&gt;基本的には処理系の実装をサボった分だけ、作った言語(処理系)でプログラムを書くのが大変になる。 例えば、再帰呼出しを書くたびにYコンビネータを使うという辛みが残ってしまう。&lt;/p&gt;&lt;p&gt;というわけで、以下のようなTODOが残ることとなる。&lt;/p&gt;&lt;ol&gt;&lt;li&gt;部分適用&lt;/li&gt;&lt;li&gt;letrecでプリミティブな再帰を実装&lt;/li&gt;&lt;li&gt;グローバル環境に変数を束縛&lt;/li&gt;&lt;li&gt;その他、文字列の実装、組み込みデータ型の実装など (あとは自由に拡張してくだけ)&lt;/li&gt;&lt;li&gt;コンパイラの実装など... etc&lt;/li&gt;&lt;/ol&gt;&lt;h2&gt;まあこの辺は、のんびり実装すればいいと思うが。&lt;/h2&gt;&lt;h2&gt;&lt;/h2&gt;脚注&lt;ol class='footnotes'&gt;&lt;li id='fn-1'&gt;別名、ラムダ式とか無名関数と言ったりするが、ラムダ式という言い方は、後述するラムダ計算のラムダ式と紛らわしい。したがって、ラムダ抽象と書いておくこととする。&lt;a href='#fnref1'&gt;&amp;#8617;&lt;/a&gt;&lt;/li&gt;&lt;/ol&gt;
+</description>
+<pubDate>
+Sat, 26 Aug 2017 00:00:00 +0900
+</pubDate>
+</item>
 <item>
 <guid>
 https://yuwki0131.github.io/posts-output/2017-08-11-scala-type-mismatch-option/
