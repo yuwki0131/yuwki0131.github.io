@@ -12,7 +12,7 @@ https://yuwki0131.github.io/
 This blog is a cartesian closed category
 </description>
 <lastBuildDate>
-Sat, 14 Apr 2018 19:49:18 +0900
+Sat, 14 Apr 2018 20:31:35 +0900
 </lastBuildDate>
 <generator>
 clj-rss
@@ -431,23 +431,6 @@ https://yuwki0131.github.io/posts-output/2017-08-05-rename-title/
 </description>
 <pubDate>
 Sat, 05 Aug 2017 00:00:00 +0900
-</pubDate>
-</item>
-<item>
-<guid>
-https://yuwki0131.github.io/posts-output/2017-08-03-haskell-points/
-</guid>
-<link>
-https://yuwki0131.github.io/posts-output/2017-08-03-haskell-points/
-</link>
-<title>
-Haskellの躓きポイントまとめのまとめ
-</title>
-<description>
-&lt;p&gt;Haskellの躓きポイント。上が、Tatsuki氏によるもの。下が、るじゃ氏によるもの。&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;a href='http://qiita.com/Tatsuki-I/items/01d7f4ce9c0a2fff94a2'&gt;Haskellで躓いた(躓いてる)ポイントまとめ #Haskell - Qiita&lt;/a&gt;&lt;/p&gt;&lt;p&gt;&lt;a href='http://lugendre.hatenablog.com/entry/2017/08/02/200542'&gt;Haskellでつまずいた所まとめ - 中級プログラマを目指す&lt;/a&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;躓きポイントがわかると、勉強対象が明確になって良いですね。&lt;/p&gt;&lt;p&gt;※ちなみにこの投稿は、Cryogen向けのEmacsの設定のテストを兼ねています。&lt;/p&gt;
-</description>
-<pubDate>
-Thu, 03 Aug 2017 00:00:00 +0900
 </pubDate>
 </item>
 <item>
