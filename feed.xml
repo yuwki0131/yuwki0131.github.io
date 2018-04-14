@@ -12,11 +12,348 @@ https://yuwki0131.github.io/
 This blog is a cartesian closed category
 </description>
 <lastBuildDate>
-Sat, 26 Aug 2017 13:33:56 +0900
+Sat, 14 Apr 2018 19:00:22 +0900
 </lastBuildDate>
 <generator>
 clj-rss
 </generator>
+<item>
+<guid>
+https://yuwki0131.github.io/posts-output/2018-04-14-scala-functions-memo/
+</guid>
+<link>
+https://yuwki0131.github.io/posts-output/2018-04-14-scala-functions-memo/
+</link>
+<title>
+Scalaでの関数のしくみと使い方
+</title>
+<description>
+&lt;p&gt;Scalaについて勉強した時のメモ(その1)です。関数の扱い方について。&lt;/p&gt;&lt;p&gt;※ 元々はmarkdownで書いていたテキストの転載。&lt;/p&gt;&lt;h2 id=&quot;再帰(recursion)&quot;&gt;再帰(Recursion)&lt;/h2&gt;&lt;ul&gt;&lt;li&gt;再帰とは自分自身を自分自身の中に持つような構造。&lt;ul&gt;&lt;li&gt;&lt;a href='https://ja.wikipedia.org/wiki/%E5%86%8D%E5%B8%B0'&gt;再帰 - Wikipedia&lt;/a&gt;&lt;/li&gt;&lt;li&gt;関数型プログラミングでは、再帰的なデータ型と(関数の)再帰呼出しがよく使われる。&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;/ul&gt;&lt;h3 id=&quot;再帰呼出し&quot;&gt;再帰呼出し&lt;/h3&gt;&lt;ul&gt;&lt;li&gt;呼び出し元の関数が自分自身を呼び出すこと。&lt;/li&gt;&lt;li&gt;Scalaでの再帰呼出し。次のような階乗を行う関数の場合。&lt;/li&gt;&lt;/ul&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;def fact1&amp;#40;n: Int&amp;#41;: Int = if &amp;#40;n &amp;lt; 1&amp;#41;{
+  1
+} else {
+  n &amp;#42; fact1&amp;#40;n - 1&amp;#41;
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;ul&gt;&lt;li&gt;Scalaでのループはコレクション関数を使用が(多分)殆どなので、再帰呼出しはあまり使わないが、稀に使う。&lt;/li&gt;&lt;li&gt;再帰呼出しは(一般に)関数型プログラミングとの相性が良い。&lt;ul&gt;&lt;li&gt;変数に再代入しないため、変数を常にimmutableにしたままループが書ける。&lt;/li&gt;&lt;li&gt;再帰的なデータ型に対して、関数の再帰呼出しは相性が良い。(再帰的なデータ型を定義し、再帰呼出しで再帰的にトラバースできる)&lt;/li&gt;&lt;li&gt;プログラムを帰納的(余帰納的)に定義できる。&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;li&gt;木構造のような再帰的なデータ型や、分割統治法を使ったアルゴリズムの場合は、再帰を使うとわかりやすいコードが書ける。&lt;ul&gt;&lt;li&gt;分割統治法&lt;ul&gt;&lt;li&gt;大きな問題を小さな部分問題に分割し、個々の小さな部分問題を解決しながら、      その部分問題の解答結果のマージを繰り返し、最終的に元の問題を解くようなアルゴリズム。&lt;/li&gt;&lt;li&gt;&lt;a href='https://ja.wikipedia.org/wiki/%E5%88%86%E5%89%B2%E7%B5%B1%E6%B2%BB%E6%B3%95'&gt;分割統治法 - Wikipedia&lt;/a&gt;&lt;/li&gt;&lt;li&gt;次のクイックソートが典型例。&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;li&gt;クイックソート(あるいは、関数型プログラミングにおける偽のクイックソート)&lt;ul&gt;&lt;li&gt;Javaでクイックソート:      &lt;a href='https://qiita.com/gigegige/items/4817c27314a2393eb02d'&gt;【Java】クイックソートのアルゴリズムのテスト - Qiita&lt;/a&gt;&lt;/li&gt;&lt;li&gt;Scalaで関数型プログラミングのスタイルのクイックソート&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;/ul&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;def quicksort&amp;#91;A&amp;#93;&amp;#40;ls: Seq&amp;#91;A&amp;#93;&amp;#41;&amp;#40;implicit ord: Ordering&amp;#91;A&amp;#93;&amp;#41;: Seq&amp;#91;A&amp;#93; = ls match {
+    case Nil =&amp;gt; Nil
+    case a::as =&amp;gt; &amp;#40;quicksort&amp;#40;as.filter&amp;#40;ord.lt&amp;#40;&amp;#95;, a&amp;#41;&amp;#41;&amp;#41;
+                   ++ Seq&amp;#40;a&amp;#41; ++ quicksort&amp;#40;as.filter&amp;#40;ord.gteq&amp;#40;&amp;#95;, a&amp;#41;&amp;#41;&amp;#41;&amp;#41;
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;これは普通の関数同様に実行する。&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;scala&amp;gt; quicksort&amp;#40;List&amp;#40;5, 6, 7, 4, 3, 10, 2, 8, 0, 3&amp;#41;&amp;#41;
+res38: Seq&amp;#91;Int&amp;#93; = List&amp;#40;0, 2, 3, 3, 4, 5, 6, 7, 8, 10&amp;#41;
+&lt;/code&gt;&lt;/pre&gt;&lt;ul&gt;&lt;li&gt;上記は偽のクイックソート(理由はググッて下さい)。&lt;/li&gt;&lt;/ul&gt;&lt;h3 id=&quot;木構造のデータ型&amp;#95;+&amp;#95;matchによるパターンマッチで再帰を使う例&quot;&gt;木構造のデータ型 + matchによるパターンマッチで再帰を使う例&lt;/h3&gt;&lt;p&gt;木構造で、木の末尾を&lt;code&gt;Leaf&lt;/code&gt;、枝を&lt;code&gt;Node&lt;/code&gt;としてcase classで定義する。&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;sealed trait Tree&amp;#91;+A&amp;#93;
+case class Leaf&amp;#91;A&amp;#93;&amp;#40;value: A&amp;#41; extends Tree&amp;#91;A&amp;#93;
+case class Node&amp;#91;A&amp;#93;&amp;#40;left: Tree&amp;#91;A&amp;#93;, right: Tree&amp;#91;A&amp;#93;&amp;#41; extends Tree&amp;#91;A&amp;#93;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;木に対する走査の処理。 具体的にどのように走査した結果を得るかは、抽象化する。&lt;code&gt;f: &amp;#40;A, A&amp;#41; =&amp;gt; A&lt;/code&gt;の箇所。&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;def sum&amp;#91;A&amp;#93;&amp;#40;t: Tree&amp;#91;A&amp;#93;, f: &amp;#40;A, A&amp;#41; =&amp;gt; A&amp;#41;: A = t match {
+  case Leaf&amp;#40;a&amp;#41; =&amp;gt; a
+  case Node&amp;#40;l, r&amp;#41; =&amp;gt; f&amp;#40;sum&amp;#40;l, f&amp;#41;, sum&amp;#40;r, f&amp;#41;&amp;#41;
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;以下のように使用する。&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;scala&amp;gt; val d = Node&amp;#40;Node&amp;#40;Leaf&amp;#40;10&amp;#41;, Leaf&amp;#40;20&amp;#41;&amp;#41;, Leaf&amp;#40;1&amp;#41;&amp;#41;
+d: Node&amp;#91;Int&amp;#93; = Node&amp;#40;Node&amp;#40;Leaf&amp;#40;10&amp;#41;,Leaf&amp;#40;20&amp;#41;&amp;#41;,Leaf&amp;#40;1&amp;#41;&amp;#41;
+
+scala&amp;gt; sum&amp;#40;d, &amp;#40;a:Int, b:Int&amp;#41; =&amp;gt; a + b&amp;#41;
+res36: Int = 31
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;以下は、String型で文字列を返す例。&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;scala&amp;gt; val e = Node&amp;#40;Node&amp;#40;Leaf&amp;#40;&amp;quot;a&amp;quot;&amp;#41;, Leaf&amp;#40;&amp;quot;b&amp;quot;&amp;#41;&amp;#41;, Leaf&amp;#40;&amp;quot;c&amp;quot;&amp;#41;&amp;#41;
+e: Node&amp;#91;String&amp;#93; = Node&amp;#40;Node&amp;#40;Leaf&amp;#40;a&amp;#41;,Leaf&amp;#40;b&amp;#41;&amp;#41;,Leaf&amp;#40;c&amp;#41;&amp;#41;
+
+scala&amp;gt; sum&amp;#40;e, &amp;#40;a: String, b: String&amp;#41; =&amp;gt; &amp;quot;&amp;#40;&amp;quot; ++ a ++ &amp;quot; &amp;quot; ++ b ++ &amp;quot;&amp;#41;&amp;quot;&amp;#41;
+res44: String = &amp;#40;&amp;#40;a b&amp;#41; c&amp;#41;
+&lt;/code&gt;&lt;/pre&gt;&lt;h3 id=&quot;末尾最適化(tail&amp;#95;call&amp;#95;optimization)&quot;&gt;末尾最適化(Tail call optimization)&lt;/h3&gt;&lt;ul&gt;&lt;li&gt;関数型言語で行われるコンパイラの処理の一種。&lt;/li&gt;&lt;li&gt;末尾再帰形式は関数呼び出し時に、stackを必要としないような再帰呼出しの形式。&lt;ul&gt;&lt;li&gt;自分自身を再帰的に呼び出す際にその呼び出し以外の処理が残っていない形で自分自身を呼び出すような関数呼び出し形。&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;li&gt;再帰呼出しは、コンパイル時に「末尾再帰」形式になっている場合、コンパイル時に(whileのような)スタックを消費しないループに変換される。&lt;ul&gt;&lt;li&gt;ループに変換されない場合、通常の関数呼び出しの連鎖となり、stackを消費してしまい、StackOVerFlowErrorになってしまう。&lt;/li&gt;&lt;li&gt;ループ回数が多い場合(JVMの場合、1000〜数千回以上)の場合は、末尾再帰形式でループを記述しないと、StackOverFlowになる。&lt;ul&gt;&lt;li&gt;個人的な経験則だと1000回未満のループだと、SOFにはならない事が多い。(勿論、実装による部分が大きい)&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;li&gt;大量にループを繰り返す場合は末尾再帰が必須となる。&lt;/li&gt;&lt;li&gt;stackを消費しすぎないタイプのループの場合は、この限りではない。(関数呼び出しで消費したStackが戻される場合など。)&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;li&gt;Scalaの再帰は末尾最適化をする場合としない(できない)場合。&lt;ul&gt;&lt;li&gt;末尾再帰形式になっていない場合は、末尾最適化が行われない。&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;次のような階乗を行う関数の場合。(10の階乗(fact(10))は、10! = 1 &lt;em&gt; 2 &lt;/em&gt; 3 &lt;em&gt; 4 &lt;/em&gt; 5 &lt;em&gt; 6 &lt;/em&gt; 7 &lt;em&gt; 8 &lt;/em&gt; 9 * 10)&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;def fact1&amp;#40;n: Int&amp;#41;: Int = if &amp;#40;n &amp;lt; 1&amp;#41;{
+  1
+} else {
+  n &amp;#42; fact1&amp;#40;n - 1&amp;#41;
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/p&gt;&lt;p&gt;次の例は、自分自身を呼び出しのみ、かつ末尾再帰形式になっている場合。&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;def fact2&amp;#40;n: Int, a: Int&amp;#41;: Int = if &amp;#40;n &amp;lt; 1&amp;#41;{
+  a
+} else {
+  fact2&amp;#40;n - 1, n &amp;#42; a&amp;#41;
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;計算結果を保持する変数(アキュームレータ)を一つ追加している。 末尾再帰に書き直す場合は、計算結果を保持する引数を用意し、そこに副作用の役割を担わせることも多い。 これは「変化するmutableな変数」を表している。(引数で副作用(再代入)を引き回すスタイル)&lt;/p&gt;&lt;p&gt;以下のコードでは&lt;code&gt;fact2&amp;#40;10, 1&amp;#41;&lt;/code&gt;の計算しか行っていないが、例えば、&lt;code&gt;fact1&amp;#40;10000&amp;#41;&lt;/code&gt;と&lt;code&gt;fact2&amp;#40;10000, 1&amp;#41;&lt;/code&gt;では、 fact1の場合、StackOverFlowになってしまうが、fact2ではコンパイラの最適化(末尾再帰最適化)によりStackOverFlowにならない。&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;scala&amp;gt; fact2&amp;#40;10, 1&amp;#41;
+res39: Int = 3628800
+&lt;/code&gt;&lt;/pre&gt;&lt;ul&gt;&lt;li&gt;末尾再帰では基本的に綺麗なプログラムを書こうと考えない事がポイント(末尾再帰の時点で大して綺麗に書けてない)。&lt;ul&gt;&lt;li&gt;whileループを無理矢理、再帰に書き換えるような勢いが大切。&lt;/li&gt;&lt;li&gt;内容によっては既に末尾再帰形式の関数になっているような関数もある。&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;li&gt;Scalaでは相互再帰は末尾最適化をしない。&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;例えば以下のようなプログラム、&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;def odd&amp;#40;n: Int&amp;#41;: Boolean = if &amp;#40;n = 1&amp;#41; {
+  true
+} else {
+  even&amp;#40;n - 1&amp;#41;
+}
+
+def even&amp;#40;n: Int&amp;#41;: Boolean = if &amp;#40;n = 0&amp;#41; {
+  true
+} else {
+  odd&amp;#40;n - 1&amp;#41;
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/p&gt;&lt;p&gt;は、oddとevenを相互に呼び出し、自分自身の末尾で関数を呼び出す。 この形式はfact2と同様に、末尾に関数呼び出し以外の処理は残っていないが、末尾最適化されない。&lt;/p&gt;&lt;ul&gt;&lt;li&gt;相互再帰や複雑な再帰呼出しは、Trampolineという末尾最適化と同様のスタックを消費しない書き方がある。&lt;ul&gt;&lt;li&gt;&lt;a href='http://halcat.org/scala/stackless/index.html'&gt;スタックレスScala&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;li&gt;原理主義的に再帰のみでゴリゴリimmutableなコードも書けるが、&lt;ul&gt;&lt;li&gt;そもそもScalaなら可能な限りコレクションを使ってループを書くべき。&lt;/li&gt;&lt;li&gt;可読性や後でメンテナンスすることを考えるなら、Scalaの場合はwhile文やfor文が現実的な選択肢かも知れない。&lt;ul&gt;&lt;li&gt;関数を呼び出す側から見た時に、参照透過な関数になっていればOKという考え方もアリとみなす。&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;li&gt;結論としては、関数型プログラミングでのループは再帰やfor/whileのような構文ではなく、  mapやfilterといったコレクション関数を使うのが一般的。&lt;ul&gt;&lt;li&gt;大半のループはコレクション関数(のメソッドチェーン)で記述した方が、可読性が高く、メンテナンスもしやすい簡潔なコードが書ける。&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;/ul&gt;&lt;h2 id=&quot;無名関数(ラムダ抽象)&quot;&gt;無名関数(ラムダ抽象)&lt;/h2&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;scala&amp;gt; val f = &amp;#40;&amp;#40;a: Int&amp;#41; =&amp;gt; a + 1&amp;#41;
+f: Int =&amp;gt; Int = $$Lambda$4017/598382925@72f0dff7
+
+scala&amp;gt; f&amp;#40;1&amp;#41;
+res19: Int = 2
+
+scala&amp;gt; f&amp;#40;2&amp;#41;
+res20: Int = 3
+&lt;/code&gt;&lt;/pre&gt;&lt;ul&gt;&lt;li&gt;おなじみの無名関数。大体、無名関数かラムダ式でググったら出てくる。ラムダ式とはあんまり言わない(方がいい)(※個人の意見です)。&lt;/li&gt;&lt;li&gt;第一級オブジェクトとしての関数(データとして扱う事が出来る関数): 関数を渡す、値として保持できる。&lt;/li&gt;&lt;li&gt;無名関数の式が評価されると、&lt;strong&gt;関数オブジェクト&lt;/strong&gt;が生成される。&lt;ul&gt;&lt;li&gt;関数オブジェクトは、コンストラクタによって生成される他のJavaオブジェクトと同様に扱えるオブジェクト    (型となるクラスを持ち、インスタンスとして扱われるように)なる。&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;li&gt;オブジェクトなのでデータを持たせる事もできる。(後述のクロージャを参照)&lt;/li&gt;&lt;li&gt;C言語の関数のポインタと何が違うのか? / JavaのStrategyパターンと何が違うのか。&lt;ul&gt;&lt;li&gt;関数のポインタと違い、データ(値)を保持する。&lt;/li&gt;&lt;li&gt;JavaのStrategyパターンと違い、インターフェースを必要としない。&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;li&gt;map/filter/reduce(fold)関数や、その他様々な高階関数に渡す時によく使用する。(後述の高階関数を参照)&lt;/li&gt;&lt;/ul&gt;&lt;h2 id=&quot;レキシカルスコープ(lexical&amp;#95;scope,&amp;#95;静的スコープ)&quot;&gt;レキシカルスコープ(Lexical scope, 静的スコープ)&lt;/h2&gt;&lt;ul&gt;&lt;li&gt;&quot;Scope&quot;とは範囲のこと。&quot;Lexical&quot;とはLiterallyくらいの意味で深い意味はない。&lt;/li&gt;&lt;li&gt;レキシカルスコープとは、静的に、ある変数を参照した時、どのタイミングで代入された値が参照されるかが決まるスコープのこと。&lt;/li&gt;&lt;li&gt;Scalaの変数(valや引数)の有効範囲は、レキシカルスコーピングによって決定される。&lt;/li&gt;&lt;li&gt;変数の値を取り出す時、(Scalaの)レキシカルスコープでは、ネストした変数定義において最も内側で定義された変数を参照する。&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;以下の2つのコード。&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;scala&amp;gt; {val a = 1; &amp;#40;&amp;#40;a:Int&amp;#41; =&amp;gt; &amp;#40;&amp;#40;a:Int&amp;#41; =&amp;gt; a&amp;#41;&amp;#40;3&amp;#41;&amp;#41;&amp;#40;2&amp;#41; }
+res5: Int = 3
+&lt;/code&gt;&lt;/pre&gt;&lt;/p&gt;&lt;p&gt;または、&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;scala&amp;gt; {val a = 1; {val a = 2; {val a = 3; a} } }
+res11: Int = 3
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;この時、aは、最も内側にあるaは、ネストしている中で最も手前で定義された変数(引数)aの値を参照する。 次の例では、最も内側のスコープを抜けているので上記とは別の値を見に行く。&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;scala&amp;gt; {val a = 1; &amp;#40;&amp;#40;a:Int&amp;#41; =&amp;gt; {&amp;#40;&amp;#40;a:Int&amp;#41; =&amp;gt; a&amp;#41;&amp;#40;3&amp;#41;; a}&amp;#41;&amp;#40;2&amp;#41; }
+res10: Int = 2
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;または、&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;scala&amp;gt; {val a = 1; {val a = 2; {val a = 3;} a} }
+res14: Int = 2
+&lt;/code&gt;&lt;/pre&gt;&lt;ul&gt;&lt;li&gt;レキシカルスコープ自体は、モダンな言語では一般的な仕組み。&lt;ul&gt;&lt;li&gt;Scalaだけでなく、JavaScriptやTypeScript(たぶん)、Ruby(たぶん)、Python、Groovy(たぶん)でも共通。&lt;ul&gt;&lt;li&gt;但し、JavaScriptのvarはFunctionスコープと呼ばれるスコープ(レキシカルスコープとは若干違う)なので注意が必要。      (文法によってスコープのとり方が異なる)&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;li&gt;今とはなっては、(静的スコープではない)動的スコープを持つ言語の方が珍しい。動的スコープを採用している言語はほとんどない。&lt;ul&gt;&lt;li&gt;現代で実用的な動的スコープがメインの言語はEmacs Lispくらい。。。&lt;/li&gt;&lt;li&gt;但し、implicit parameterは動的スコープ的な役割に近い。      implicit parameterは、社内だとFutureのExecutionContextがよく使われる。&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;/ul&gt;&lt;h2 id=&quot;クロージャ(closure)&quot;&gt;クロージャ(Closure)&lt;/h2&gt;&lt;ul&gt;&lt;li&gt;自由変数を含む(使用した)関数によって生成された関数オブジェクトの事をクロージャ(Closure)という。&lt;ul&gt;&lt;li&gt;自由変数: 関数定義中にその関数のブロック内で定義されていない変数のこと。&lt;/li&gt;&lt;li&gt;クロージャは、自由変数に束縛された値(の参照)をデータとして保持する。&lt;/li&gt;&lt;li&gt;ブロックから抜けだした関数オブジェクトは、レキシカルスコーピングによって保持した変数の参照を保持し続ける。&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;li&gt;プログラミング言語のClojureの事ではない。&lt;/li&gt;&lt;li&gt;レキシカルスコープ同様、モダンな言語では一般的なしくみ。関数定義や無名関数からクロージャを生成できる。&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;以下では、関数オブジェクトがaseqという変数名が保持しているSeqの参照を持つ。&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;scala&amp;gt; val hSeq = {val aseq = Seq&amp;#40;1, 2, 3, 4, 5&amp;#41;; &amp;#40;&amp;#40;i: Int&amp;#41; =&amp;gt; aseq&amp;#40;i&amp;#41;&amp;#41; }
+hSeq: Int =&amp;gt; Int = $$Lambda$4005/1227571506@23364fcf
+
+scala&amp;gt; hSeq&amp;#40;1&amp;#41;
+res8: Int = 2
+
+scala&amp;gt; hSeq&amp;#40;2&amp;#41;
+res9: Int = 3
+&lt;/code&gt;&lt;/pre&gt;&lt;/p&gt;&lt;p&gt;一番外側で定義された変数hSeqは、ブロック内部で生成された関数オブジェクト(クロージャ)を束縛している。 この関数オブジェクトに引数を与える事で、aseqに束縛されたSeqの値にアクセスできる。&lt;/p&gt;&lt;ul&gt;&lt;li&gt;上記のような書き方により、JavaやScalaで指定するprivateよりも更に細かいスコープ(変数の有効範囲)の制御が可能になる。&lt;/li&gt;&lt;/ul&gt;&lt;h3 id=&quot;クロージャの使い方いろいろ&quot;&gt;クロージャの使い方いろいろ&lt;/h3&gt;&lt;p&gt;次のように2つの関数からのみ参照可能なHashmapを定義できる。&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;scala&amp;gt; val &amp;#40;f, g&amp;#41; = { val hmap = Map&amp;#40;&amp;quot;ab&amp;quot;-&amp;gt; 1, &amp;quot;ac&amp;quot; -&amp;gt; 2&amp;#41;;
+     | &amp;#40;&amp;#40;&amp;#40;s: String&amp;#41; =&amp;gt; hmap&amp;#40;s&amp;#41;&amp;#41;, &amp;#40;&amp;#40;s: String&amp;#41; =&amp;gt; hmap&amp;#40;&amp;quot;a&amp;quot;++s&amp;#41;&amp;#41;&amp;#41; }
+f: String =&amp;gt; Int = $$Lambda$4011/179665104@2da7b9bf
+g: String =&amp;gt; Int = $$Lambda$4012/49123780@295afa48
+
+scala&amp;gt; f&amp;#40;&amp;quot;b&amp;quot;&amp;#41;
+java.util.NoSuchElementException: key not found: b
+  at scala.collection.immutable.Map$Map2.apply&amp;#40;Map.scala:129&amp;#41;
+  at .$anonfun$x$1$1&amp;#40;&amp;lt;console&amp;gt;:12&amp;#41;
+  at .$anonfun$x$1$1$adapted&amp;#40;&amp;lt;console&amp;gt;:12&amp;#41;
+  ... 36 elided
+
+scala&amp;gt; g&amp;#40;&amp;quot;b&amp;quot;&amp;#41;
+res17: Int = 1
+
+scala&amp;gt; f&amp;#40;&amp;quot;ac&amp;quot;&amp;#41;
+res18: Int = 2
+&lt;/code&gt;&lt;/pre&gt;&lt;ul&gt;&lt;li&gt;勿論、ListやHashmapだけでなく、関数を保持する関数を作ったり、関数を保持する関数を保持する関数など色々作れる。&lt;/li&gt;&lt;li&gt;ただし、関数オブジェクトを濫用し続けると、不用意に意図しないクロージャを生成してしまう事も考えられる。  このような場合、GCによって回収されない参照をいつまでも保持し続けることになってしまう。  (とは言え、普通に書いている限りだとこのようなバグは殆ど無いかも知れない)&lt;/li&gt;&lt;li&gt;クロージャにより変数はそのスコープの外を出ても有効である場合がある。  つまり、ローカル変数は、変数を定義した関数本体が終了しても生き残る。&lt;ul&gt;&lt;li&gt;変数が生存している(有効である)期間のことを&lt;strong&gt;エクステント(extent)&lt;/strong&gt;という。&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;li&gt;クロージャとは逆に、関数内に自由変数を含まないような関数のことを&lt;strong&gt;コンビネータ(combinator)&lt;/strong&gt;という。  ただし、Scalaだと、パーサコンビネータ以外ではコンビネータという言い方はあまりされない(みたい)。&lt;/li&gt;&lt;li&gt;クロージャを使うことで計算を遅延(将来に実行)させられる。典型的な使用例がFutureによるコールバック。&lt;ul&gt;&lt;li&gt;遅延させたい計算は常に無名関数のシンタックスで囲うことで遅延させる事が出来る。&lt;code&gt;dao.findById&amp;#40;id&amp;#41;&lt;/code&gt;がFutureを返す時、mapに渡された&lt;code&gt;row =&amp;gt;&lt;/code&gt;以降は、Futureの結果が返ってくるまで実行されない。&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;/ul&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;dao.findById&amp;#40;id&amp;#41;.map { row =&amp;gt; row.name }
+&lt;/code&gt;&lt;/pre&gt;&lt;h3 id=&quot;クロージャでif関数っぽいものを作る&quot;&gt;クロージャでif関数っぽいものを作る&lt;/h3&gt;&lt;p&gt;クロージャとは直接関係ないが、無名関数の性質を応用することで&lt;strong&gt;if関数&lt;/strong&gt;のようなものも作ることが出来る。 つまり関数呼び出し時に引数が実行されない形の書き方ができる。&lt;/p&gt;&lt;p&gt;(※しかし、Scalaだとここまでしなくてもcall-by-nameで書ける)&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;scala&amp;gt; def ifFunction&amp;#40;b: Boolean, f: &amp;#40;&amp;#41; =&amp;gt; Unit, g: &amp;#40;&amp;#41; =&amp;gt; Unit&amp;#41; = if &amp;#40;b&amp;#41; f&amp;#40;&amp;#41; else g&amp;#40;&amp;#41;
+ifFunction: &amp;#40;b: Boolean, f: &amp;#40;&amp;#41; =&amp;gt; Unit, g: &amp;#40;&amp;#41; =&amp;gt; Unit&amp;#41;Unit
+
+scala&amp;gt; ifFunction&amp;#40;true, { &amp;#40;&amp;#41; =&amp;gt; println&amp;#40;&amp;quot;a&amp;quot;&amp;#41;; }, { &amp;#40;&amp;#41; =&amp;gt; println&amp;#40;&amp;quot;b&amp;quot;&amp;#41;; }&amp;#41;
+a
+
+scala&amp;gt; ifFunction&amp;#40;false, { &amp;#40;&amp;#41; =&amp;gt; println&amp;#40;&amp;quot;a&amp;quot;&amp;#41;; }, { &amp;#40;&amp;#41; =&amp;gt; println&amp;#40;&amp;quot;b&amp;quot;&amp;#41;; }&amp;#41;
+b
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;無名関数で囲わない書き方の場合、次のようになる。&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;scala&amp;gt; def ifFunction&amp;#40;b: Boolean, f: Unit, g: Unit&amp;#41; = if &amp;#40;b&amp;#41; f else g
+ifFunction: &amp;#40;b: Boolean, f: Unit, g: Unit&amp;#41;Unit
+
+scala&amp;gt; ifFunction&amp;#40;false, { println&amp;#40;&amp;quot;a&amp;quot;&amp;#41;; }, { println&amp;#40;&amp;quot;b&amp;quot;&amp;#41;; }&amp;#41;
+a
+b
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;関数呼び出しは、引数を評価した後、その結果が関数に渡されて関数自体が実行される。 そのため、通常の呼び出しだと、引数が評価されてしまうが、引数を関数化することで、 引数の評価を遅延させる(実質的には実行させない)事ができる。&lt;/p&gt;&lt;h3 id=&quot;クロージャで作るリスト&quot;&gt;クロージャで作るリスト&lt;/h3&gt;&lt;ul&gt;&lt;li&gt;クロージャのみでリスト構造(データ構造)を作ることが可能。&lt;ul&gt;&lt;li&gt;ルール: データ構造やクラスは使わない。&lt;/li&gt;&lt;li&gt;関数型プログラミングにおける大道芸の一つ。&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;単方向連結リスト(いわゆるLinkedList)の実装。&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;scala&amp;gt; val cons = &amp;#40;x: Int, xs: Int =&amp;gt; Any&amp;#41; =&amp;gt; &amp;#40;&amp;#40;i: Int&amp;#41; =&amp;gt; if &amp;#40;i == 0&amp;#41; x else xs&amp;#40;i - 1&amp;#41;&amp;#41;
+cons: &amp;#40;Int, Int =&amp;gt; Any&amp;#41; =&amp;gt; Int =&amp;gt; Any = $$Lambda$3648/212142471@1c3cc65d
+
+scala&amp;gt; val emptyF = &amp;#40;x: Int&amp;#41; =&amp;gt; null
+emptyF: Int =&amp;gt; Int = $$Lambda$3649/558084802@db6ad80
+
+scala&amp;gt; val ls = cons&amp;#40;4, cons&amp;#40;3, cons&amp;#40;2, emptyF&amp;#41;&amp;#41;&amp;#41;
+ls: Int =&amp;gt; Any = $$Lambda$3650/2033873015@4f08ca31
+
+scala&amp;gt; ls&amp;#40;1&amp;#41;
+res57: Any = 3
+
+scala&amp;gt; ls&amp;#40;3&amp;#41;
+res58: Any = null
+
+scala&amp;gt; ls&amp;#40;2&amp;#41;
+res59: Any = 2
+&lt;/code&gt;&lt;/pre&gt;&lt;/p&gt;&lt;p&gt;関数がAny型を返す、リストの上限を超えた時nullを返すのは、簡単のため。 consでリストを構築する。空リストはemptyFで表現する。&lt;/p&gt;&lt;h2 id=&quot;高階関数(high-order&amp;#95;function)&quot;&gt;高階関数(High-order function)&lt;/h2&gt;&lt;ul&gt;&lt;li&gt;関数オブジェクトは値として他の関数に渡したり、関数を受け取る、変数に束縛するなど、Javaオブジェクトのような扱いが可能。&lt;/li&gt;&lt;li&gt;関数を引数としたり、戻り値として使用する関数の事を高階関数という。&lt;ul&gt;&lt;li&gt;関数に関数を渡す時は、無名関数として渡す(mapなど)こともできるし、定義された名前付きの関数を渡すこともできる。&lt;ul&gt;&lt;li&gt;特に、無名関数を渡すパターンは、コレクション関数を使用する時によく使う。&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;無名関数を他の関数に渡す。&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;scala&amp;gt; Seq&amp;#40;1, 2, 3&amp;#41;.map&amp;#40;i =&amp;gt; i + 2&amp;#41;
+res0: Seq&amp;#91;Int&amp;#93; = List&amp;#40;3, 4, 5&amp;#41;
+&lt;/code&gt;&lt;/pre&gt;&lt;/p&gt;&lt;p&gt;定義済みの他の関数に渡す。&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;scala&amp;gt; def add2&amp;#40;i: Int&amp;#41;: Int = i + 2
+add2: &amp;#40;i: Int&amp;#41;Int
+
+scala&amp;gt; Seq&amp;#40;1, 2, 3&amp;#41;.map&amp;#40;add2&amp;#41;
+res4: Seq&amp;#91;Int&amp;#93; = List&amp;#40;3, 4, 5&amp;#41;
+&lt;/code&gt;&lt;/pre&gt;&lt;ul&gt;&lt;li&gt;高階関数を使用することで、ほぼ無制限にプログラム中の任意のロジック(具体的なコード)を抽象化できる。&lt;ul&gt;&lt;li&gt;ちなみに、データ型や関数の定義などは抽象化できない。。。&lt;/li&gt;&lt;li&gt;抽象化したい部分を関数化し、差分のみをそれぞれ別関数にして、抽象化した関数に差分の関数を渡すという方法。&lt;/li&gt;&lt;li&gt;コード全体の至る所で使用できて、DRYに書けるというメリットはあるが。    やり過ぎると原型を留めなくなるので注意が必要。&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;li&gt;部分適用/カリー化(Partial application / Curring)&lt;ul&gt;&lt;li&gt;複数の引数を取る関数を一つの引数のみを取る関数に書き換えることをカリー化という。&lt;/li&gt;&lt;li&gt;途中まで値を代入して、途中からの値を別の高階関数の中で代入させたい時などに使用する。&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;以下がカリー化の例。上はカリー化されていない関数。下が上の関数をカリー化した関数。&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;scala&amp;gt; def sum&amp;#40;a: Int, b: Int, c: Int&amp;#41;: Int = a + b + c
+sum: &amp;#40;a: Int, b: Int, c: Int&amp;#41;Int
+
+scala&amp;gt; def sum&amp;#40;a: Int&amp;#41;&amp;#40;b: Int&amp;#41;&amp;#40;c: Int&amp;#41;: Int = a + b + c
+sum: &amp;#40;a: Int&amp;#41;&amp;#40;b: Int&amp;#41;&amp;#40;c: Int&amp;#41;Int
+&lt;/code&gt;&lt;/pre&gt;&lt;/p&gt;&lt;p&gt;次のようにして、途中までの値を入れておく。&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;scala&amp;gt; sum&amp;#40;1&amp;#41;&amp;#40;2&amp;#41; &amp;#95;
+res1: Int =&amp;gt; Int = $$Lambda$3054/194743804@57e5ed15
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;そして、次のように使うことができる。&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;scala&amp;gt; Seq&amp;#40;1, 2, 3&amp;#41;.map&amp;#40;sum&amp;#40;1&amp;#41;&amp;#40;2&amp;#41;&amp;#41;
+res3: Seq&amp;#91;Int&amp;#93; = List&amp;#40;4, 5, 6&amp;#41;
+&lt;/code&gt;&lt;/pre&gt;&lt;ul&gt;&lt;li&gt;途中まで引数の値を適用し別の無名関数を生成する書き方を部分適用という。&lt;ul&gt;&lt;li&gt;部分適用とカリー化は間違えやすいことで有名。&lt;ul&gt;&lt;li&gt;&lt;a href='http://kmizu.hatenablog.com/entry/20091216/1260969166'&gt;カリー化 != 部分適用&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;/ul&gt;&lt;h2 id=&quot;関数合成&quot;&gt;関数合成&lt;/h2&gt;&lt;ul&gt;&lt;li&gt;2つの関数を合成する。数学の合成関数と考え方は同じ。: f(g(x)) = (f . g)(x)&lt;/li&gt;&lt;li&gt;合成関数用の関数として、compose/andThenが用意されている。&lt;/li&gt;&lt;li&gt;ちなみに、Scalaだとcompose使いたいケースでは、メソッドチェーンで書く事が多いのであんまり使わない。&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;次の場合、&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;def withComma&amp;#40;ls: Seq&amp;#91;String&amp;#93;&amp;#41; = ls.mkString&amp;#40;&amp;quot;,&amp;quot;&amp;#41;
+def trimString&amp;#40;ls: Seq&amp;#91;String&amp;#93;&amp;#41; = ls.map&amp;#40;&amp;#95;.trim.toInt&amp;#41;
+def multiply20&amp;#40;ls: Seq&amp;#91;Int&amp;#93;&amp;#41; = ls.map &amp;#40;&amp;#95; &amp;#42; 20&amp;#41;.map&amp;#40;&amp;#95;.toString&amp;#41;
+&lt;/code&gt;&lt;/pre&gt;&lt;/p&gt;&lt;p&gt;StingのSeqの要素を20倍してカンマ区切りの文字列にしたい。。。&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;val ls = Seq&amp;#40;&amp;quot; 20&amp;quot;, &amp;quot; 30 &amp;quot;, &amp;quot;40 &amp;quot;, &amp;quot;50&amp;quot;&amp;#41;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;しかもなんか変な空白入ってる。。。&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;scala&amp;gt; withComma&amp;#40;multiply20&amp;#40;trimString&amp;#40;ls&amp;#41;&amp;#41;&amp;#41;
+res31: String = 400,600,800,1000
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;括弧が多い。。。&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;scala&amp;gt; &amp;#40;withComma compose multiply20 compose trimString&amp;#41;&amp;#40;ls&amp;#41;
+res32: String = 400,600,800,1000
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;さらにこれを関数化したい。。。&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;scala&amp;gt; val multiply20c = withComma compose multiply20 compose trimString
+multiply20c: Seq&amp;#91;String&amp;#93; =&amp;gt; String = scala.Function1$$Lambda$605/1525241607@1f18de49
+
+scala&amp;gt; multiply20c&amp;#40;ls&amp;#41;
+res33: String = 400,600,800,1000
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;引数を定義して関数化すると、変数が増えて冗長になるので、関数を合成の場合は、&lt;code&gt;compose&lt;/code&gt;のみで組み合わせを表現し関数を定義できる。 composeだとわかりにくい? そんな時の為にandThenという関数が用意されている。&lt;/p&gt;&lt;ul&gt;&lt;li&gt;composeとandThenは順序が逆。&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;composeの場合&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;scala&amp;gt; &amp;#40;&amp;#40;&amp;#40;s:String&amp;#41; =&amp;gt; s.toInt&amp;#41; compose &amp;#40;&amp;#40;x:Int&amp;#41;=&amp;gt; x.toString&amp;#41;&amp;#41;&amp;#40;20&amp;#41;
+res24: Int = 20
+&lt;/code&gt;&lt;/pre&gt;&lt;/p&gt;&lt;p&gt;andThenの場合&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;scala&amp;gt; &amp;#40;&amp;#40;&amp;#40;x:Int&amp;#41;=&amp;gt; x.toString&amp;#41; andThen &amp;#40;&amp;#40;s:String&amp;#41; =&amp;gt; s.toInt&amp;#41;&amp;#41;&amp;#40;20&amp;#41;
+res22: Int = 20
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;andThenを使って前述のコードを書き直す。&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;scala&amp;gt; val multiply20c = trimString andThen multiply20 andThen withComma
+multiply20c: Seq&amp;#91;String&amp;#93; =&amp;gt; String = scala.Function1$$Lambda$4021/295193997@7d9759a
+
+scala&amp;gt; multiply20c&amp;#40;ls&amp;#41;
+res34: String = 400,600,800,1000
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;処理の順番が明確になり、分かりやすくなった。&lt;/p&gt;&lt;ul&gt;&lt;li&gt;ライブラリやフレームワークなどのコードで時々登場する。&lt;ul&gt;&lt;li&gt;使いすぎると分かりづらくなる事も多いが、Scalazだと頻繁に使われていたりする。&lt;/li&gt;&lt;li&gt;Playframeworkのアクション合成(action composition)などでも類似の概念が登場する。&lt;/li&gt;&lt;li&gt;ただし、Scalaの場合、メソッドチェーンで書くほうが一般的なようなので、そこまで使わないかも知れない。&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;li&gt;上記のような変数の登場しない合成による関数定義の仕方を&lt;strong&gt;ポイントフリースタイル(point-free style)&lt;/strong&gt;という。&lt;/li&gt;&lt;/ul&gt;&lt;h2 id=&quot;部分関数(partial&amp;#95;function)&quot;&gt;部分関数(Partial function)&lt;/h2&gt;&lt;ul&gt;&lt;li&gt;ある特定の引数に対してのみ値を返す関数。&lt;/li&gt;&lt;li&gt;&lt;a href='http://yuroyoro.hatenablog.com/entry/20100705/1278328898'&gt;ScalaのPartialFunctionが便利ですよ&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;&lt;h2 id=&quot;まとめ&quot;&gt;まとめ&lt;/h2&gt;&lt;ul&gt;&lt;li&gt;Scalaでも他の関数型言語と同じように、関数を使ったプログラミングができることがわかる。  Javaよりは簡単かつ柔軟な書き方を実現するしくみが用意されている。&lt;/li&gt;&lt;li&gt;Scalaだとメソッドチェーンによる書き方が多いので、ポイントフリースタイルや合成関数はあまり使わなさそう。&lt;/li&gt;&lt;/ul&gt;
+</description>
+<pubDate>
+Sat, 14 Apr 2018 00:00:00 +0900
+</pubDate>
+</item>
+<item>
+<guid>
+https://yuwki0131.github.io/posts-output/2018-04-14-scala-algebraic-data-types/
+</guid>
+<link>
+https://yuwki0131.github.io/posts-output/2018-04-14-scala-algebraic-data-types/
+</link>
+<title>
+Scalaでの代数的データ型のしくみと使い方
+</title>
+<description>
+&lt;p&gt;Scalaについて勉強した時のメモ(その2)です。代数的データ型の扱い方について。&lt;/p&gt;&lt;p&gt;※ 元々はmarkdownで書いていたテキストの転載。&lt;/p&gt;&lt;h2 id=&quot;代数的データ型(algebraic&amp;#95;data&amp;#95;type)&quot;&gt;代数的データ型(Algebraic data type)&lt;/h2&gt;&lt;ul&gt;&lt;li&gt;端的に言うと、以下のようなデータ定義の仕方。&lt;/li&gt;&lt;/ul&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;sealed trait Alphabet
+case object Alpha extends Alphabet
+case class Beta&amp;#40;name: String&amp;#41; extends Alphabet
+case class Gamma&amp;#40;name: String, n: Int&amp;#41; extends Alphabet
+&lt;/code&gt;&lt;/pre&gt;&lt;ul&gt;&lt;li&gt;引数の戻り値型や処理結果のパターンや、Seq型で表現できないようなリスト構造、木構造、  その他必要に応じてポリモーフィックに変化するデータ型を表す際に使用する。&lt;/li&gt;&lt;li&gt;ざっくり説明すると、代数的データ型とは、直積型による構造体と、コンストラクタと直和型によるポリモーフィズムを表した型。&lt;ul&gt;&lt;li&gt;Scala風に言うと、複数のcase objectとcase classを単一のtraitでまとめたもの。&lt;/li&gt;&lt;li&gt;全てを使う必要はない。必要に応じて必要なオブジェクトを使う。&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;li&gt;代数的データ型は、コンストラクタと、直積型、直和型から構成される。&lt;ul&gt;&lt;li&gt;代数的(&quot;Algebraic&quot;)という単語は、直和型と直積型に由来している。    &lt;a href='https://wiki.haskell.org/Algebraic_data_type'&gt;Algebraic data type - HaskellWiki&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;li&gt;代数的データ型を返す関数の型は継承元のtraitで、条件に応じて、様々なtraitの型のインスタンスを返す。&lt;/li&gt;&lt;/ul&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;def func&amp;#40;n: Int&amp;#41;: Alphabet =
+  if &amp;#40;n &amp;lt; 10&amp;#41; Alpha
+  else if &amp;#40;n &amp;lt; 30&amp;#41; Beta&amp;#40;&amp;quot;aaa&amp;quot;&amp;#41;
+  else Gamma&amp;#40;&amp;quot;bbb&amp;quot;, n&amp;#41;
+&lt;/code&gt;&lt;/pre&gt;&lt;ul&gt;&lt;li&gt;以下のようにパターンマッチで各データパターンごとに分解できる。&lt;/li&gt;&lt;/ul&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;xxx.func&amp;#40;x&amp;#41; match {
+  case Alpha =&amp;gt; 〜 ...
+  case Beta&amp;#40;name&amp;#41; =&amp;gt; 〜 &amp;#40;この中では変数nameが使える&amp;#41; ...
+  case Gamma&amp;#40;name, n&amp;#41; =&amp;gt; 〜 ...
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;ul&gt;&lt;li&gt;普段よく使っている代数的データ型の一つがOption型&lt;ul&gt;&lt;li&gt;&lt;a href='https://github.com/scala/scala/blob/2.13.x/src/library/scala/Option.scala'&gt;scala/src/library/scala/Option.scala&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;/ul&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;sealed abstract class Option&amp;#91;+A&amp;#93; extends Product with Serializable
+case object None extends Option&amp;#91;Nothing&amp;#93;
+final case class Some&amp;#91;+A&amp;#93;&amp;#40;value: A&amp;#41; extends Option&amp;#91;A&amp;#93;
+&lt;/code&gt;&lt;/pre&gt;&lt;ul&gt;&lt;li&gt;割と他の関数型言語だと定番の書き方。&lt;ul&gt;&lt;li&gt;参考: &lt;a href='https://qiita.com/xmeta/items/91dfb24fa87c3a9f5993'&gt;代数的データ型とパターンマッチによる言語比較&lt;/a&gt;&lt;/li&gt;&lt;li&gt;(余談)代数的データ型を一般化したGADT(Generalized Algebraic Data Type)というのもある。&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;li&gt;関数型プログラミングだと実装とデータ型を分離する傾向がある。(要出典)&lt;ul&gt;&lt;li&gt;分離されたデータ型が代数的データ型。&lt;/li&gt;&lt;li&gt;データ型(クラス)に実装が付随しているオブジェクト指向とは異なる。&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;li&gt;代数的データ型は、再帰的(帰納的)に定義される有限のデータ構造(Streamなど無限のデータ構造というのもある)&lt;ul&gt;&lt;li&gt;参照: &lt;a href='http://docs.scala-lang.org/ja/overviews/collections/concrete-immutable-collection-classes.html'&gt;具象不変コレクションクラス | Scala Documentation&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;li&gt;(余談)一応、case classには、&lt;code&gt;final&lt;/code&gt;を付けた方がいい: &lt;a href='https://stackoverflow.com/questions/34561614/should-i-use-the-final-modifier-when-declaring-case-classes'&gt;Should I use the final modifier when declaring case classes? - StackOverFlow&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;&lt;h2 id=&quot;パターンマッチ&quot;&gt;パターンマッチ&lt;/h2&gt;&lt;ul&gt;&lt;li&gt;&lt;a href='https://qiita.com/techno-tanoC/items/3dd3ed63d161c53f2d89'&gt;Scalaのパターンマッチ - Qiita&lt;/a&gt;&lt;/li&gt;&lt;li&gt;Scalaでは、リテラル(定数)、正規表現、構造(タプル、case objectやcase classなど)、代数的データ型に関するマッチなどが可能。&lt;/li&gt;&lt;li&gt;データ型のインスタンス(ListやTuple、Case classなど)を構造的に分解して変数に代入できる。&lt;ul&gt;&lt;li&gt;オブジェクトにunapplyが定義されていれば、パターンマッチが可能。&lt;/li&gt;&lt;li&gt;&lt;a href='http://yuroyoro.hatenablog.com/entry/20100709/1278657400'&gt;パターンマッチをもっと便利に-extractor(抽出子)による拡張&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;li&gt;if-else式とは違い、データ型に対する網羅的にパターンマッチを行う。網羅的でない場合は警告がでる。(但し、エラーにはならない。)  &lt;strong&gt;パターン漏れが防げるので積極的に活用していきたい。&lt;/strong&gt;&lt;/li&gt;&lt;li&gt;データ型に対する分岐か、それ以外かでif-elseとの使い分けができる。&lt;/li&gt;&lt;/ul&gt;&lt;h3 id=&quot;listに対するパターンマッチ&quot;&gt;Listに対するパターンマッチ&lt;/h3&gt;&lt;p&gt;次のコードはパターンマッチで書き換えた方が、ロジックがシンプルになる。&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;if &amp;#40;ls.isEmpty&amp;#41; 1 else ls.head
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;は、リスト&lt;code&gt;ls&lt;/code&gt;についてのパターンマッチ、&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;ls match {
+  case Nil =&amp;gt; 1
+  case x::xs =&amp;gt; x
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;と書き直せる。else節でls.headを使う時に、lsを手前の条件節でチェックしているかどうかを考慮する必要が無くなる。&lt;/p&gt;&lt;p&gt;ただし上記の場合は、headOptionとgetOrElseで書くのが一般的のよう。&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;ls.headOption.getOrElse&amp;#40;1&amp;#41;
+&lt;/code&gt;&lt;/pre&gt;&lt;h3 id=&quot;optionに対するパターンマッチ&quot;&gt;Optionに対するパターンマッチ&lt;/h3&gt;&lt;p&gt;次のようなケースも、リスト同様に書き直せる。&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;if &amp;#40;x.isEmpty&amp;#41; &amp;quot;hogehoge&amp;quot; else x.get.toString
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;存在するSome/Noneパターンを列挙する。&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;x match {
+  case Some&amp;#40;x&amp;#41; =&amp;gt; x.toString
+  case None =&amp;gt; &amp;quot;hogehoge&amp;quot;
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Either(Right/Left)やTry(Success/Failure)の場合も同様にして、分解できる。&lt;/p&gt;&lt;h3 id=&quot;代数的データ型に対するパターンマッチ&quot;&gt;代数的データ型に対するパターンマッチ&lt;/h3&gt;&lt;p&gt;以下のような代数的データ型に対するパターンマッチ。&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;sealed trait Alphabet
+case object Alpha extends Alphabet
+case class Beta&amp;#40;name: String&amp;#41; extends Alphabet
+case class Gamma&amp;#40;name: String, n: Int&amp;#41; extends Alphabet
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;次のように書く。書き方はOption等と同じ。&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;x match {
+  case Alpha =&amp;gt; &amp;quot;A&amp;quot;
+  case Beta&amp;#40;name&amp;#41; =&amp;gt; &amp;quot;B&amp;#40;&amp;quot; + name + &amp;quot;&amp;#41;&amp;quot;
+  case Gamma&amp;#40;name, n&amp;#41; =&amp;gt; &amp;quot;C&amp;#40;&amp;quot; + name + &amp;quot;&amp;#41;&amp;quot;
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;h3 id=&quot;パターンマッチに条件を追加&quot;&gt;パターンマッチに条件を追加&lt;/h3&gt;&lt;ul&gt;&lt;li&gt;パターンマッチの場合、構造のチェックと同時に、データ型から値の取り出し、変数への束縛まで行う。&lt;/li&gt;&lt;li&gt;ただし、以下のような書き方をした場合、パターンマッチの本来の意味はなくなる(ただのif-else式と基本的に同じ意味しかなくなる)。&lt;/li&gt;&lt;/ul&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;x match {
+ case &amp;#95; if x.isEmpty =&amp;gt; &amp;quot;hogehoge&amp;quot;
+ case &amp;#95; =&amp;gt; x.get.toString
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;ul&gt;&lt;li&gt;パターンマッチでのifによる条件追加は以下のようなケースだと有効。  パターンマッチの基本的な機能である構造的な変数の束縛、パターンの列挙(とそのチェック)の両方を使用しているため。&lt;/li&gt;&lt;/ul&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;x match {
+ case Some&amp;#40;x&amp;#41; if x == &amp;quot;a&amp;quot; =&amp;gt; &amp;quot;hogehoge&amp;quot;
+ case Some&amp;#40;x&amp;#41; =&amp;gt; &amp;quot;fugafuga&amp;quot;
+ case None =&amp;gt; &amp;quot;piyopiyo&amp;quot;
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;ul&gt;&lt;li&gt;1caseに複数パターンのマッチも可能。&lt;/li&gt;&lt;/ul&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;n match {
+  case 1 | 2 | 3 =&amp;gt; &amp;quot;hogehoge&amp;quot;
+  case &amp;#95; =&amp;gt; &amp;quot;hoge&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;&lt;h3 id=&quot;代数的データ型とパターンマッチ&quot;&gt;代数的データ型とパターンマッチ&lt;/h3&gt;&lt;ul&gt;&lt;li&gt;Javaのポリモーフィズムでは、処理が各クラスごと分散してしまうというデメリットがある。&lt;/li&gt;&lt;li&gt;代数的データ型とパターンマッチでは、データ型はデータ型ごとに定義し、ポリモーフィックな処理はパターンマッチで一箇所に記述させる。&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;a href='https://ja.wikipedia.org/wiki/Composite_%E3%83%91%E3%82%BF%E3%83%BC%E3%83%B3'&gt;Compositeパターン - Wikipedia&lt;/a&gt; から引用してきた例(長かったのでコードの一部を改変している)。&lt;pre&gt;&lt;code class=&quot;java&quot;&gt;interface FileInterface {
+	public void ls&amp;#40;int depth&amp;#41;;
+	public boolean add&amp;#40;FileInterface c&amp;#41;;
+}
+class File implements FileInterface {
+	private String name;
+	public File&amp;#40;String name&amp;#41; { this.name = name; }
+	public void ls&amp;#40;int depth&amp;#41; {
+		System.out.println&amp;#40;&amp;quot;depth&amp;#40;&amp;quot; + depth + &amp;quot;&amp;#41; file:&amp;quot; + this.name&amp;#41;;
+	}
+	public boolean add&amp;#40;FileInterface c&amp;#41; { return false; }
+}
+class Folder implements FileInterface {
+	private String name;
+	private List&amp;lt;FileInterface&amp;gt; fileList = new ArrayList&amp;lt;FileInterface&amp;gt;&amp;#40;&amp;#41;;
+	public Folder&amp;#40;String name&amp;#41; { this.name = name; }
+	public void ls&amp;#40;int depth&amp;#41; {
+		System.out.println&amp;#40;&amp;quot;depth&amp;#40;&amp;quot; + depth + &amp;quot;&amp;#41; folder:&amp;quot; + name&amp;#41;;
+		for &amp;#40;FileInterface file : fileList&amp;#41; { file.ls&amp;#40;depth + 1&amp;#41;; }
+	}
+	public boolean add&amp;#40;FileInterface c&amp;#41; { return this.fileList.add&amp;#40;c&amp;#41;; }
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/p&gt;&lt;p&gt;上記は代数的データ型とパターンマッチで書き直せる。 代数的データ型は以下のように定義できる。&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;sealed trait FileInterface
+case class File&amp;#40;name: String&amp;#41; extends FileInterface
+case class Folder&amp;#40;name: String, f: scala.collection.mutable.ListBuffer&amp;#91;FileInterface&amp;#93;&amp;#41; extends FileInterface
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;次のようにデータを作る。&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;scala&amp;gt; val prj = Folder&amp;#40;&amp;quot;crud-prj&amp;quot;, ListBuffer&amp;#40;File&amp;#40;&amp;quot;README.md&amp;quot;&amp;#41;, File&amp;#40;&amp;quot;build.sbt&amp;quot;&amp;#41;, Folder&amp;#40;&amp;quot;src&amp;quot;, ListBuffer&amp;#40;File&amp;#40;&amp;quot;Helloworld.scala&amp;quot;&amp;#41;, File&amp;#40;&amp;quot;XXXDao.scala&amp;quot;&amp;#41;, File&amp;#40;&amp;quot;ExampleController.scala&amp;quot;&amp;#41;&amp;#41;&amp;#41;&amp;#41;&amp;#41;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;ディレクトリ階層を表示する関数。&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;def ls&amp;#40;files: FileInterface, depth: Int&amp;#41;: Unit = files match {
+  case File&amp;#40;name&amp;#41; =&amp;gt; println&amp;#40;&amp;quot;depth&amp;#40;&amp;quot; + depth + &amp;quot;&amp;#41; file:&amp;quot; + name&amp;#41;
+  case Folder&amp;#40;name, children&amp;#41; =&amp;gt; {
+    println&amp;#40;&amp;quot;depth&amp;#40;&amp;quot; + depth + &amp;quot;&amp;#41; folder:&amp;quot; + name&amp;#41;
+    children.foreach{ child =&amp;gt; ls&amp;#40;child, depth + 1&amp;#41; }
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;ディレクトリに要素を追加する関数。&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;def add&amp;#40;files: FileInterface, element: FileInterface&amp;#41;: Boolean = files match {
+  case File&amp;#40;name&amp;#41; =&amp;gt; false
+  case Folder&amp;#40;name, children&amp;#41; =&amp;gt; { children += element; true }
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Javaと同様の関数を書くならば、上記の書き方で問題ない。ところで、上記の関数は木構造をmutableに変更してしまう。 一般に関数型プログラミングは副作用(データの破壊的な変更)を回避するため、その点において、上記の書き方は問題がある。 そこで、immutableなadd関数を容易する必要がある。 immutableな関数を容易し、rootから書き換える。例えば、次のような関数が考えられる。&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;def addI&amp;#40;files: FileInterface, elem: FileInterface, path: Seq&amp;#91;String&amp;#93;&amp;#41;: FileInterface = &amp;#40;files, path&amp;#41; match {
+  case &amp;#40;Folder&amp;#40;name, children&amp;#41;, Nil&amp;#41; =&amp;gt;
+    Folder&amp;#40;name, children :+ elem&amp;#41;
+  case &amp;#40;Folder&amp;#40;name, children&amp;#41;, x::xs&amp;#41; =&amp;gt;
+    Folder&amp;#40;name, children.map {
+        case f @ Folder&amp;#40;name, c&amp;#41; if name == x =&amp;gt; addI&amp;#40;f, elem, xs&amp;#41;
+        case a =&amp;gt; a
+    } &amp;#41;
+  case &amp;#95; =&amp;gt; throw new RuntimeException&amp;#40;&amp;quot;ファイルに要素を追加しようとしたのでエラー。&amp;quot;&amp;#41;
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;同様にcase classもimmutableにする&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;sealed trait FileInterface
+case class File&amp;#40;name: String&amp;#41; extends FileInterface
+case class Folder&amp;#40;name: String, f: Seq&amp;#91;FileInterface&amp;#93;&amp;#41; extends FileInterface
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;この関数をrootに対して適用する。次のようなコード。&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;val root =
+Folder&amp;#40;&amp;quot;project&amp;quot;, Seq&amp;#40;Folder&amp;#40;&amp;quot;app&amp;quot;, Seq&amp;#40;Folder&amp;#40;&amp;quot;controller&amp;quot;, Seq&amp;#40;File&amp;#40;&amp;quot;HomeController.scala&amp;quot;&amp;#41;,
+                                                                 File&amp;#40;&amp;quot;ContentController.scala&amp;quot;&amp;#41;&amp;#41;&amp;#41;,
+                                        Folder&amp;#40;&amp;quot;view&amp;quot;,       Seq&amp;#40;File&amp;#40;&amp;quot;hello.scala.html&amp;quot;&amp;#41;&amp;#41;&amp;#41;&amp;#41;&amp;#41;,
+                      File&amp;#40;&amp;quot;README.md&amp;quot;&amp;#41;&amp;#41;&amp;#41;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;次のように実行する。&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;scala&amp;gt; addI&amp;#40;root, File&amp;#40;&amp;quot;AnotherController.scala&amp;quot;&amp;#41;, Seq&amp;#40;&amp;quot;app&amp;quot;, &amp;quot;controller&amp;quot;&amp;#41;&amp;#41;
+res24: FileInterface =
+Folder&amp;#40;project, List&amp;#40;Folder&amp;#40;app, List&amp;#40;Folder&amp;#40;controller,List&amp;#40;File&amp;#40;HomeController.scala&amp;#41;,
+                                                             File&amp;#40;ContentController.scala&amp;#41;,
+                                                             File&amp;#40;AnotherController.scala&amp;#41;&amp;#41;&amp;#41;,
+                                      Folder&amp;#40;view, List&amp;#40;File&amp;#40;hello.scala.html&amp;#41;&amp;#41;&amp;#41;&amp;#41;&amp;#41;,
+                     File&amp;#40;README.md&amp;#41;&amp;#41;&amp;#41;
+&lt;/code&gt;&lt;/pre&gt;&lt;ul&gt;&lt;li&gt;(注意):ただし、よりScalaらしく実装するなら、  File/Folderのようなデータ構造は、Traversableトレイトの具象クラスとして実装するほうが多分正解。&lt;ul&gt;&lt;li&gt;&lt;a href='https://docs.scala-lang.org/ja/overviews/collections/trait-traversable.html'&gt;Traversable トレイト | Scala Documentation&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;/ul&gt;
+</description>
+<pubDate>
+Sat, 14 Apr 2018 00:00:00 +0900
+</pubDate>
+</item>
+<item>
+<guid>
+https://yuwki0131.github.io/posts-output/2018-04-14-scala-errors/
+</guid>
+<link>
+https://yuwki0131.github.io/posts-output/2018-04-14-scala-errors/
+</link>
+<title>
+Scalaでの例外系の処理のしくみと使い方
+</title>
+<description>
+&lt;p&gt;Scalaについて勉強した時のメモ(その3)です。例外系の扱い方について。OptionとEitherとException。&lt;/p&gt;&lt;p&gt;※ 元々はmarkdownで書いていたテキストの転載。&lt;/p&gt;&lt;h2 id=&quot;option&amp;#95;-&amp;#95;nullableを型レベルで表現する。&quot;&gt;Option - nullableを型レベルで表現する。&lt;/h2&gt;&lt;ul&gt;&lt;li&gt;Option型では値が入っている時に、&lt;code&gt;Some&amp;#40;値&amp;#41;&lt;/code&gt;、値がない時に&lt;code&gt;None&lt;/code&gt;で表現する。&lt;/li&gt;&lt;li&gt;&lt;a href='https://moneyforward.com/engineers_blog/2018/01/05/optional2018/'&gt;Optional(2018)年あけましておめでとうございます&lt;/a&gt;&lt;ul&gt;&lt;li&gt;まさに、2018年はOption元年と言った感じがある。(上記の言語はSwift)&lt;/li&gt;&lt;li&gt;Option外し忘れには注意。    Scalaの場合は、&lt;code&gt;Some&amp;#40;2018&amp;#41;年あけましておめでとうございます&lt;/code&gt;になる。&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;li&gt;Optionは値がnullableな場合に使用する。未定義処理や、想定外の値を返す時にnullを返していたようなケース。&lt;/li&gt;&lt;li&gt;基本的にはnull(or empty)チェック専用の構文だと思っている。(※個人の意見です。)&lt;/li&gt;&lt;li&gt;メリット&lt;ul&gt;&lt;li&gt;データが存在しない場合に、意味のないマジックナンバーや空文字、空オブジェクトを埋め込む必要がなくなる。&lt;/li&gt;&lt;li&gt;Java製のライブラリなどでnullableが怪しいやつはとりあえずOptionで囲っておくと、nullはNoneになる。&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;/ul&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;scala&amp;gt; Option&amp;#40;null&amp;#41;
+res6: Option&amp;#91;Null&amp;#93; = None
+&lt;/code&gt;&lt;/pre&gt;&lt;ul&gt;&lt;li&gt;head, getは使わない。&lt;ul&gt;&lt;li&gt;headOption, getOptionでnullableとなるようなケースは代わりの処理を用意する。&lt;/li&gt;&lt;li&gt;headやgetで値が存在しない場合、例外が投げられるため。&lt;/li&gt;&lt;li&gt;値が存在しないケースというのは、通常、想定範囲内のケースであるため、nullやempty時に例外が投げられるのは好ましくない。&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;li&gt;Option型の使い方が色々: &lt;a href='https://alvinalexander.com/scala/best-practice-option-some-none-pattern-scala-idioms'&gt;Scala best practice: How to use the Option/Some/None pattern&lt;/a&gt;&lt;/li&gt;&lt;li&gt;catchingやallCatchで任意の例外クラスをOptionやEitherにラップしてくれる関数も用意されている。&lt;ul&gt;&lt;li&gt;詳細は次の記事を参照: &lt;a href='http://yuroyoro.hatenablog.com/entry/20100719/1279519961'&gt;Scalaでの例外処理 - Either,Option,util.control.Exception&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;/ul&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;scala&amp;gt; catching&amp;#40;classOf&amp;#91;NumberFormatException&amp;#93;&amp;#41; opt &amp;quot;foo&amp;quot;.toInt
+res7: Option&amp;#91;Int&amp;#93; = None
+&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&quot;either&amp;#95;-&amp;#95;エラーを戻り値で表現する。&quot;&gt;Either - エラーを戻り値で表現する。&lt;/h2&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;scala&amp;gt; def f&amp;#40;n: Int&amp;#41;: Either&amp;#91;String, Int&amp;#93; = if &amp;#40;n &amp;lt; 0&amp;#41; Left&amp;#40;&amp;quot;wrong n value&amp;quot;&amp;#41; else Right&amp;#40;n&amp;#41;
+f: &amp;#40;n: Int&amp;#41;Either&amp;#91;String,Int&amp;#93;
+&lt;/code&gt;&lt;/pre&gt;&lt;ul&gt;&lt;li&gt;正常/エラーを戻り値で表す。&lt;ul&gt;&lt;li&gt;正常系の値が入っている時(正常に処理が終了した時)にRightでラップ。: &lt;code&gt;Right&amp;#40;値&amp;#41;&lt;/code&gt;&lt;/li&gt;&lt;li&gt;異常系の値が入っている、または、エラーメッセージ等の場合にLeftでラップ。 : &lt;code&gt;Left&amp;#40;異常な値やエラーメッセージなど&amp;#41;&lt;/code&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;li&gt;Either型で値を返す事で、戻り値からその後続の処理において、正常系、エラー系、どちらの処理をすればいいのか、  型で表現でき、パターンマッチで対応できる。&lt;ul&gt;&lt;li&gt;PlayframeworkだとActionFunction(アクション合成)などで使用されている。&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;li&gt;Right/Leftで表現しきれなくなった場合、3パターンの結果が返ってくる場合などは、代数的データ型で独自の型を定義した方がよさそう。&lt;/li&gt;&lt;li&gt;(余談)Scalaでは、デフォルトで&lt;code&gt;Either&amp;#91;A, B&amp;#93;&lt;/code&gt;を&lt;code&gt;A Either B&lt;/code&gt;と書くことができる。2つの型パラメータを持つ場合、常に書けるらしい。&lt;/li&gt;&lt;/ul&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;scala&amp;gt; val x: Int Either String = Left&amp;#40;1&amp;#41;
+x: Either&amp;#91;Int,String&amp;#93; = Left&amp;#40;1&amp;#41;
+&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&quot;例外(exception)&quot;&gt;例外(Exception)&lt;/h2&gt;&lt;ul&gt;&lt;li&gt;Javaと違い、Scala非チェック例外。&lt;ul&gt;&lt;li&gt;非チェック例外: 関数にExceptionクラスを列挙する必要が無くなるが、関数呼び出し時にはどの例外が返ってくるか分からなくなる。&lt;/li&gt;&lt;li&gt;非チェック例外なので、呼び出し元(を書く人)は呼び出し先が例外を投げてくるのか、    その場合はどのような挙動にすべきか、考慮しなくなりがち。&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;li&gt;try-catchでキャッチする場合は、NonFatalでキャッチする。&lt;ul&gt;&lt;li&gt;NonFatalはパターンマッチで例外をキャッチする時に、致命的なエラーでないエラーのみをキャッチする。&lt;/li&gt;&lt;li&gt;&lt;a href='http://d.hatena.ne.jp/Kazuhira/20130124/1359036747'&gt;Scala 2.10.0 Try ＆ NonFatal&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;li&gt;例外の扱い方色々: &lt;a href='http://seratch.hatenablog.jp/entry/20111126/1322309305'&gt;scala.util.control.Exception._を使ったサンプル集&lt;/a&gt;&lt;/li&gt;&lt;li&gt;例外を投げるとその関数は全域関数でなくなる。いわゆる純粋な関数でなくなる。&lt;ul&gt;&lt;li&gt;※全ての引数のパターンに対して戻り値が定まっている関数のことを全域関数という。    例外以外にも、特定の値を引数として渡した時に無限ループになるような関数も全域関数ではない。&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;li&gt;Eitherとかとの使い分け。(※以下、個人の主観です。)&lt;ul&gt;&lt;li&gt;他言語だと、Haskellは純粋な関数ではMaybe(Scalaで言う所のOption)、Eitherを使うようだが、    Haskell以外のそこまでこだわらない言語だと割とフランクに投げるイメージがある。EitherやOptionの方が好ましい程度。&lt;/li&gt;&lt;li&gt;Java風に簡単なチェックやバリデーションにまで、例外を投げられると辛い。(いちいちcatchしないといけなくなるので)&lt;/li&gt;&lt;li&gt;全てを放棄して、フレームワーク(Playframework)に処理を任せる場合のみ例外を投げた方がいい気がする。&lt;ul&gt;&lt;li&gt;例外を投げる時は、finally系の処理がない事が前提。      必要な場合はtry-finallyを使う必要がある(FutureだとrecoverやonComplete)。&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;li&gt;リカバリーの処理が必須なら、Option/Eitherで返される方が明示的になる。&lt;ul&gt;&lt;li&gt;Future系のrecover関数とOption/Eitherどちらか、書きやすさで選ぶ?&lt;/li&gt;&lt;li&gt;特にユーザの入力系はExceptionよりもOption/Eitherの方がその後(失敗後)の処理が書きやすい。&lt;/li&gt;&lt;li&gt;例外による余計なジャンプが無くなるため、例外をcatchし損ねる事がなくなり、finally漏れによるバグが無くなる。&lt;ul&gt;&lt;li&gt;呼び出し元の関数 → 例外を想定していない関数 → 例外創出を前提とした関数の組み合わせで呼び出しが発生した時、        例外を想定していない関数内の処理で問題が発生するリスクが常に存在する。&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;li&gt;&lt;a href='https://dwango.github.io/scala_text/error-handling.html'&gt;エラー処理 - dwango on GitHub&lt;/a&gt;&lt;/li&gt;&lt;li&gt;非同期プログラミング時(Futureを使っている場合など)に、例外の挙動はさらに複雑になる。&lt;ul&gt;&lt;li&gt;onCompleteやrecover(recoverFrom)などの記述がないと、&lt;strong&gt;例外は基本的に握りつぶされる&lt;/strong&gt;。&lt;/li&gt;&lt;li&gt;Futureの周りをtry-catchで囲っても意味はない。try-catchを抜けた後でFutureが別スレッドで実行される。&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;ダメな例。&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;try {
+  Future { throw new RuntimeException&amp;#40;&amp;quot;未来のエラー&amp;quot;&amp;#41; }
+} catch {
+  case e =&amp;gt; println&amp;#40;&amp;quot;未来のエラーを事前に防ぎました！&amp;quot;&amp;#41;
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Scalaで例外を投げまくるコードを書く時は常に注意が必要。&lt;/li&gt;&lt;/ul&gt;&lt;h2 id=&quot;まとめ&quot;&gt;まとめ&lt;/h2&gt;&lt;ul&gt;&lt;li&gt;例外を投げた方がシンプルになる事も多いが、ある程度は、Option/Eitherを使った方がよさそう。&lt;/li&gt;&lt;/ul&gt;
+</description>
+<pubDate>
+Sat, 14 Apr 2018 00:00:00 +0900
+</pubDate>
+</item>
 <item>
 <guid>
 https://yuwki0131.github.io/posts-output/2017-08-26-make-a-lisp-minimum/

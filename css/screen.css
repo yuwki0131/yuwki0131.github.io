@@ -3,7 +3,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 h1 {
-    font-size: 16px;
+    font-size: 18px;
 }
 
 body {
@@ -19,6 +19,10 @@ body {
 
 .container {
     max-width: 1000px;
+}
+
+.container h2 {
+    font-size: 18px;
 }
 
 .container h3 {
@@ -92,6 +96,18 @@ body {
     height: auto;
 }
 
+#content li {
+    padding: 2px 0;
+}
+
+#content ol {
+    padding: 2px 15px;
+}
+
+#content ul {
+    padding: 2px 20px;
+}
+
 footer {
     font-size: 14px;
     text-align: center;
@@ -110,6 +126,7 @@ footer {
 .post-header {
     margin-bottom: 5px;
 }
+
 .post-header h2 {
     font-size: 20px;
     color: #ff6600;
@@ -124,6 +141,7 @@ footer {
     border-bottom: 1px solid #dbdbdb;
     margin-bottom: 20px;
 }
+
 #page-header h2 {
     font-size: 20px;
 }
@@ -131,6 +149,7 @@ footer {
 pre {
     overflow-x: auto;
 }
+
 pre code {
     display: block;
     padding: 0.5em;

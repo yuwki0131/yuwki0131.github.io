@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>何で走っているのだろう: Scalaでの例外系の処理のしくみと使い方</title>
+    <link rel="canonical" href="https://yuwki0131.github.io/posts-output/2018-04-14-scala-errors/">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href='http://fonts.googleapis.com/css?family=Alegreya:400italic,700italic,400,700' rel='stylesheet'
+          type='text/css'>
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.7.0/styles/default.min.css">
+    <link rel="icon" href="/img/frame/bird.png">
+    <link href="https://fonts.googleapis.com/earlyaccess/mplus1p.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Fira+Sans" rel="stylesheet">
+    <link href="/css/screen.css" rel="stylesheet" type="text/css" />
+  </head>
+  <body>
+    <nav class="navbar navbar-default">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed"
+                  data-toggle="collapse" data-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <p style="line-height:40px;">
+            <img src="/img/frame/run.png" width="32" style="padding-top:10px;padding-bot:10px"/>
+            <img src="/img/frame/cow.png" width="32" style="padding-top:10px;padding-bot:10px"/>
+            <a class="navbar-brand" href="/">何で走っているのだろう</a>
+          </p>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav navbar-right">
+            <li >
+              <a href="/"><img src="/img/frame/home.png" width="16"/>&nbsp;ホーム</a></li>
+            <li
+              >
+              <a href="/archives/"><img src="/img/frame/edit.png" width="16"/>&nbsp;過去の投稿</a></li>
+            
+            <li
+              >
+              <a href="/pages-output/about/"><img src="/img/frame/surprised.png" width="16"/>&nbsp;投稿者</a>
+            </li>
+            
+            <li><a href="/feed.xml"><img src="/img/frame/rss.png" width="16"/>&nbsp;RSS</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div><!--/.container-fluid -->
+    </nav>
+
+
+    <div class="container">
+
+      <div class="row">
+        <div class="col-lg-9">
+          <div id="content">
+            
+<div id="post">
+    <div class="post-header">
+  <div id="post-meta" class="row">
+    <div class="col-lg-6">2018/04/14</div>
+    
+  </div>
+  <h2><img src="/img/frame/bird.png" width="32" />&emsp;Scalaでの例外系の処理のしくみと使い方</h2>
+</div>
+<hr/>
+<div>
+  <ol class="content"><li><a href="#option_-_nullableを型レベルで表現する。">Option - nullableを型レベルで表現する。</a></li><li><a href="#either_-_エラーを戻り値で表現する。">Either - エラーを戻り値で表現する。</a></li><li><a href="#例外(exception)">例外(Exception)</a></li><li><a href="#まとめ">まとめ</a></li></ol>
+  <p>Scalaについて勉強した時のメモ(その3)です。例外系の扱い方について。OptionとEitherとException。</p><p>※ 元々はmarkdownで書いていたテキストの転載。</p><h2 id="option&#95;-&#95;nullableを型レベルで表現する。">Option - nullableを型レベルで表現する。</h2><ul><li>Option型では値が入っている時に、<code>Some&#40;値&#41;</code>、値がない時に<code>None</code>で表現する。</li><li><a href='https://moneyforward.com/engineers_blog/2018/01/05/optional2018/'>Optional(2018)年あけましておめでとうございます</a><ul><li>まさに、2018年はOption元年と言った感じがある。(上記の言語はSwift)</li><li>Option外し忘れには注意。    Scalaの場合は、<code>Some&#40;2018&#41;年あけましておめでとうございます</code>になる。</li></ul></li><li>Optionは値がnullableな場合に使用する。未定義処理や、想定外の値を返す時にnullを返していたようなケース。</li><li>基本的にはnull(or empty)チェック専用の構文だと思っている。(※個人の意見です。)</li><li>メリット<ul><li>データが存在しない場合に、意味のないマジックナンバーや空文字、空オブジェクトを埋め込む必要がなくなる。</li><li>Java製のライブラリなどでnullableが怪しいやつはとりあえずOptionで囲っておくと、nullはNoneになる。</li></ul></li></ul><pre><code class="scala">scala&gt; Option&#40;null&#41;
+res6: Option&#91;Null&#93; = None
+</code></pre><ul><li>head, getは使わない。<ul><li>headOption, getOptionでnullableとなるようなケースは代わりの処理を用意する。</li><li>headやgetで値が存在しない場合、例外が投げられるため。</li><li>値が存在しないケースというのは、通常、想定範囲内のケースであるため、nullやempty時に例外が投げられるのは好ましくない。</li></ul></li><li>Option型の使い方が色々: <a href='https://alvinalexander.com/scala/best-practice-option-some-none-pattern-scala-idioms'>Scala best practice: How to use the Option/Some/None pattern</a></li><li>catchingやallCatchで任意の例外クラスをOptionやEitherにラップしてくれる関数も用意されている。<ul><li>詳細は次の記事を参照: <a href='http://yuroyoro.hatenablog.com/entry/20100719/1279519961'>Scalaでの例外処理 - Either,Option,util.control.Exception</a></li></ul></li></ul><pre><code class="scala">scala&gt; catching&#40;classOf&#91;NumberFormatException&#93;&#41; opt &quot;foo&quot;.toInt
+res7: Option&#91;Int&#93; = None
+</code></pre><h2 id="either&#95;-&#95;エラーを戻り値で表現する。">Either - エラーを戻り値で表現する。</h2><pre><code class="scala">scala&gt; def f&#40;n: Int&#41;: Either&#91;String, Int&#93; = if &#40;n &lt; 0&#41; Left&#40;&quot;wrong n value&quot;&#41; else Right&#40;n&#41;
+f: &#40;n: Int&#41;Either&#91;String,Int&#93;
+</code></pre><ul><li>正常/エラーを戻り値で表す。<ul><li>正常系の値が入っている時(正常に処理が終了した時)にRightでラップ。: <code>Right&#40;値&#41;</code></li><li>異常系の値が入っている、または、エラーメッセージ等の場合にLeftでラップ。 : <code>Left&#40;異常な値やエラーメッセージなど&#41;</code></li></ul></li><li>Either型で値を返す事で、戻り値からその後続の処理において、正常系、エラー系、どちらの処理をすればいいのか、  型で表現でき、パターンマッチで対応できる。<ul><li>PlayframeworkだとActionFunction(アクション合成)などで使用されている。</li></ul></li><li>Right/Leftで表現しきれなくなった場合、3パターンの結果が返ってくる場合などは、代数的データ型で独自の型を定義した方がよさそう。</li><li>(余談)Scalaでは、デフォルトで<code>Either&#91;A, B&#93;</code>を<code>A Either B</code>と書くことができる。2つの型パラメータを持つ場合、常に書けるらしい。</li></ul><pre><code class="scala">scala&gt; val x: Int Either String = Left&#40;1&#41;
+x: Either&#91;Int,String&#93; = Left&#40;1&#41;
+</code></pre><h2 id="例外(exception)">例外(Exception)</h2><ul><li>Javaと違い、Scala非チェック例外。<ul><li>非チェック例外: 関数にExceptionクラスを列挙する必要が無くなるが、関数呼び出し時にはどの例外が返ってくるか分からなくなる。</li><li>非チェック例外なので、呼び出し元(を書く人)は呼び出し先が例外を投げてくるのか、    その場合はどのような挙動にすべきか、考慮しなくなりがち。</li></ul></li><li>try-catchでキャッチする場合は、NonFatalでキャッチする。<ul><li>NonFatalはパターンマッチで例外をキャッチする時に、致命的なエラーでないエラーのみをキャッチする。</li><li><a href='http://d.hatena.ne.jp/Kazuhira/20130124/1359036747'>Scala 2.10.0 Try ＆ NonFatal</a></li></ul></li><li>例外の扱い方色々: <a href='http://seratch.hatenablog.jp/entry/20111126/1322309305'>scala.util.control.Exception._を使ったサンプル集</a></li><li>例外を投げるとその関数は全域関数でなくなる。いわゆる純粋な関数でなくなる。<ul><li>※全ての引数のパターンに対して戻り値が定まっている関数のことを全域関数という。    例外以外にも、特定の値を引数として渡した時に無限ループになるような関数も全域関数ではない。</li></ul></li><li>Eitherとかとの使い分け。(※以下、個人の主観です。)<ul><li>他言語だと、Haskellは純粋な関数ではMaybe(Scalaで言う所のOption)、Eitherを使うようだが、    Haskell以外のそこまでこだわらない言語だと割とフランクに投げるイメージがある。EitherやOptionの方が好ましい程度。</li><li>Java風に簡単なチェックやバリデーションにまで、例外を投げられると辛い。(いちいちcatchしないといけなくなるので)</li><li>全てを放棄して、フレームワーク(Playframework)に処理を任せる場合のみ例外を投げた方がいい気がする。<ul><li>例外を投げる時は、finally系の処理がない事が前提。      必要な場合はtry-finallyを使う必要がある(FutureだとrecoverやonComplete)。</li></ul></li><li>リカバリーの処理が必須なら、Option/Eitherで返される方が明示的になる。<ul><li>Future系のrecover関数とOption/Eitherどちらか、書きやすさで選ぶ?</li><li>特にユーザの入力系はExceptionよりもOption/Eitherの方がその後(失敗後)の処理が書きやすい。</li><li>例外による余計なジャンプが無くなるため、例外をcatchし損ねる事がなくなり、finally漏れによるバグが無くなる。<ul><li>呼び出し元の関数 → 例外を想定していない関数 → 例外創出を前提とした関数の組み合わせで呼び出しが発生した時、        例外を想定していない関数内の処理で問題が発生するリスクが常に存在する。</li></ul></li></ul></li></ul></li><li><a href='https://dwango.github.io/scala_text/error-handling.html'>エラー処理 - dwango on GitHub</a></li><li>非同期プログラミング時(Futureを使っている場合など)に、例外の挙動はさらに複雑になる。<ul><li>onCompleteやrecover(recoverFrom)などの記述がないと、<strong>例外は基本的に握りつぶされる</strong>。</li><li>Futureの周りをtry-catchで囲っても意味はない。try-catchを抜けた後でFutureが別スレッドで実行される。</li></ul></li></ul><p>ダメな例。<pre><code class="scala">try {
+  Future { throw new RuntimeException&#40;&quot;未来のエラー&quot;&#41; }
+} catch {
+  case e =&gt; println&#40;&quot;未来のエラーを事前に防ぎました！&quot;&#41;
+}
+</code></pre></p><ul><li>Scalaで例外を投げまくるコードを書く時は常に注意が必要。</li></ul><h2 id="まとめ">まとめ</h2><ul><li>例外を投げた方がシンプルになる事も多いが、ある程度は、Option/Eitherを使った方がよさそう。</li></ul>
+</div>
+
+<div id="post-tags">
+  <b><img src="/img/frame/tag.png" width="16"/>&nbsp;</b>
+  
+  <a href="/tags-output/例外/">例外</a>
+  
+  <a href="/tags-output/Scala/">Scala</a>
+  
+</div>
+<hr/>
+
+
+    <div id="prev-next">
+        
+        <a href="/posts-output/2018-04-14-scala-algebraic-data-types/">&laquo; Scalaでの代数的データ型のしくみと使い方</a>
+        
+        
+        <a class="right" href="/posts-output/2017-08-26-make-a-lisp-minimum/">最低限のLispを作るためのマイルストーン &raquo;</a>
+        
+    </div>
+
+    
+
+</div>
+
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div id="sidebar">
+            <p class="sub-menu-bar-item">
+              <h3><img src="/img/frame/link.png" width="16"/>&nbsp;外部リンク</h3>
+            </p>
+            <ul id="links">
+              <li><a href="https://uid0130.blogspot.com">yuwki0131-blog(旧ブログ)</a></li>
+              <li><a href="https://github.com/yuwki0131">Github</a></li>
+              
+            </ul>
+            
+            <div id="recent">
+              <p class="sub-menu-bar-item">
+                <h3><img src="/img/frame/edit.png" width="16"/>&nbsp;最近の投稿</h3>
+              </p>
+              <ul>
+                
+                <li><a href="/posts-output/2018-04-14-scala-functions-memo/">Scalaでの関数のしくみと使い方</a></li>
+                
+                <li><a href="/posts-output/2018-04-14-scala-algebraic-data-types/">Scalaでの代数的データ型のしくみと使い方</a></li>
+                
+                <li><a href="/posts-output/2018-04-14-scala-errors/">Scalaでの例外系の処理のしくみと使い方</a></li>
+                
+              </ul>
+            </div>
+            
+            
+            <div id="tags">
+              <p class="sub-menu-bar-item">
+                <h3><img src="/img/frame/tag.png" width="16"/>&nbsp;キーワード</h3>
+              </p>
+              <ul>
+                
+                <li><a href="/tags-output/型推論/">型推論</a></li>
+                
+                <li><a href="/tags-output/デバッグ/">デバッグ</a></li>
+                
+                <li><a href="/tags-output/スコープ/">スコープ</a></li>
+                
+                <li><a href="/tags-output/Lisp/">Lisp</a></li>
+                
+                <li><a href="/tags-output/例外/">例外</a></li>
+                
+                <li><a href="/tags-output/Cryogen/">Cryogen</a></li>
+                
+                <li><a href="/tags-output/言語処理系/">言語処理系</a></li>
+                
+                <li><a href="/tags-output/Scala/">Scala</a></li>
+                
+                <li><a href="/tags-output/blog/">blog</a></li>
+                
+                <li><a href="/tags-output/Haskell/">Haskell</a></li>
+                
+                <li><a href="/tags-output/関数型プログラミング/">関数型プログラミング</a></li>
+                
+                <li><a href="/tags-output/代数的データ型/">代数的データ型</a></li>
+                
+                <li><a href="/tags-output/再帰/">再帰</a></li>
+                
+                <li><a href="/tags-output/クロージャ/">クロージャ</a></li>
+                
+              </ul>
+            </div>
+            
+          </div>
+        </div>
+      </div>
+      <footer>Copyright &copy; 2018 yuwki0131
+        <p style="text-align: center;">
+          Powered by <a href="http://cryogenweb.org">Cryogen</a>
+          <br/>
+          All Icons and Illustrations are designed by Freepik
+          <br/>
+          and distributed by Flaticon (<a href="https://www.flaticon.com/">flaticon.com</a>)
+          <br/>
+          <a href="http://yuwki0131.github.io/index.html">
+            <img src="https://ga-beacon.appspot.com/UA-103811007-3/yourusername.github.io/index.html"/>
+          </a>
+        </p>
+      </footer>
+    </div>
+    <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+    <script src="/js/highlight.pack.js" type="text/javascript"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+     <link rel="stylesheet" type="text/css" href=nil>
+<script>
+window.klipse_settings = null;
+</script>
+<script src=nil></script> 
+    
+  </body>
+</html>

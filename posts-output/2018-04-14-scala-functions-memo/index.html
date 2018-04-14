@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>何で走っているのだろう: Scalaでの関数のしくみと使い方</title>
+    <link rel="canonical" href="https://yuwki0131.github.io/posts-output/2018-04-14-scala-functions-memo/">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href='http://fonts.googleapis.com/css?family=Alegreya:400italic,700italic,400,700' rel='stylesheet'
+          type='text/css'>
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.7.0/styles/default.min.css">
+    <link rel="icon" href="/img/frame/bird.png">
+    <link href="https://fonts.googleapis.com/earlyaccess/mplus1p.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Fira+Sans" rel="stylesheet">
+    <link href="/css/screen.css" rel="stylesheet" type="text/css" />
+  </head>
+  <body>
+    <nav class="navbar navbar-default">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed"
+                  data-toggle="collapse" data-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <p style="line-height:40px;">
+            <img src="/img/frame/run.png" width="32" style="padding-top:10px;padding-bot:10px"/>
+            <img src="/img/frame/cow.png" width="32" style="padding-top:10px;padding-bot:10px"/>
+            <a class="navbar-brand" href="/">何で走っているのだろう</a>
+          </p>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav navbar-right">
+            <li >
+              <a href="/"><img src="/img/frame/home.png" width="16"/>&nbsp;ホーム</a></li>
+            <li
+              >
+              <a href="/archives/"><img src="/img/frame/edit.png" width="16"/>&nbsp;過去の投稿</a></li>
+            
+            <li
+              >
+              <a href="/pages-output/about/"><img src="/img/frame/surprised.png" width="16"/>&nbsp;投稿者</a>
+            </li>
+            
+            <li><a href="/feed.xml"><img src="/img/frame/rss.png" width="16"/>&nbsp;RSS</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div><!--/.container-fluid -->
+    </nav>
+
+
+    <div class="container">
+
+      <div class="row">
+        <div class="col-lg-9">
+          <div id="content">
+            
+<div id="post">
+    <div class="post-header">
+  <div id="post-meta" class="row">
+    <div class="col-lg-6">2018/04/14</div>
+    
+  </div>
+  <h2><img src="/img/frame/bird.png" width="32" />&emsp;Scalaでの関数のしくみと使い方</h2>
+</div>
+<hr/>
+<div>
+  <ol class="content"><li><a href="#再帰(recursion)">再帰(Recursion)</a></li><ol><li><a href="#再帰呼出し">再帰呼出し</a></li><li><a href="#木構造のデータ型_+_matchによるパターンマッチで再帰を使う例">木構造のデータ型 + matchによるパターンマッチで再帰を使う例</a></li><li><a href="#末尾最適化(tail_call_optimization)">末尾最適化(Tail call optimization)</a></li></ol><li><a href="#無名関数(ラムダ抽象)">無名関数(ラムダ抽象)</a></li><li><a href="#レキシカルスコープ(lexical_scope,_静的スコープ)">レキシカルスコープ(Lexical scope, 静的スコープ)</a></li><li><a href="#クロージャ(closure)">クロージャ(Closure)</a></li><ol><li><a href="#クロージャの使い方いろいろ">クロージャの使い方いろいろ</a></li><li><a href="#クロージャでif関数っぽいものを作る">クロージャでif関数っぽいものを作る</a></li><li><a href="#クロージャで作るリスト">クロージャで作るリスト</a></li></ol><li><a href="#高階関数(high-order_function)">高階関数(High-order function)</a></li><li><a href="#関数合成">関数合成</a></li><li><a href="#部分関数(partial_function)">部分関数(Partial function)</a></li><li><a href="#まとめ">まとめ</a></li></ol>
+  <p>Scalaについて勉強した時のメモ(その1)です。関数の扱い方について。</p><p>※ 元々はmarkdownで書いていたテキストの転載。</p><h2 id="再帰(recursion)">再帰(Recursion)</h2><ul><li>再帰とは自分自身を自分自身の中に持つような構造。<ul><li><a href='https://ja.wikipedia.org/wiki/%E5%86%8D%E5%B8%B0'>再帰 - Wikipedia</a></li><li>関数型プログラミングでは、再帰的なデータ型と(関数の)再帰呼出しがよく使われる。</li></ul></li></ul><h3 id="再帰呼出し">再帰呼出し</h3><ul><li>呼び出し元の関数が自分自身を呼び出すこと。</li><li>Scalaでの再帰呼出し。次のような階乗を行う関数の場合。</li></ul><pre><code class="scala">def fact1&#40;n: Int&#41;: Int = if &#40;n &lt; 1&#41;{
+  1
+} else {
+  n &#42; fact1&#40;n - 1&#41;
+}
+</code></pre><ul><li>Scalaでのループはコレクション関数を使用が(多分)殆どなので、再帰呼出しはあまり使わないが、稀に使う。</li><li>再帰呼出しは(一般に)関数型プログラミングとの相性が良い。<ul><li>変数に再代入しないため、変数を常にimmutableにしたままループが書ける。</li><li>再帰的なデータ型に対して、関数の再帰呼出しは相性が良い。(再帰的なデータ型を定義し、再帰呼出しで再帰的にトラバースできる)</li><li>プログラムを帰納的(余帰納的)に定義できる。</li></ul></li><li>木構造のような再帰的なデータ型や、分割統治法を使ったアルゴリズムの場合は、再帰を使うとわかりやすいコードが書ける。<ul><li>分割統治法<ul><li>大きな問題を小さな部分問題に分割し、個々の小さな部分問題を解決しながら、      その部分問題の解答結果のマージを繰り返し、最終的に元の問題を解くようなアルゴリズム。</li><li><a href='https://ja.wikipedia.org/wiki/%E5%88%86%E5%89%B2%E7%B5%B1%E6%B2%BB%E6%B3%95'>分割統治法 - Wikipedia</a></li><li>次のクイックソートが典型例。</li></ul></li><li>クイックソート(あるいは、関数型プログラミングにおける偽のクイックソート)<ul><li>Javaでクイックソート:      <a href='https://qiita.com/gigegige/items/4817c27314a2393eb02d'>【Java】クイックソートのアルゴリズムのテスト - Qiita</a></li><li>Scalaで関数型プログラミングのスタイルのクイックソート</li></ul></li></ul></li></ul><pre><code class="scala">def quicksort&#91;A&#93;&#40;ls: Seq&#91;A&#93;&#41;&#40;implicit ord: Ordering&#91;A&#93;&#41;: Seq&#91;A&#93; = ls match {
+    case Nil =&gt; Nil
+    case a::as =&gt; &#40;quicksort&#40;as.filter&#40;ord.lt&#40;&#95;, a&#41;&#41;&#41;
+                   ++ Seq&#40;a&#41; ++ quicksort&#40;as.filter&#40;ord.gteq&#40;&#95;, a&#41;&#41;&#41;&#41;
+}
+</code></pre><p>これは普通の関数同様に実行する。</p><pre><code class="scala">scala&gt; quicksort&#40;List&#40;5, 6, 7, 4, 3, 10, 2, 8, 0, 3&#41;&#41;
+res38: Seq&#91;Int&#93; = List&#40;0, 2, 3, 3, 4, 5, 6, 7, 8, 10&#41;
+</code></pre><ul><li>上記は偽のクイックソート(理由はググッて下さい)。</li></ul><h3 id="木構造のデータ型&#95;+&#95;matchによるパターンマッチで再帰を使う例">木構造のデータ型 + matchによるパターンマッチで再帰を使う例</h3><p>木構造で、木の末尾を<code>Leaf</code>、枝を<code>Node</code>としてcase classで定義する。</p><pre><code class="scala">sealed trait Tree&#91;+A&#93;
+case class Leaf&#91;A&#93;&#40;value: A&#41; extends Tree&#91;A&#93;
+case class Node&#91;A&#93;&#40;left: Tree&#91;A&#93;, right: Tree&#91;A&#93;&#41; extends Tree&#91;A&#93;
+</code></pre><p>木に対する走査の処理。 具体的にどのように走査した結果を得るかは、抽象化する。<code>f: &#40;A, A&#41; =&gt; A</code>の箇所。</p><pre><code class="scala">def sum&#91;A&#93;&#40;t: Tree&#91;A&#93;, f: &#40;A, A&#41; =&gt; A&#41;: A = t match {
+  case Leaf&#40;a&#41; =&gt; a
+  case Node&#40;l, r&#41; =&gt; f&#40;sum&#40;l, f&#41;, sum&#40;r, f&#41;&#41;
+}
+</code></pre><p>以下のように使用する。</p><pre><code class="scala">scala&gt; val d = Node&#40;Node&#40;Leaf&#40;10&#41;, Leaf&#40;20&#41;&#41;, Leaf&#40;1&#41;&#41;
+d: Node&#91;Int&#93; = Node&#40;Node&#40;Leaf&#40;10&#41;,Leaf&#40;20&#41;&#41;,Leaf&#40;1&#41;&#41;
+
+scala&gt; sum&#40;d, &#40;a:Int, b:Int&#41; =&gt; a + b&#41;
+res36: Int = 31
+</code></pre><p>以下は、String型で文字列を返す例。</p><pre><code class="scala">scala&gt; val e = Node&#40;Node&#40;Leaf&#40;&quot;a&quot;&#41;, Leaf&#40;&quot;b&quot;&#41;&#41;, Leaf&#40;&quot;c&quot;&#41;&#41;
+e: Node&#91;String&#93; = Node&#40;Node&#40;Leaf&#40;a&#41;,Leaf&#40;b&#41;&#41;,Leaf&#40;c&#41;&#41;
+
+scala&gt; sum&#40;e, &#40;a: String, b: String&#41; =&gt; &quot;&#40;&quot; ++ a ++ &quot; &quot; ++ b ++ &quot;&#41;&quot;&#41;
+res44: String = &#40;&#40;a b&#41; c&#41;
+</code></pre><h3 id="末尾最適化(tail&#95;call&#95;optimization)">末尾最適化(Tail call optimization)</h3><ul><li>関数型言語で行われるコンパイラの処理の一種。</li><li>末尾再帰形式は関数呼び出し時に、stackを必要としないような再帰呼出しの形式。<ul><li>自分自身を再帰的に呼び出す際にその呼び出し以外の処理が残っていない形で自分自身を呼び出すような関数呼び出し形。</li></ul></li><li>再帰呼出しは、コンパイル時に「末尾再帰」形式になっている場合、コンパイル時に(whileのような)スタックを消費しないループに変換される。<ul><li>ループに変換されない場合、通常の関数呼び出しの連鎖となり、stackを消費してしまい、StackOVerFlowErrorになってしまう。</li><li>ループ回数が多い場合(JVMの場合、1000〜数千回以上)の場合は、末尾再帰形式でループを記述しないと、StackOverFlowになる。<ul><li>個人的な経験則だと1000回未満のループだと、SOFにはならない事が多い。(勿論、実装による部分が大きい)</li></ul></li><li>大量にループを繰り返す場合は末尾再帰が必須となる。</li><li>stackを消費しすぎないタイプのループの場合は、この限りではない。(関数呼び出しで消費したStackが戻される場合など。)</li></ul></li><li>Scalaの再帰は末尾最適化をする場合としない(できない)場合。<ul><li>末尾再帰形式になっていない場合は、末尾最適化が行われない。</li></ul></li></ul><p>次のような階乗を行う関数の場合。(10の階乗(fact(10))は、10! = 1 <em> 2 </em> 3 <em> 4 </em> 5 <em> 6 </em> 7 <em> 8 </em> 9 * 10)<pre><code class="scala">def fact1&#40;n: Int&#41;: Int = if &#40;n &lt; 1&#41;{
+  1
+} else {
+  n &#42; fact1&#40;n - 1&#41;
+}
+</code></pre></p><p>次の例は、自分自身を呼び出しのみ、かつ末尾再帰形式になっている場合。</p><pre><code class="scala">def fact2&#40;n: Int, a: Int&#41;: Int = if &#40;n &lt; 1&#41;{
+  a
+} else {
+  fact2&#40;n - 1, n &#42; a&#41;
+}
+</code></pre><p>計算結果を保持する変数(アキュームレータ)を一つ追加している。 末尾再帰に書き直す場合は、計算結果を保持する引数を用意し、そこに副作用の役割を担わせることも多い。 これは「変化するmutableな変数」を表している。(引数で副作用(再代入)を引き回すスタイル)</p><p>以下のコードでは<code>fact2&#40;10, 1&#41;</code>の計算しか行っていないが、例えば、<code>fact1&#40;10000&#41;</code>と<code>fact2&#40;10000, 1&#41;</code>では、 fact1の場合、StackOverFlowになってしまうが、fact2ではコンパイラの最適化(末尾再帰最適化)によりStackOverFlowにならない。</p><pre><code class="scala">scala&gt; fact2&#40;10, 1&#41;
+res39: Int = 3628800
+</code></pre><ul><li>末尾再帰では基本的に綺麗なプログラムを書こうと考えない事がポイント(末尾再帰の時点で大して綺麗に書けてない)。<ul><li>whileループを無理矢理、再帰に書き換えるような勢いが大切。</li><li>内容によっては既に末尾再帰形式の関数になっているような関数もある。</li></ul></li><li>Scalaでは相互再帰は末尾最適化をしない。</li></ul><p>例えば以下のようなプログラム、<pre><code class="scala">def odd&#40;n: Int&#41;: Boolean = if &#40;n = 1&#41; {
+  true
+} else {
+  even&#40;n - 1&#41;
+}
+
+def even&#40;n: Int&#41;: Boolean = if &#40;n = 0&#41; {
+  true
+} else {
+  odd&#40;n - 1&#41;
+}
+</code></pre></p><p>は、oddとevenを相互に呼び出し、自分自身の末尾で関数を呼び出す。 この形式はfact2と同様に、末尾に関数呼び出し以外の処理は残っていないが、末尾最適化されない。</p><ul><li>相互再帰や複雑な再帰呼出しは、Trampolineという末尾最適化と同様のスタックを消費しない書き方がある。<ul><li><a href='http://halcat.org/scala/stackless/index.html'>スタックレスScala</a></li></ul></li><li>原理主義的に再帰のみでゴリゴリimmutableなコードも書けるが、<ul><li>そもそもScalaなら可能な限りコレクションを使ってループを書くべき。</li><li>可読性や後でメンテナンスすることを考えるなら、Scalaの場合はwhile文やfor文が現実的な選択肢かも知れない。<ul><li>関数を呼び出す側から見た時に、参照透過な関数になっていればOKという考え方もアリとみなす。</li></ul></li></ul></li><li>結論としては、関数型プログラミングでのループは再帰やfor/whileのような構文ではなく、  mapやfilterといったコレクション関数を使うのが一般的。<ul><li>大半のループはコレクション関数(のメソッドチェーン)で記述した方が、可読性が高く、メンテナンスもしやすい簡潔なコードが書ける。</li></ul></li></ul><h2 id="無名関数(ラムダ抽象)">無名関数(ラムダ抽象)</h2><pre><code class="scala">scala&gt; val f = &#40;&#40;a: Int&#41; =&gt; a + 1&#41;
+f: Int =&gt; Int = $$Lambda$4017/598382925@72f0dff7
+
+scala&gt; f&#40;1&#41;
+res19: Int = 2
+
+scala&gt; f&#40;2&#41;
+res20: Int = 3
+</code></pre><ul><li>おなじみの無名関数。大体、無名関数かラムダ式でググったら出てくる。ラムダ式とはあんまり言わない(方がいい)(※個人の意見です)。</li><li>第一級オブジェクトとしての関数(データとして扱う事が出来る関数): 関数を渡す、値として保持できる。</li><li>無名関数の式が評価されると、<strong>関数オブジェクト</strong>が生成される。<ul><li>関数オブジェクトは、コンストラクタによって生成される他のJavaオブジェクトと同様に扱えるオブジェクト    (型となるクラスを持ち、インスタンスとして扱われるように)なる。</li></ul></li><li>オブジェクトなのでデータを持たせる事もできる。(後述のクロージャを参照)</li><li>C言語の関数のポインタと何が違うのか? / JavaのStrategyパターンと何が違うのか。<ul><li>関数のポインタと違い、データ(値)を保持する。</li><li>JavaのStrategyパターンと違い、インターフェースを必要としない。</li></ul></li><li>map/filter/reduce(fold)関数や、その他様々な高階関数に渡す時によく使用する。(後述の高階関数を参照)</li></ul><h2 id="レキシカルスコープ(lexical&#95;scope,&#95;静的スコープ)">レキシカルスコープ(Lexical scope, 静的スコープ)</h2><ul><li>"Scope"とは範囲のこと。"Lexical"とはLiterallyくらいの意味で深い意味はない。</li><li>レキシカルスコープとは、静的に、ある変数を参照した時、どのタイミングで代入された値が参照されるかが決まるスコープのこと。</li><li>Scalaの変数(valや引数)の有効範囲は、レキシカルスコーピングによって決定される。</li><li>変数の値を取り出す時、(Scalaの)レキシカルスコープでは、ネストした変数定義において最も内側で定義された変数を参照する。</li></ul><p>以下の2つのコード。<pre><code class="scala">scala&gt; {val a = 1; &#40;&#40;a:Int&#41; =&gt; &#40;&#40;a:Int&#41; =&gt; a&#41;&#40;3&#41;&#41;&#40;2&#41; }
+res5: Int = 3
+</code></pre></p><p>または、</p><pre><code class="scala">scala&gt; {val a = 1; {val a = 2; {val a = 3; a} } }
+res11: Int = 3
+</code></pre><p>この時、aは、最も内側にあるaは、ネストしている中で最も手前で定義された変数(引数)aの値を参照する。 次の例では、最も内側のスコープを抜けているので上記とは別の値を見に行く。</p><pre><code class="scala">scala&gt; {val a = 1; &#40;&#40;a:Int&#41; =&gt; {&#40;&#40;a:Int&#41; =&gt; a&#41;&#40;3&#41;; a}&#41;&#40;2&#41; }
+res10: Int = 2
+</code></pre><p>または、</p><pre><code class="scala">scala&gt; {val a = 1; {val a = 2; {val a = 3;} a} }
+res14: Int = 2
+</code></pre><ul><li>レキシカルスコープ自体は、モダンな言語では一般的な仕組み。<ul><li>Scalaだけでなく、JavaScriptやTypeScript(たぶん)、Ruby(たぶん)、Python、Groovy(たぶん)でも共通。<ul><li>但し、JavaScriptのvarはFunctionスコープと呼ばれるスコープ(レキシカルスコープとは若干違う)なので注意が必要。      (文法によってスコープのとり方が異なる)</li></ul></li><li>今とはなっては、(静的スコープではない)動的スコープを持つ言語の方が珍しい。動的スコープを採用している言語はほとんどない。<ul><li>現代で実用的な動的スコープがメインの言語はEmacs Lispくらい。。。</li><li>但し、implicit parameterは動的スコープ的な役割に近い。      implicit parameterは、社内だとFutureのExecutionContextがよく使われる。</li></ul></li></ul></li></ul><h2 id="クロージャ(closure)">クロージャ(Closure)</h2><ul><li>自由変数を含む(使用した)関数によって生成された関数オブジェクトの事をクロージャ(Closure)という。<ul><li>自由変数: 関数定義中にその関数のブロック内で定義されていない変数のこと。</li><li>クロージャは、自由変数に束縛された値(の参照)をデータとして保持する。</li><li>ブロックから抜けだした関数オブジェクトは、レキシカルスコーピングによって保持した変数の参照を保持し続ける。</li></ul></li><li>プログラミング言語のClojureの事ではない。</li><li>レキシカルスコープ同様、モダンな言語では一般的なしくみ。関数定義や無名関数からクロージャを生成できる。</li></ul><p>以下では、関数オブジェクトがaseqという変数名が保持しているSeqの参照を持つ。<pre><code class="scala">scala&gt; val hSeq = {val aseq = Seq&#40;1, 2, 3, 4, 5&#41;; &#40;&#40;i: Int&#41; =&gt; aseq&#40;i&#41;&#41; }
+hSeq: Int =&gt; Int = $$Lambda$4005/1227571506@23364fcf
+
+scala&gt; hSeq&#40;1&#41;
+res8: Int = 2
+
+scala&gt; hSeq&#40;2&#41;
+res9: Int = 3
+</code></pre></p><p>一番外側で定義された変数hSeqは、ブロック内部で生成された関数オブジェクト(クロージャ)を束縛している。 この関数オブジェクトに引数を与える事で、aseqに束縛されたSeqの値にアクセスできる。</p><ul><li>上記のような書き方により、JavaやScalaで指定するprivateよりも更に細かいスコープ(変数の有効範囲)の制御が可能になる。</li></ul><h3 id="クロージャの使い方いろいろ">クロージャの使い方いろいろ</h3><p>次のように2つの関数からのみ参照可能なHashmapを定義できる。</p><pre><code class="scala">scala&gt; val &#40;f, g&#41; = { val hmap = Map&#40;&quot;ab&quot;-&gt; 1, &quot;ac&quot; -&gt; 2&#41;;
+     | &#40;&#40;&#40;s: String&#41; =&gt; hmap&#40;s&#41;&#41;, &#40;&#40;s: String&#41; =&gt; hmap&#40;&quot;a&quot;++s&#41;&#41;&#41; }
+f: String =&gt; Int = $$Lambda$4011/179665104@2da7b9bf
+g: String =&gt; Int = $$Lambda$4012/49123780@295afa48
+
+scala&gt; f&#40;&quot;b&quot;&#41;
+java.util.NoSuchElementException: key not found: b
+  at scala.collection.immutable.Map$Map2.apply&#40;Map.scala:129&#41;
+  at .$anonfun$x$1$1&#40;&lt;console&gt;:12&#41;
+  at .$anonfun$x$1$1$adapted&#40;&lt;console&gt;:12&#41;
+  ... 36 elided
+
+scala&gt; g&#40;&quot;b&quot;&#41;
+res17: Int = 1
+
+scala&gt; f&#40;&quot;ac&quot;&#41;
+res18: Int = 2
+</code></pre><ul><li>勿論、ListやHashmapだけでなく、関数を保持する関数を作ったり、関数を保持する関数を保持する関数など色々作れる。</li><li>ただし、関数オブジェクトを濫用し続けると、不用意に意図しないクロージャを生成してしまう事も考えられる。  このような場合、GCによって回収されない参照をいつまでも保持し続けることになってしまう。  (とは言え、普通に書いている限りだとこのようなバグは殆ど無いかも知れない)</li><li>クロージャにより変数はそのスコープの外を出ても有効である場合がある。  つまり、ローカル変数は、変数を定義した関数本体が終了しても生き残る。<ul><li>変数が生存している(有効である)期間のことを<strong>エクステント(extent)</strong>という。</li></ul></li><li>クロージャとは逆に、関数内に自由変数を含まないような関数のことを<strong>コンビネータ(combinator)</strong>という。  ただし、Scalaだと、パーサコンビネータ以外ではコンビネータという言い方はあまりされない(みたい)。</li><li>クロージャを使うことで計算を遅延(将来に実行)させられる。典型的な使用例がFutureによるコールバック。<ul><li>遅延させたい計算は常に無名関数のシンタックスで囲うことで遅延させる事が出来る。<code>dao.findById&#40;id&#41;</code>がFutureを返す時、mapに渡された<code>row =&gt;</code>以降は、Futureの結果が返ってくるまで実行されない。</li></ul></li></ul><pre><code class="scala">dao.findById&#40;id&#41;.map { row =&gt; row.name }
+</code></pre><h3 id="クロージャでif関数っぽいものを作る">クロージャでif関数っぽいものを作る</h3><p>クロージャとは直接関係ないが、無名関数の性質を応用することで<strong>if関数</strong>のようなものも作ることが出来る。 つまり関数呼び出し時に引数が実行されない形の書き方ができる。</p><p>(※しかし、Scalaだとここまでしなくてもcall-by-nameで書ける)</p><pre><code class="scala">scala&gt; def ifFunction&#40;b: Boolean, f: &#40;&#41; =&gt; Unit, g: &#40;&#41; =&gt; Unit&#41; = if &#40;b&#41; f&#40;&#41; else g&#40;&#41;
+ifFunction: &#40;b: Boolean, f: &#40;&#41; =&gt; Unit, g: &#40;&#41; =&gt; Unit&#41;Unit
+
+scala&gt; ifFunction&#40;true, { &#40;&#41; =&gt; println&#40;&quot;a&quot;&#41;; }, { &#40;&#41; =&gt; println&#40;&quot;b&quot;&#41;; }&#41;
+a
+
+scala&gt; ifFunction&#40;false, { &#40;&#41; =&gt; println&#40;&quot;a&quot;&#41;; }, { &#40;&#41; =&gt; println&#40;&quot;b&quot;&#41;; }&#41;
+b
+</code></pre><p>無名関数で囲わない書き方の場合、次のようになる。</p><pre><code class="scala">scala&gt; def ifFunction&#40;b: Boolean, f: Unit, g: Unit&#41; = if &#40;b&#41; f else g
+ifFunction: &#40;b: Boolean, f: Unit, g: Unit&#41;Unit
+
+scala&gt; ifFunction&#40;false, { println&#40;&quot;a&quot;&#41;; }, { println&#40;&quot;b&quot;&#41;; }&#41;
+a
+b
+</code></pre><p>関数呼び出しは、引数を評価した後、その結果が関数に渡されて関数自体が実行される。 そのため、通常の呼び出しだと、引数が評価されてしまうが、引数を関数化することで、 引数の評価を遅延させる(実質的には実行させない)事ができる。</p><h3 id="クロージャで作るリスト">クロージャで作るリスト</h3><ul><li>クロージャのみでリスト構造(データ構造)を作ることが可能。<ul><li>ルール: データ構造やクラスは使わない。</li><li>関数型プログラミングにおける大道芸の一つ。</li></ul></li></ul><p>単方向連結リスト(いわゆるLinkedList)の実装。<pre><code class="scala">scala&gt; val cons = &#40;x: Int, xs: Int =&gt; Any&#41; =&gt; &#40;&#40;i: Int&#41; =&gt; if &#40;i == 0&#41; x else xs&#40;i - 1&#41;&#41;
+cons: &#40;Int, Int =&gt; Any&#41; =&gt; Int =&gt; Any = $$Lambda$3648/212142471@1c3cc65d
+
+scala&gt; val emptyF = &#40;x: Int&#41; =&gt; null
+emptyF: Int =&gt; Int = $$Lambda$3649/558084802@db6ad80
+
+scala&gt; val ls = cons&#40;4, cons&#40;3, cons&#40;2, emptyF&#41;&#41;&#41;
+ls: Int =&gt; Any = $$Lambda$3650/2033873015@4f08ca31
+
+scala&gt; ls&#40;1&#41;
+res57: Any = 3
+
+scala&gt; ls&#40;3&#41;
+res58: Any = null
+
+scala&gt; ls&#40;2&#41;
+res59: Any = 2
+</code></pre></p><p>関数がAny型を返す、リストの上限を超えた時nullを返すのは、簡単のため。 consでリストを構築する。空リストはemptyFで表現する。</p><h2 id="高階関数(high-order&#95;function)">高階関数(High-order function)</h2><ul><li>関数オブジェクトは値として他の関数に渡したり、関数を受け取る、変数に束縛するなど、Javaオブジェクトのような扱いが可能。</li><li>関数を引数としたり、戻り値として使用する関数の事を高階関数という。<ul><li>関数に関数を渡す時は、無名関数として渡す(mapなど)こともできるし、定義された名前付きの関数を渡すこともできる。<ul><li>特に、無名関数を渡すパターンは、コレクション関数を使用する時によく使う。</li></ul></li></ul></li></ul><p>無名関数を他の関数に渡す。<pre><code class="scala">scala&gt; Seq&#40;1, 2, 3&#41;.map&#40;i =&gt; i + 2&#41;
+res0: Seq&#91;Int&#93; = List&#40;3, 4, 5&#41;
+</code></pre></p><p>定義済みの他の関数に渡す。</p><pre><code class="scala">scala&gt; def add2&#40;i: Int&#41;: Int = i + 2
+add2: &#40;i: Int&#41;Int
+
+scala&gt; Seq&#40;1, 2, 3&#41;.map&#40;add2&#41;
+res4: Seq&#91;Int&#93; = List&#40;3, 4, 5&#41;
+</code></pre><ul><li>高階関数を使用することで、ほぼ無制限にプログラム中の任意のロジック(具体的なコード)を抽象化できる。<ul><li>ちなみに、データ型や関数の定義などは抽象化できない。。。</li><li>抽象化したい部分を関数化し、差分のみをそれぞれ別関数にして、抽象化した関数に差分の関数を渡すという方法。</li><li>コード全体の至る所で使用できて、DRYに書けるというメリットはあるが。    やり過ぎると原型を留めなくなるので注意が必要。</li></ul></li><li>部分適用/カリー化(Partial application / Curring)<ul><li>複数の引数を取る関数を一つの引数のみを取る関数に書き換えることをカリー化という。</li><li>途中まで値を代入して、途中からの値を別の高階関数の中で代入させたい時などに使用する。</li></ul></li></ul><p>以下がカリー化の例。上はカリー化されていない関数。下が上の関数をカリー化した関数。<pre><code class="scala">scala&gt; def sum&#40;a: Int, b: Int, c: Int&#41;: Int = a + b + c
+sum: &#40;a: Int, b: Int, c: Int&#41;Int
+
+scala&gt; def sum&#40;a: Int&#41;&#40;b: Int&#41;&#40;c: Int&#41;: Int = a + b + c
+sum: &#40;a: Int&#41;&#40;b: Int&#41;&#40;c: Int&#41;Int
+</code></pre></p><p>次のようにして、途中までの値を入れておく。</p><pre><code class="scala">scala&gt; sum&#40;1&#41;&#40;2&#41; &#95;
+res1: Int =&gt; Int = $$Lambda$3054/194743804@57e5ed15
+</code></pre><p>そして、次のように使うことができる。</p><pre><code class="scala">scala&gt; Seq&#40;1, 2, 3&#41;.map&#40;sum&#40;1&#41;&#40;2&#41;&#41;
+res3: Seq&#91;Int&#93; = List&#40;4, 5, 6&#41;
+</code></pre><ul><li>途中まで引数の値を適用し別の無名関数を生成する書き方を部分適用という。<ul><li>部分適用とカリー化は間違えやすいことで有名。<ul><li><a href='http://kmizu.hatenablog.com/entry/20091216/1260969166'>カリー化 != 部分適用</a></li></ul></li></ul></li></ul><h2 id="関数合成">関数合成</h2><ul><li>2つの関数を合成する。数学の合成関数と考え方は同じ。: f(g(x)) = (f . g)(x)</li><li>合成関数用の関数として、compose/andThenが用意されている。</li><li>ちなみに、Scalaだとcompose使いたいケースでは、メソッドチェーンで書く事が多いのであんまり使わない。</li></ul><p>次の場合、<pre><code class="scala">def withComma&#40;ls: Seq&#91;String&#93;&#41; = ls.mkString&#40;&quot;,&quot;&#41;
+def trimString&#40;ls: Seq&#91;String&#93;&#41; = ls.map&#40;&#95;.trim.toInt&#41;
+def multiply20&#40;ls: Seq&#91;Int&#93;&#41; = ls.map &#40;&#95; &#42; 20&#41;.map&#40;&#95;.toString&#41;
+</code></pre></p><p>StingのSeqの要素を20倍してカンマ区切りの文字列にしたい。。。</p><pre><code class="scala">val ls = Seq&#40;&quot; 20&quot;, &quot; 30 &quot;, &quot;40 &quot;, &quot;50&quot;&#41;
+</code></pre><p>しかもなんか変な空白入ってる。。。</p><pre><code class="scala">scala&gt; withComma&#40;multiply20&#40;trimString&#40;ls&#41;&#41;&#41;
+res31: String = 400,600,800,1000
+</code></pre><p>括弧が多い。。。</p><pre><code class="scala">scala&gt; &#40;withComma compose multiply20 compose trimString&#41;&#40;ls&#41;
+res32: String = 400,600,800,1000
+</code></pre><p>さらにこれを関数化したい。。。</p><pre><code class="scala">scala&gt; val multiply20c = withComma compose multiply20 compose trimString
+multiply20c: Seq&#91;String&#93; =&gt; String = scala.Function1$$Lambda$605/1525241607@1f18de49
+
+scala&gt; multiply20c&#40;ls&#41;
+res33: String = 400,600,800,1000
+</code></pre><p>引数を定義して関数化すると、変数が増えて冗長になるので、関数を合成の場合は、<code>compose</code>のみで組み合わせを表現し関数を定義できる。 composeだとわかりにくい? そんな時の為にandThenという関数が用意されている。</p><ul><li>composeとandThenは順序が逆。</li></ul><p>composeの場合<pre><code class="scala">scala&gt; &#40;&#40;&#40;s:String&#41; =&gt; s.toInt&#41; compose &#40;&#40;x:Int&#41;=&gt; x.toString&#41;&#41;&#40;20&#41;
+res24: Int = 20
+</code></pre></p><p>andThenの場合</p><pre><code class="scala">scala&gt; &#40;&#40;&#40;x:Int&#41;=&gt; x.toString&#41; andThen &#40;&#40;s:String&#41; =&gt; s.toInt&#41;&#41;&#40;20&#41;
+res22: Int = 20
+</code></pre><p>andThenを使って前述のコードを書き直す。</p><pre><code class="scala">scala&gt; val multiply20c = trimString andThen multiply20 andThen withComma
+multiply20c: Seq&#91;String&#93; =&gt; String = scala.Function1$$Lambda$4021/295193997@7d9759a
+
+scala&gt; multiply20c&#40;ls&#41;
+res34: String = 400,600,800,1000
+</code></pre><p>処理の順番が明確になり、分かりやすくなった。</p><ul><li>ライブラリやフレームワークなどのコードで時々登場する。<ul><li>使いすぎると分かりづらくなる事も多いが、Scalazだと頻繁に使われていたりする。</li><li>Playframeworkのアクション合成(action composition)などでも類似の概念が登場する。</li><li>ただし、Scalaの場合、メソッドチェーンで書くほうが一般的なようなので、そこまで使わないかも知れない。</li></ul></li><li>上記のような変数の登場しない合成による関数定義の仕方を<strong>ポイントフリースタイル(point-free style)</strong>という。</li></ul><h2 id="部分関数(partial&#95;function)">部分関数(Partial function)</h2><ul><li>ある特定の引数に対してのみ値を返す関数。</li><li><a href='http://yuroyoro.hatenablog.com/entry/20100705/1278328898'>ScalaのPartialFunctionが便利ですよ</a></li></ul><h2 id="まとめ">まとめ</h2><ul><li>Scalaでも他の関数型言語と同じように、関数を使ったプログラミングができることがわかる。  Javaよりは簡単かつ柔軟な書き方を実現するしくみが用意されている。</li><li>Scalaだとメソッドチェーンによる書き方が多いので、ポイントフリースタイルや合成関数はあまり使わなさそう。</li></ul>
+</div>
+
+<div id="post-tags">
+  <b><img src="/img/frame/tag.png" width="16"/>&nbsp;</b>
+  
+  <a href="/tags-output/スコープ/">スコープ</a>
+  
+  <a href="/tags-output/Scala/">Scala</a>
+  
+  <a href="/tags-output/関数型プログラミング/">関数型プログラミング</a>
+  
+  <a href="/tags-output/再帰/">再帰</a>
+  
+  <a href="/tags-output/クロージャ/">クロージャ</a>
+  
+</div>
+<hr/>
+
+
+    <div id="prev-next">
+        
+        
+        <a class="right" href="/posts-output/2018-04-14-scala-algebraic-data-types/">Scalaでの代数的データ型のしくみと使い方 &raquo;</a>
+        
+    </div>
+
+    
+
+</div>
+
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div id="sidebar">
+            <p class="sub-menu-bar-item">
+              <h3><img src="/img/frame/link.png" width="16"/>&nbsp;外部リンク</h3>
+            </p>
+            <ul id="links">
+              <li><a href="https://uid0130.blogspot.com">yuwki0131-blog(旧ブログ)</a></li>
+              <li><a href="https://github.com/yuwki0131">Github</a></li>
+              
+            </ul>
+            
+            <div id="recent">
+              <p class="sub-menu-bar-item">
+                <h3><img src="/img/frame/edit.png" width="16"/>&nbsp;最近の投稿</h3>
+              </p>
+              <ul>
+                
+                <li><a href="/posts-output/2018-04-14-scala-functions-memo/">Scalaでの関数のしくみと使い方</a></li>
+                
+                <li><a href="/posts-output/2018-04-14-scala-algebraic-data-types/">Scalaでの代数的データ型のしくみと使い方</a></li>
+                
+                <li><a href="/posts-output/2018-04-14-scala-errors/">Scalaでの例外系の処理のしくみと使い方</a></li>
+                
+              </ul>
+            </div>
+            
+            
+            <div id="tags">
+              <p class="sub-menu-bar-item">
+                <h3><img src="/img/frame/tag.png" width="16"/>&nbsp;キーワード</h3>
+              </p>
+              <ul>
+                
+                <li><a href="/tags-output/型推論/">型推論</a></li>
+                
+                <li><a href="/tags-output/デバッグ/">デバッグ</a></li>
+                
+                <li><a href="/tags-output/スコープ/">スコープ</a></li>
+                
+                <li><a href="/tags-output/Lisp/">Lisp</a></li>
+                
+                <li><a href="/tags-output/例外/">例外</a></li>
+                
+                <li><a href="/tags-output/Cryogen/">Cryogen</a></li>
+                
+                <li><a href="/tags-output/言語処理系/">言語処理系</a></li>
+                
+                <li><a href="/tags-output/Scala/">Scala</a></li>
+                
+                <li><a href="/tags-output/blog/">blog</a></li>
+                
+                <li><a href="/tags-output/Haskell/">Haskell</a></li>
+                
+                <li><a href="/tags-output/関数型プログラミング/">関数型プログラミング</a></li>
+                
+                <li><a href="/tags-output/代数的データ型/">代数的データ型</a></li>
+                
+                <li><a href="/tags-output/再帰/">再帰</a></li>
+                
+                <li><a href="/tags-output/クロージャ/">クロージャ</a></li>
+                
+              </ul>
+            </div>
+            
+          </div>
+        </div>
+      </div>
+      <footer>Copyright &copy; 2018 yuwki0131
+        <p style="text-align: center;">
+          Powered by <a href="http://cryogenweb.org">Cryogen</a>
+          <br/>
+          All Icons and Illustrations are designed by Freepik
+          <br/>
+          and distributed by Flaticon (<a href="https://www.flaticon.com/">flaticon.com</a>)
+          <br/>
+          <a href="http://yuwki0131.github.io/index.html">
+            <img src="https://ga-beacon.appspot.com/UA-103811007-3/yourusername.github.io/index.html"/>
+          </a>
+        </p>
+      </footer>
+    </div>
+    <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+    <script src="/js/highlight.pack.js" type="text/javascript"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+     <link rel="stylesheet" type="text/css" href=nil>
+<script>
+window.klipse_settings = null;
+</script>
+<script src=nil></script> 
+    
+  </body>
+</html>

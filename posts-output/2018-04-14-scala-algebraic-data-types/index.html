@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>何で走っているのだろう: Scalaでの代数的データ型のしくみと使い方</title>
+    <link rel="canonical" href="https://yuwki0131.github.io/posts-output/2018-04-14-scala-algebraic-data-types/">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href='http://fonts.googleapis.com/css?family=Alegreya:400italic,700italic,400,700' rel='stylesheet'
+          type='text/css'>
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.7.0/styles/default.min.css">
+    <link rel="icon" href="/img/frame/bird.png">
+    <link href="https://fonts.googleapis.com/earlyaccess/mplus1p.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Fira+Sans" rel="stylesheet">
+    <link href="/css/screen.css" rel="stylesheet" type="text/css" />
+  </head>
+  <body>
+    <nav class="navbar navbar-default">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed"
+                  data-toggle="collapse" data-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <p style="line-height:40px;">
+            <img src="/img/frame/run.png" width="32" style="padding-top:10px;padding-bot:10px"/>
+            <img src="/img/frame/cow.png" width="32" style="padding-top:10px;padding-bot:10px"/>
+            <a class="navbar-brand" href="/">何で走っているのだろう</a>
+          </p>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav navbar-right">
+            <li >
+              <a href="/"><img src="/img/frame/home.png" width="16"/>&nbsp;ホーム</a></li>
+            <li
+              >
+              <a href="/archives/"><img src="/img/frame/edit.png" width="16"/>&nbsp;過去の投稿</a></li>
+            
+            <li
+              >
+              <a href="/pages-output/about/"><img src="/img/frame/surprised.png" width="16"/>&nbsp;投稿者</a>
+            </li>
+            
+            <li><a href="/feed.xml"><img src="/img/frame/rss.png" width="16"/>&nbsp;RSS</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div><!--/.container-fluid -->
+    </nav>
+
+
+    <div class="container">
+
+      <div class="row">
+        <div class="col-lg-9">
+          <div id="content">
+            
+<div id="post">
+    <div class="post-header">
+  <div id="post-meta" class="row">
+    <div class="col-lg-6">2018/04/14</div>
+    
+  </div>
+  <h2><img src="/img/frame/bird.png" width="32" />&emsp;Scalaでの代数的データ型のしくみと使い方</h2>
+</div>
+<hr/>
+<div>
+  <ol class="content"><li><a href="#代数的データ型(algebraic_data_type)">代数的データ型(Algebraic data type)</a></li><li><a href="#パターンマッチ">パターンマッチ</a></li><ol><li><a href="#listに対するパターンマッチ">Listに対するパターンマッチ</a></li><li><a href="#optionに対するパターンマッチ">Optionに対するパターンマッチ</a></li><li><a href="#代数的データ型に対するパターンマッチ">代数的データ型に対するパターンマッチ</a></li><li><a href="#パターンマッチに条件を追加">パターンマッチに条件を追加</a></li><li><a href="#代数的データ型とパターンマッチ">代数的データ型とパターンマッチ</a></li></ol></ol>
+  <p>Scalaについて勉強した時のメモ(その2)です。代数的データ型の扱い方について。</p><p>※ 元々はmarkdownで書いていたテキストの転載。</p><h2 id="代数的データ型(algebraic&#95;data&#95;type)">代数的データ型(Algebraic data type)</h2><ul><li>端的に言うと、以下のようなデータ定義の仕方。</li></ul><pre><code class="scala">sealed trait Alphabet
+case object Alpha extends Alphabet
+case class Beta&#40;name: String&#41; extends Alphabet
+case class Gamma&#40;name: String, n: Int&#41; extends Alphabet
+</code></pre><ul><li>引数の戻り値型や処理結果のパターンや、Seq型で表現できないようなリスト構造、木構造、  その他必要に応じてポリモーフィックに変化するデータ型を表す際に使用する。</li><li>ざっくり説明すると、代数的データ型とは、直積型による構造体と、コンストラクタと直和型によるポリモーフィズムを表した型。<ul><li>Scala風に言うと、複数のcase objectとcase classを単一のtraitでまとめたもの。</li><li>全てを使う必要はない。必要に応じて必要なオブジェクトを使う。</li></ul></li><li>代数的データ型は、コンストラクタと、直積型、直和型から構成される。<ul><li>代数的("Algebraic")という単語は、直和型と直積型に由来している。    <a href='https://wiki.haskell.org/Algebraic_data_type'>Algebraic data type - HaskellWiki</a></li></ul></li><li>代数的データ型を返す関数の型は継承元のtraitで、条件に応じて、様々なtraitの型のインスタンスを返す。</li></ul><pre><code class="scala">def func&#40;n: Int&#41;: Alphabet =
+  if &#40;n &lt; 10&#41; Alpha
+  else if &#40;n &lt; 30&#41; Beta&#40;&quot;aaa&quot;&#41;
+  else Gamma&#40;&quot;bbb&quot;, n&#41;
+</code></pre><ul><li>以下のようにパターンマッチで各データパターンごとに分解できる。</li></ul><pre><code class="scala">xxx.func&#40;x&#41; match {
+  case Alpha =&gt; 〜 ...
+  case Beta&#40;name&#41; =&gt; 〜 &#40;この中では変数nameが使える&#41; ...
+  case Gamma&#40;name, n&#41; =&gt; 〜 ...
+}
+</code></pre><ul><li>普段よく使っている代数的データ型の一つがOption型<ul><li><a href='https://github.com/scala/scala/blob/2.13.x/src/library/scala/Option.scala'>scala/src/library/scala/Option.scala</a></li></ul></li></ul><pre><code class="scala">sealed abstract class Option&#91;+A&#93; extends Product with Serializable
+case object None extends Option&#91;Nothing&#93;
+final case class Some&#91;+A&#93;&#40;value: A&#41; extends Option&#91;A&#93;
+</code></pre><ul><li>割と他の関数型言語だと定番の書き方。<ul><li>参考: <a href='https://qiita.com/xmeta/items/91dfb24fa87c3a9f5993'>代数的データ型とパターンマッチによる言語比較</a></li><li>(余談)代数的データ型を一般化したGADT(Generalized Algebraic Data Type)というのもある。</li></ul></li><li>関数型プログラミングだと実装とデータ型を分離する傾向がある。(要出典)<ul><li>分離されたデータ型が代数的データ型。</li><li>データ型(クラス)に実装が付随しているオブジェクト指向とは異なる。</li></ul></li><li>代数的データ型は、再帰的(帰納的)に定義される有限のデータ構造(Streamなど無限のデータ構造というのもある)<ul><li>参照: <a href='http://docs.scala-lang.org/ja/overviews/collections/concrete-immutable-collection-classes.html'>具象不変コレクションクラス | Scala Documentation</a></li></ul></li><li>(余談)一応、case classには、<code>final</code>を付けた方がいい: <a href='https://stackoverflow.com/questions/34561614/should-i-use-the-final-modifier-when-declaring-case-classes'>Should I use the final modifier when declaring case classes? - StackOverFlow</a></li></ul><h2 id="パターンマッチ">パターンマッチ</h2><ul><li><a href='https://qiita.com/techno-tanoC/items/3dd3ed63d161c53f2d89'>Scalaのパターンマッチ - Qiita</a></li><li>Scalaでは、リテラル(定数)、正規表現、構造(タプル、case objectやcase classなど)、代数的データ型に関するマッチなどが可能。</li><li>データ型のインスタンス(ListやTuple、Case classなど)を構造的に分解して変数に代入できる。<ul><li>オブジェクトにunapplyが定義されていれば、パターンマッチが可能。</li><li><a href='http://yuroyoro.hatenablog.com/entry/20100709/1278657400'>パターンマッチをもっと便利に-extractor(抽出子)による拡張</a></li></ul></li><li>if-else式とは違い、データ型に対する網羅的にパターンマッチを行う。網羅的でない場合は警告がでる。(但し、エラーにはならない。)  <strong>パターン漏れが防げるので積極的に活用していきたい。</strong></li><li>データ型に対する分岐か、それ以外かでif-elseとの使い分けができる。</li></ul><h3 id="listに対するパターンマッチ">Listに対するパターンマッチ</h3><p>次のコードはパターンマッチで書き換えた方が、ロジックがシンプルになる。</p><pre><code class="scala">if &#40;ls.isEmpty&#41; 1 else ls.head
+</code></pre><p>は、リスト<code>ls</code>についてのパターンマッチ、</p><pre><code class="scala">ls match {
+  case Nil =&gt; 1
+  case x::xs =&gt; x
+}
+</code></pre><p>と書き直せる。else節でls.headを使う時に、lsを手前の条件節でチェックしているかどうかを考慮する必要が無くなる。</p><p>ただし上記の場合は、headOptionとgetOrElseで書くのが一般的のよう。</p><pre><code class="scala">ls.headOption.getOrElse&#40;1&#41;
+</code></pre><h3 id="optionに対するパターンマッチ">Optionに対するパターンマッチ</h3><p>次のようなケースも、リスト同様に書き直せる。</p><pre><code class="scala">if &#40;x.isEmpty&#41; &quot;hogehoge&quot; else x.get.toString
+</code></pre><p>存在するSome/Noneパターンを列挙する。</p><pre><code class="scala">x match {
+  case Some&#40;x&#41; =&gt; x.toString
+  case None =&gt; &quot;hogehoge&quot;
+}
+</code></pre><p>Either(Right/Left)やTry(Success/Failure)の場合も同様にして、分解できる。</p><h3 id="代数的データ型に対するパターンマッチ">代数的データ型に対するパターンマッチ</h3><p>以下のような代数的データ型に対するパターンマッチ。</p><pre><code class="scala">sealed trait Alphabet
+case object Alpha extends Alphabet
+case class Beta&#40;name: String&#41; extends Alphabet
+case class Gamma&#40;name: String, n: Int&#41; extends Alphabet
+</code></pre><p>次のように書く。書き方はOption等と同じ。</p><pre><code class="scala">x match {
+  case Alpha =&gt; &quot;A&quot;
+  case Beta&#40;name&#41; =&gt; &quot;B&#40;&quot; + name + &quot;&#41;&quot;
+  case Gamma&#40;name, n&#41; =&gt; &quot;C&#40;&quot; + name + &quot;&#41;&quot;
+}
+</code></pre><h3 id="パターンマッチに条件を追加">パターンマッチに条件を追加</h3><ul><li>パターンマッチの場合、構造のチェックと同時に、データ型から値の取り出し、変数への束縛まで行う。</li><li>ただし、以下のような書き方をした場合、パターンマッチの本来の意味はなくなる(ただのif-else式と基本的に同じ意味しかなくなる)。</li></ul><pre><code class="scala">x match {
+ case &#95; if x.isEmpty =&gt; &quot;hogehoge&quot;
+ case &#95; =&gt; x.get.toString
+}
+</code></pre><ul><li>パターンマッチでのifによる条件追加は以下のようなケースだと有効。  パターンマッチの基本的な機能である構造的な変数の束縛、パターンの列挙(とそのチェック)の両方を使用しているため。</li></ul><pre><code class="scala">x match {
+ case Some&#40;x&#41; if x == &quot;a&quot; =&gt; &quot;hogehoge&quot;
+ case Some&#40;x&#41; =&gt; &quot;fugafuga&quot;
+ case None =&gt; &quot;piyopiyo&quot;
+}
+</code></pre><ul><li>1caseに複数パターンのマッチも可能。</li></ul><pre><code class="scala">n match {
+  case 1 | 2 | 3 =&gt; &quot;hogehoge&quot;
+  case &#95; =&gt; &quot;hoge&quot;
+</code></pre><h3 id="代数的データ型とパターンマッチ">代数的データ型とパターンマッチ</h3><ul><li>Javaのポリモーフィズムでは、処理が各クラスごと分散してしまうというデメリットがある。</li><li>代数的データ型とパターンマッチでは、データ型はデータ型ごとに定義し、ポリモーフィックな処理はパターンマッチで一箇所に記述させる。</li></ul><p><a href='https://ja.wikipedia.org/wiki/Composite_%E3%83%91%E3%82%BF%E3%83%BC%E3%83%B3'>Compositeパターン - Wikipedia</a> から引用してきた例(長かったのでコードの一部を改変している)。<pre><code class="java">interface FileInterface {
+	public void ls&#40;int depth&#41;;
+	public boolean add&#40;FileInterface c&#41;;
+}
+class File implements FileInterface {
+	private String name;
+	public File&#40;String name&#41; { this.name = name; }
+	public void ls&#40;int depth&#41; {
+		System.out.println&#40;&quot;depth&#40;&quot; + depth + &quot;&#41; file:&quot; + this.name&#41;;
+	}
+	public boolean add&#40;FileInterface c&#41; { return false; }
+}
+class Folder implements FileInterface {
+	private String name;
+	private List&lt;FileInterface&gt; fileList = new ArrayList&lt;FileInterface&gt;&#40;&#41;;
+	public Folder&#40;String name&#41; { this.name = name; }
+	public void ls&#40;int depth&#41; {
+		System.out.println&#40;&quot;depth&#40;&quot; + depth + &quot;&#41; folder:&quot; + name&#41;;
+		for &#40;FileInterface file : fileList&#41; { file.ls&#40;depth + 1&#41;; }
+	}
+	public boolean add&#40;FileInterface c&#41; { return this.fileList.add&#40;c&#41;; }
+}
+</code></pre></p><p>上記は代数的データ型とパターンマッチで書き直せる。 代数的データ型は以下のように定義できる。</p><pre><code class="scala">sealed trait FileInterface
+case class File&#40;name: String&#41; extends FileInterface
+case class Folder&#40;name: String, f: scala.collection.mutable.ListBuffer&#91;FileInterface&#93;&#41; extends FileInterface
+</code></pre><p>次のようにデータを作る。</p><pre><code class="scala">scala&gt; val prj = Folder&#40;&quot;crud-prj&quot;, ListBuffer&#40;File&#40;&quot;README.md&quot;&#41;, File&#40;&quot;build.sbt&quot;&#41;, Folder&#40;&quot;src&quot;, ListBuffer&#40;File&#40;&quot;Helloworld.scala&quot;&#41;, File&#40;&quot;XXXDao.scala&quot;&#41;, File&#40;&quot;ExampleController.scala&quot;&#41;&#41;&#41;&#41;&#41;
+</code></pre><p>ディレクトリ階層を表示する関数。</p><pre><code class="scala">def ls&#40;files: FileInterface, depth: Int&#41;: Unit = files match {
+  case File&#40;name&#41; =&gt; println&#40;&quot;depth&#40;&quot; + depth + &quot;&#41; file:&quot; + name&#41;
+  case Folder&#40;name, children&#41; =&gt; {
+    println&#40;&quot;depth&#40;&quot; + depth + &quot;&#41; folder:&quot; + name&#41;
+    children.foreach{ child =&gt; ls&#40;child, depth + 1&#41; }
+  }
+}
+</code></pre><p>ディレクトリに要素を追加する関数。</p><pre><code class="scala">def add&#40;files: FileInterface, element: FileInterface&#41;: Boolean = files match {
+  case File&#40;name&#41; =&gt; false
+  case Folder&#40;name, children&#41; =&gt; { children += element; true }
+}
+</code></pre><p>Javaと同様の関数を書くならば、上記の書き方で問題ない。ところで、上記の関数は木構造をmutableに変更してしまう。 一般に関数型プログラミングは副作用(データの破壊的な変更)を回避するため、その点において、上記の書き方は問題がある。 そこで、immutableなadd関数を容易する必要がある。 immutableな関数を容易し、rootから書き換える。例えば、次のような関数が考えられる。</p><pre><code class="scala">def addI&#40;files: FileInterface, elem: FileInterface, path: Seq&#91;String&#93;&#41;: FileInterface = &#40;files, path&#41; match {
+  case &#40;Folder&#40;name, children&#41;, Nil&#41; =&gt;
+    Folder&#40;name, children :+ elem&#41;
+  case &#40;Folder&#40;name, children&#41;, x::xs&#41; =&gt;
+    Folder&#40;name, children.map {
+        case f @ Folder&#40;name, c&#41; if name == x =&gt; addI&#40;f, elem, xs&#41;
+        case a =&gt; a
+    } &#41;
+  case &#95; =&gt; throw new RuntimeException&#40;&quot;ファイルに要素を追加しようとしたのでエラー。&quot;&#41;
+}
+</code></pre><p>同様にcase classもimmutableにする</p><pre><code class="scala">sealed trait FileInterface
+case class File&#40;name: String&#41; extends FileInterface
+case class Folder&#40;name: String, f: Seq&#91;FileInterface&#93;&#41; extends FileInterface
+</code></pre><p>この関数をrootに対して適用する。次のようなコード。</p><pre><code class="scala">val root =
+Folder&#40;&quot;project&quot;, Seq&#40;Folder&#40;&quot;app&quot;, Seq&#40;Folder&#40;&quot;controller&quot;, Seq&#40;File&#40;&quot;HomeController.scala&quot;&#41;,
+                                                                 File&#40;&quot;ContentController.scala&quot;&#41;&#41;&#41;,
+                                        Folder&#40;&quot;view&quot;,       Seq&#40;File&#40;&quot;hello.scala.html&quot;&#41;&#41;&#41;&#41;&#41;,
+                      File&#40;&quot;README.md&quot;&#41;&#41;&#41;
+</code></pre><p>次のように実行する。</p><pre><code class="scala">scala&gt; addI&#40;root, File&#40;&quot;AnotherController.scala&quot;&#41;, Seq&#40;&quot;app&quot;, &quot;controller&quot;&#41;&#41;
+res24: FileInterface =
+Folder&#40;project, List&#40;Folder&#40;app, List&#40;Folder&#40;controller,List&#40;File&#40;HomeController.scala&#41;,
+                                                             File&#40;ContentController.scala&#41;,
+                                                             File&#40;AnotherController.scala&#41;&#41;&#41;,
+                                      Folder&#40;view, List&#40;File&#40;hello.scala.html&#41;&#41;&#41;&#41;&#41;,
+                     File&#40;README.md&#41;&#41;&#41;
+</code></pre><ul><li>(注意):ただし、よりScalaらしく実装するなら、  File/Folderのようなデータ構造は、Traversableトレイトの具象クラスとして実装するほうが多分正解。<ul><li><a href='https://docs.scala-lang.org/ja/overviews/collections/trait-traversable.html'>Traversable トレイト | Scala Documentation</a></li></ul></li></ul>
+</div>
+
+<div id="post-tags">
+  <b><img src="/img/frame/tag.png" width="16"/>&nbsp;</b>
+  
+  <a href="/tags-output/Scala/">Scala</a>
+  
+  <a href="/tags-output/代数的データ型/">代数的データ型</a>
+  
+</div>
+<hr/>
+
+
+    <div id="prev-next">
+        
+        <a href="/posts-output/2018-04-14-scala-functions-memo/">&laquo; Scalaでの関数のしくみと使い方</a>
+        
+        
+        <a class="right" href="/posts-output/2018-04-14-scala-errors/">Scalaでの例外系の処理のしくみと使い方 &raquo;</a>
+        
+    </div>
+
+    
+
+</div>
+
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div id="sidebar">
+            <p class="sub-menu-bar-item">
+              <h3><img src="/img/frame/link.png" width="16"/>&nbsp;外部リンク</h3>
+            </p>
+            <ul id="links">
+              <li><a href="https://uid0130.blogspot.com">yuwki0131-blog(旧ブログ)</a></li>
+              <li><a href="https://github.com/yuwki0131">Github</a></li>
+              
+            </ul>
+            
+            <div id="recent">
+              <p class="sub-menu-bar-item">
+                <h3><img src="/img/frame/edit.png" width="16"/>&nbsp;最近の投稿</h3>
+              </p>
+              <ul>
+                
+                <li><a href="/posts-output/2018-04-14-scala-functions-memo/">Scalaでの関数のしくみと使い方</a></li>
+                
+                <li><a href="/posts-output/2018-04-14-scala-algebraic-data-types/">Scalaでの代数的データ型のしくみと使い方</a></li>
+                
+                <li><a href="/posts-output/2018-04-14-scala-errors/">Scalaでの例外系の処理のしくみと使い方</a></li>
+                
+              </ul>
+            </div>
+            
+            
+            <div id="tags">
+              <p class="sub-menu-bar-item">
+                <h3><img src="/img/frame/tag.png" width="16"/>&nbsp;キーワード</h3>
+              </p>
+              <ul>
+                
+                <li><a href="/tags-output/型推論/">型推論</a></li>
+                
+                <li><a href="/tags-output/デバッグ/">デバッグ</a></li>
+                
+                <li><a href="/tags-output/スコープ/">スコープ</a></li>
+                
+                <li><a href="/tags-output/Lisp/">Lisp</a></li>
+                
+                <li><a href="/tags-output/例外/">例外</a></li>
+                
+                <li><a href="/tags-output/Cryogen/">Cryogen</a></li>
+                
+                <li><a href="/tags-output/言語処理系/">言語処理系</a></li>
+                
+                <li><a href="/tags-output/Scala/">Scala</a></li>
+                
+                <li><a href="/tags-output/blog/">blog</a></li>
+                
+                <li><a href="/tags-output/Haskell/">Haskell</a></li>
+                
+                <li><a href="/tags-output/関数型プログラミング/">関数型プログラミング</a></li>
+                
+                <li><a href="/tags-output/代数的データ型/">代数的データ型</a></li>
+                
+                <li><a href="/tags-output/再帰/">再帰</a></li>
+                
+                <li><a href="/tags-output/クロージャ/">クロージャ</a></li>
+                
+              </ul>
+            </div>
+            
+          </div>
+        </div>
+      </div>
+      <footer>Copyright &copy; 2018 yuwki0131
+        <p style="text-align: center;">
+          Powered by <a href="http://cryogenweb.org">Cryogen</a>
+          <br/>
+          All Icons and Illustrations are designed by Freepik
+          <br/>
+          and distributed by Flaticon (<a href="https://www.flaticon.com/">flaticon.com</a>)
+          <br/>
+          <a href="http://yuwki0131.github.io/index.html">
+            <img src="https://ga-beacon.appspot.com/UA-103811007-3/yourusername.github.io/index.html"/>
+          </a>
+        </p>
+      </footer>
+    </div>
+    <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+    <script src="/js/highlight.pack.js" type="text/javascript"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+     <link rel="stylesheet" type="text/css" href=nil>
+<script>
+window.klipse_settings = null;
+</script>
+<script src=nil></script> 
+    
+  </body>
+</html>
