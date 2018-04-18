@@ -12,11 +12,106 @@ https://yuwki0131.github.io/
 This blog is a cartesian closed category
 </description>
 <lastBuildDate>
-Sat, 14 Apr 2018 20:31:35 +0900
+Wed, 18 Apr 2018 22:54:12 +0900
 </lastBuildDate>
 <generator>
 clj-rss
 </generator>
+<item>
+<guid>
+https://yuwki0131.github.io/posts-output/2018-04-18-scala-implicit/
+</guid>
+<link>
+https://yuwki0131.github.io/posts-output/2018-04-18-scala-implicit/
+</link>
+<title>
+Scalaの3つのimplicit
+</title>
+<description>
+&lt;p&gt;Scalaについて勉強した時のメモ(その5)です。Scalaのimplicitと呼ばれる系の機能について。&lt;/p&gt;&lt;p&gt;※ 元々はmarkdownで書いていたテキストの転載。&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;a href='https://qiita.com/tagia0212/items/f70cf68e89e4367fcf2e'&gt;Scala implicit修飾子 まとめ - Qiita&lt;/a&gt;&lt;/li&gt;&lt;li&gt;implicit conversion, implicit class, implicit parameterがある。&lt;/li&gt;&lt;li&gt;implicit: 暗黙の〜&lt;/li&gt;&lt;li&gt;implicit修飾子を付けて定義した場合、コンパイラが適宜、必要なメソッドや型を探索して自動的に適用してくれる。&lt;/li&gt;&lt;/ul&gt;&lt;h2 id=&quot;暗黙の型変換(implicit&amp;#95;conversion)&quot;&gt;暗黙の型変換(implicit conversion)&lt;/h2&gt;&lt;ul&gt;&lt;li&gt;型変換(キャスト)する関数をimplicitに定義しておくことで自動的にキャストしてくれる。&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;暗黙の型変換の定義。&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;implicit def d2i&amp;#40;d: Double&amp;#41;:Int = d.toInt
+&lt;/code&gt;&lt;/pre&gt;&lt;/p&gt;&lt;p&gt;implicit定義前。&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;scala&amp;gt; val x:Int = 3.14
+&amp;lt;console&amp;gt;:11: error: type mismatch;
+ found   : Double&amp;#40;3.14&amp;#41;
+ required: Int
+       val x:Int = 3.14
+                   &amp;#94;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;implicit定義後。&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;scala&amp;gt; val x:Int = 3.14
+x: Int = 3
+&lt;/code&gt;&lt;/pre&gt;&lt;ul&gt;&lt;li&gt;暗黙の型変換は推奨されていない/しない人が多い。&lt;ul&gt;&lt;li&gt;公式のドキュメントですら、&quot;implicit conversions can have pitfalls&quot;と書かれている。&lt;ul&gt;&lt;li&gt;&lt;a href='https://docs.scala-lang.org/tour/implicit-conversions.html'&gt;TOUR OF SCALA IMPLICIT CONVERSIONS | Scala Documentation&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;li&gt;implicit conversionに対する否定的なコメント。&lt;ul&gt;&lt;li&gt;&lt;a href='http://blog.livedoor.jp/sylc/archives/1553449.html'&gt;Scalaのimplicit conversionってなんだ？&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href='http://kmizu.hatenablog.com/entry/2017/05/19/074149'&gt;Scalaでimplicits呼ぶなキャンペーン&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href='https://qiita.com/tagia0212/items/f70cf68e89e4367fcf2e'&gt;Scala implicit修飾子 まとめ - Qiita&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;/ul&gt;&lt;h2 id=&quot;拡張メソッド(implicit&amp;#95;class&amp;#95;/&amp;#95;既存の型を拡張する)&quot;&gt;拡張メソッド(implicit class / 既存の型を拡張する)&lt;/h2&gt;&lt;ul&gt;&lt;li&gt;既存の型を拡張し、メソッドを追加する。&lt;ul&gt;&lt;li&gt;pimp my libraryパターンと言われる。&lt;/li&gt;&lt;li&gt;ちなみに、C#やTypeScriptにも同名の類似した機能がある。&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;li&gt;レシーバにメソッドを生やす事ができるのが特徴。&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;String型に、空文字ならNone、文字があればSomeで値を包む関数を定義したい場合、以下のように拡張できる。&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;implicit class OptionString&amp;#40;str: String&amp;#41;{
+  def opt&amp;#40;&amp;#41;: Option&amp;#91;String&amp;#93; = if &amp;#40;str.isEmpty&amp;#41; None else Some&amp;#40;str&amp;#41;
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/p&gt;&lt;p&gt;これは、次のように使える。&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;scala&amp;gt; &amp;quot;&amp;quot;.opt
+res2: Option&amp;#91;String&amp;#93; = None
+
+scala&amp;gt; &amp;quot;abc&amp;quot;.opt
+res3: Option&amp;#91;String&amp;#93; = Some&amp;#40;abc&amp;#41;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;上記の場合、&lt;code&gt;OptionString&lt;/code&gt;の名前自体には特に意味はない。&lt;code&gt;str: String&lt;/code&gt;がレシーバを表している。 よりGenericに書きたい場合は、型パラメータを入れられる。&lt;/p&gt;&lt;h2 id=&quot;暗黙のパラメータ(implicit&amp;#95;parameter)&quot;&gt;暗黙のパラメータ(implicit parameter)&lt;/h2&gt;&lt;ul&gt;&lt;li&gt;暗黙に受け渡しされる引数。&lt;/li&gt;&lt;li&gt;implicit修飾子により定義された変数を暗黙的にimplicit修飾子が付けられた引数に代入する。&lt;/li&gt;&lt;li&gt;単に暗黙的に引数を補完するだけだが、暗黙のパラメータを応用することで型クラスを実装することができる。&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;次のコードでは、二番目の引数をimplicitとしている。&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;scala&amp;gt; implicit val x = 20
+x: Int = 20
+
+scala&amp;gt; def f&amp;#40;a: Int&amp;#41;&amp;#40;implicit b: Int&amp;#41;:Int = a + b
+f: &amp;#40;a: Int&amp;#41;&amp;#40;implicit b: Int&amp;#41;Int
+
+scala&amp;gt; f&amp;#40;1&amp;#41;
+res4: Int = 21
+&lt;/code&gt;&lt;/pre&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;コンパイラが自動的に暗黙のパラメータを認識し、必要としている時に自動的にimplicitパラメータを探索する。&lt;/li&gt;&lt;li&gt;(多分)静的型付言語に動的スコープを導入したような物(?)&lt;ul&gt;&lt;li&gt;&lt;a href='https://galois.com/wp-content/uploads/2014/08/pub_JL_ImplicitParameters.pdf'&gt;Implicit Parameters: Dynamic Scoping with Static Types&lt;/a&gt; というタイトルの論文がある。&lt;/li&gt;&lt;li&gt;関数を実行する場所やその瞬間によって値をコロコロ変えることが出来る。&lt;/li&gt;&lt;li&gt;暗黙のパラメータ自体は、Haskellの型クラスをエミュレートするために実装されたらしい。&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;li&gt;引数の数が大量にある、または、同じような引数を取る関数を大量に呼び出している時などに有効と思われる。&lt;/li&gt;&lt;li&gt;割とホントに見えない所で代入が発生しているので、普段意識せずに使ってる人が多そうな機能の一つだと思われる(Futureなど)。&lt;/li&gt;&lt;li&gt;暗黙のパラメータに関するエラー&lt;ul&gt;&lt;li&gt;暗黙のパラメータを必要としているにもかかわらず、必要となるimplicitな変数が定義されていない場合はエラーが出る。&lt;ul&gt;&lt;li&gt;あるクラスの関数を別のクラスの関数に移した時などに、この手のエラーがよく発生する。&lt;/li&gt;&lt;li&gt;移植元のimplicitな変数と移植先のimplicitの変数の何が違うかを考えると見つけやすい。エラーメッセージもヒントになる。&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;li&gt;暗黙のパラメータによる複数の代入候補が存在する場合にもエラーが発生する。(一応優先順位はあるらしいが)&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;li&gt;暗黙のパラメータによる代入を許したくない場合は、明示的に引数を指定することでそれを回避できる。前述の例で言うと、次のように書けば、暗黙のパラメータは回避される。&lt;/li&gt;&lt;/ul&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;scala&amp;gt; f&amp;#40;1&amp;#41;&amp;#40;30&amp;#41;
+res5: Int = 31
+&lt;/code&gt;&lt;/pre&gt;&lt;ul&gt;&lt;li&gt;implicit parameterを使用することで、型クラスを構成できる。(←ここが重要)&lt;/li&gt;&lt;/ul&gt;
+</description>
+<pubDate>
+Wed, 18 Apr 2018 00:00:00 +0900
+</pubDate>
+</item>
+<item>
+<guid>
+https://yuwki0131.github.io/posts-output/2018-04-18-scala-for/
+</guid>
+<link>
+https://yuwki0131.github.io/posts-output/2018-04-18-scala-for/
+</link>
+<title>
+Scalaのfor式/for内包記法(For comprehension)
+</title>
+<description>
+&lt;p&gt;Scalaについて勉強した時のメモ(その4)です。for式の扱い方について。&lt;/p&gt;&lt;p&gt;※ 元々はmarkdownで書いていたテキストの転載。&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;for {
+  a &amp;lt;- abcDao.find&amp;#40;id&amp;#41;
+  b &amp;lt;- abcDao.find&amp;#40;a&amp;#41;
+} yeild f&amp;#40;a, b&amp;#41;
+&lt;/code&gt;&lt;/pre&gt;&lt;ul&gt;&lt;li&gt;Scalaのfor文はJavaなどと同様に、foreach文の役割を持つ。&lt;/li&gt;&lt;li&gt;Haskellのdo記法に由来するという話をどこかで読んだ気がするが出典は不明。&lt;/li&gt;&lt;li&gt;ただし、yield節を追加することで、for-yield式(for内包記法)となり、map/flatMap/filter(With)を使ったジェネレータとなる。&lt;ul&gt;&lt;li&gt;基本的にはListのジェネレータを他のデータ型(OptionやFuture)向けに一般化したものとして考えるのが筋のような気がする    (が実際のところは分からない)。&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;li&gt;map/flatMap/withFilter等が定義されたデータ型に対して、これらの関数を使用したコードの別の書き方を提供する。&lt;ul&gt;&lt;li&gt;よくTwitterなどでモナドがほしいという人がいるが、実は本当に求めているのは、モナドそのものではなく、    このfor-yield風の構文(Haskellだとdo記法)の事だったりする(らしい)。。。&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;li&gt;FutureやOption、Eitherなどでは、後続の処理を記述するためにmap/flatMapを使用する。  しかし、このような書き方は、ネストが深くなると、可読性が落ち、括弧の対応関係を追いづらくなる。  (いわゆるJavaScriptで言うところのcallback地獄?)  また、どの結果がどの変数に代入されているかも読み取ることが難しくなる。&lt;/li&gt;&lt;li&gt;for式を導入することで、変数束縛の対応関係が明確になり、括弧の数が減少し、処理の流れが明確になる。&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;例えば、このネスト。&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;abcDao.find&amp;#40;id&amp;#41; // 戻り値はFuture&amp;#91;Option&amp;#91;String&amp;#93;&amp;#93;
+  .flatMap {
+    case a =&amp;gt; a.map&amp;#40;f&amp;#41;  // aはOption&amp;#91;String&amp;#93;
+      .map {
+        case b =&amp;gt; abcDao.findByName&amp;#40;b&amp;#41; // 戻り値は、Future&amp;#91;Option&amp;#91;String&amp;#93;&amp;#93;
+          .map { c =&amp;gt;　&amp;#40;a, c&amp;#41; } }.getOrElse&amp;#40; ... &amp;#41; }
+&lt;/code&gt;&lt;/pre&gt;&lt;/p&gt;&lt;p&gt;for式で書き換えることで各関係が明確になる。&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;for {
+  a &amp;lt;- abcDao.find&amp;#40;id&amp;#41;
+  b = a.map&amp;#40;f&amp;#41;
+  c &amp;lt;- abcDao.findByName&amp;#40;b&amp;#41;
+} yield &amp;#40;a, c&amp;#41;
+&lt;/code&gt;&lt;/pre&gt;&lt;ul&gt;&lt;li&gt;for式は、コンテクストとなる型(コンストラクタ)は必ず一つしか持てない。&lt;ul&gt;&lt;li&gt;Future用のfor式は、Future型専用、Option型のfor式は、Option型専用になる。&lt;/li&gt;&lt;li&gt;Scalazのモナド変換子だと複数のコンテクストを合成した(複数のコンテクストを持つ)新たなのコンテクストを作ることも可能。。。    例えば、FutureとEitherを組み合わせたfor式が使える: &lt;a href='http://koff.io/posts/290071-make-async-with-scalaz-either-and-futures/'&gt;Practical Scalaz: Make async operations with scalaz.Either and Futures · KOFF.io&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;li&gt;yieldの手前のfor式内で使える記法は、主に3つ。そして最後にyield節がくる。&lt;ul&gt;&lt;li&gt;flatMap: &lt;code&gt;a &amp;lt;- b&lt;/code&gt;    : for式と同じコンテクストの型(コンストラクタ)を持つ式(&lt;code&gt;b&lt;/code&gt;)があり、その結果がfor式内でアンラップされた変数&lt;code&gt;a&lt;/code&gt;に代入される。&lt;/li&gt;&lt;li&gt;map: &lt;code&gt;a = b&lt;/code&gt;    : for式が表しているコンテクストとは無関係な型を持つ&lt;code&gt;b&lt;/code&gt;を変数&lt;code&gt;a&lt;/code&gt;に代入する。&lt;/li&gt;&lt;li&gt;filter(With): &lt;code&gt;if exp&lt;/code&gt;    : ガード節。filterとも言う。&lt;code&gt;exp&lt;/code&gt;がfalseだった場合、後続の処理を実行しない。(FutureだとFailureとなる)&lt;ul&gt;&lt;li&gt;&lt;a href='https://stackoverflow.com/questions/17869624/scala-future-with-filter-in-for-comprehension'&gt;Scala Future with filter in for comprehension - StackOverFlow&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;li&gt;yield(map)    : yield節の式の結果をfor式の型(コンストラクタ)でラップした結果を返す。&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;li&gt;関連したテクニック&lt;ul&gt;&lt;li&gt;式の実行結果が不要な場合は、次のようにアンダースコアを使う事で、余計な変数を避けることが出来る。&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;/ul&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;for {
+  &amp;#95; &amp;lt;- abcDao.find&amp;#40;id&amp;#41;
+} yield ...
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;_を使うことで余計な束縛を回避している。&lt;/p&gt;&lt;ul&gt;&lt;li&gt;for式中の=形式の束縛は、for式内でfor式のコンテクストとは無関係な処理を実行できる。&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;次の書き方、&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;for {
+  〜
+  b　= methodA&amp;#40;a&amp;#41;
+} yield ...
+&lt;/code&gt;&lt;/pre&gt;&lt;/p&gt;&lt;p&gt;は、Futureがコンテクストの場合、以下の書き方と同じ。&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;for {
+  〜
+  b　&amp;lt;- Future { methodA&amp;#40;a&amp;#41; }
+} yield ...
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;flatMapがmapになっていることが分かる。&lt;/p&gt;&lt;ul&gt;&lt;li&gt;for式はネストしたmap/flatMap/fiterWith(filter)に変換される。&lt;ul&gt;&lt;li&gt;このため、mapが複雑にネストするケースやflatMapやfilterを多用するコードは、for式の使用を検討したほうがいい。&lt;ul&gt;&lt;li&gt;プログラムがネストしすぎるのは可読性の観点から好ましくないため。&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;li&gt;一般的には、map/flatMapなどのネストよりはコードが読みやすくなる(はず)。&lt;/li&gt;&lt;li&gt;&lt;a href='http://scala-lang.org/files/archive/spec/2.12/06-expressions.html'&gt;For Comprehensions and For Loops&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;for式がある時、&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;for {
+  a &amp;lt;- abcDao.find&amp;#40;id&amp;#41;
+  b &amp;lt;- abcDao.find&amp;#40;a&amp;#41;
+} yeild f&amp;#40;a, b&amp;#41;
+&lt;/code&gt;&lt;/pre&gt;&lt;/p&gt;&lt;p&gt;コンパイル時に次のように、map/flatMapに展開される。&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;scala&quot;&gt;abcDao.find&amp;#40;id&amp;#41;
+  .flatMap {
+    case a =&amp;gt; abcDao.find&amp;#40;a&amp;#41;
+      .map { case b =&amp;gt; f&amp;#40;a, b&amp;#41; } }
+&lt;/code&gt;&lt;/pre&gt;&lt;ul&gt;&lt;li&gt;(その他)Try型を使うことで例外もfor-yield形式で書ける。&lt;ul&gt;&lt;li&gt;&lt;a href='https://www.slideshare.net/TakashiKawachi/scala-16023052'&gt;Scalaでの例外 - SlideShare&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;/ul&gt;
+</description>
+<pubDate>
+Wed, 18 Apr 2018 00:00:00 +0900
+</pubDate>
+</item>
 <item>
 <guid>
 https://yuwki0131.github.io/posts-output/2018-04-14-scala-functions-memo/

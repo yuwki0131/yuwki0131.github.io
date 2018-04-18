@@ -2,8 +2,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
   <head>
     <meta charset="utf-8"/>
-    <title>何で走っているのだろう: CryogenでブログのQuick Startをしてみた</title>
-    <link rel="canonical" href="https://yuwki0131.github.io/posts-output/2017-08-01-quickstart/">
+    <title>何で走っているのだろう: Scalaの3つのimplicit</title>
+    <link rel="canonical" href="https://yuwki0131.github.io/posts-output/2018-04-18-scala-implicit/">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href='https://fonts.googleapis.com/css?family=Alegreya:400italic,700italic,400,700' rel='stylesheet'
           type='text/css'>
@@ -70,23 +70,58 @@
 <div id="post">
     <div class="post-header">
   <div id="post-meta" class="row">
-    <div class="col-lg-6">2017/08/01</div>
+    <div class="col-lg-6">2018/04/18</div>
     
   </div>
-  <h2><img src="/img/frame/bird.png" width="32" />&emsp;CryogenでブログのQuick Startをしてみた</h2>
+  <h2><img src="/img/frame/bird.png" width="32" />&emsp;Scalaの3つのimplicit</h2>
 </div>
 <hr/>
 <div>
-  <ol class="content"><li><a href="#ブログを書く時の物理的/心理的ハードル">ブログを書く時の物理的/心理的ハードル</a></li><li><a href="#cryogenでマイクロ技術ブログ的な何かを行う試み。">Cryogenでマイクロ技術ブログ的な何かを行う試み。</a></li></ol>
-  <h3 id="ブログを書く時の物理的/心理的ハードル">ブログを書く時の物理的/心理的ハードル</h3><p>長らくGoogle Bloggerを使ってプログラミング関連をネタとしたブログを書いてきました。</p><p>Google Bloggerも良かったのですが、自前のサーバーでもブログ書きたいなとか、記事がmarkdownで書けないとか、 そもそもEmacsで書けないとか不満が色々出てきました。</p><p>そして何より、気づいたら、ブログを書くハードルが高くなってました。</p><p>色々思う所があり、1記事書くのにかかるコスト感が半端ない感じで上がりました。</p><p>以下、色々思う所です。</p><ul><li>HelloWorld的な基礎的な内容や簡単な備忘録程度ならわざわざブログに書く必要性が感じられない。</li><li>日本語で他の記事を参照すれば分かるような内容は書きたくない(書く意味がない)。</li><li>リファレンスは? エビデンスは?</li><li>(他人がどう思うかはとりあえず置いとくとして、そもそも)自分が面白いと思える内容なのか?</li></ul><p>しかし以上の思い込みは、アウトプットする行為と比較すると非常に下らない考えです。</p><p>この心理的ハードルをEmacsとMarkdwonとClojureの力で下げたい!</p><h3 id="cryogenでマイクロ技術ブログ的な何かを行う試み。">Cryogenでマイクロ技術ブログ的な何かを行う試み。</h3><p>というわけで、Google Bloggerより手軽に記事を書ける環境を探していた所、 Cryogen使えばいいじゃんという結論に落ち着きました。。。</p><p>Cryogenは、Clojureで作られた静的サイトジェネレータです。ClojureのWebサーバringと一緒に使うことで、ブログサイトを簡単に構築できます。 以下の公式ページを見た方が早いですが、非常に簡単にblogが立ち上がります。</p><p><div style="text-align: center;"><a href='https://github.com/cryogen-project/cryogen'>Cryogen</a></div></p><p>基本的にサーバでCryogenのプロジェクトを走らせといて、適当なディレクトリ (プロジェクト・ルート/resources/templates/md/posts/配下)に Markdown(or AsciiDocも使えます)を突っ込んどけば、サーバ側でいい感じに静的なブログを作ってくれるという仕組みです。 RSSフィードなども自動生成してくれるようで有りがたいです。</p><p>また、金銭的な都合で、Github Pagesを使うことにしました。</p>
+  <ol class="content"><li><a href="#暗黙の型変換(implicit_conversion)">暗黙の型変換(implicit conversion)</a></li><li><a href="#拡張メソッド(implicit_class_/_既存の型を拡張する)">拡張メソッド(implicit class / 既存の型を拡張する)</a></li><li><a href="#暗黙のパラメータ(implicit_parameter)">暗黙のパラメータ(implicit parameter)</a></li></ol>
+  <p>Scalaについて勉強した時のメモ(その5)です。Scalaのimplicitと呼ばれる系の機能について。</p><p>※ 元々はmarkdownで書いていたテキストの転載。</p><ul><li><a href='https://qiita.com/tagia0212/items/f70cf68e89e4367fcf2e'>Scala implicit修飾子 まとめ - Qiita</a></li><li>implicit conversion, implicit class, implicit parameterがある。</li><li>implicit: 暗黙の〜</li><li>implicit修飾子を付けて定義した場合、コンパイラが適宜、必要なメソッドや型を探索して自動的に適用してくれる。</li></ul><h2 id="暗黙の型変換(implicit&#95;conversion)">暗黙の型変換(implicit conversion)</h2><ul><li>型変換(キャスト)する関数をimplicitに定義しておくことで自動的にキャストしてくれる。</li></ul><p>暗黙の型変換の定義。<pre><code class="scala">implicit def d2i&#40;d: Double&#41;:Int = d.toInt
+</code></pre></p><p>implicit定義前。</p><pre><code class="scala">scala&gt; val x:Int = 3.14
+&lt;console&gt;:11: error: type mismatch;
+ found   : Double&#40;3.14&#41;
+ required: Int
+       val x:Int = 3.14
+                   &#94;
+</code></pre><p>implicit定義後。</p><pre><code class="scala">scala&gt; val x:Int = 3.14
+x: Int = 3
+</code></pre><ul><li>暗黙の型変換は推奨されていない/しない人が多い。<ul><li>公式のドキュメントですら、"implicit conversions can have pitfalls"と書かれている。<ul><li><a href='https://docs.scala-lang.org/tour/implicit-conversions.html'>TOUR OF SCALA IMPLICIT CONVERSIONS | Scala Documentation</a></li></ul></li><li>implicit conversionに対する否定的なコメント。<ul><li><a href='http://blog.livedoor.jp/sylc/archives/1553449.html'>Scalaのimplicit conversionってなんだ？</a></li><li><a href='http://kmizu.hatenablog.com/entry/2017/05/19/074149'>Scalaでimplicits呼ぶなキャンペーン</a></li><li><a href='https://qiita.com/tagia0212/items/f70cf68e89e4367fcf2e'>Scala implicit修飾子 まとめ - Qiita</a></li></ul></li></ul></li></ul><h2 id="拡張メソッド(implicit&#95;class&#95;/&#95;既存の型を拡張する)">拡張メソッド(implicit class / 既存の型を拡張する)</h2><ul><li>既存の型を拡張し、メソッドを追加する。<ul><li>pimp my libraryパターンと言われる。</li><li>ちなみに、C#やTypeScriptにも同名の類似した機能がある。</li></ul></li><li>レシーバにメソッドを生やす事ができるのが特徴。</li></ul><p>String型に、空文字ならNone、文字があればSomeで値を包む関数を定義したい場合、以下のように拡張できる。<pre><code class="scala">implicit class OptionString&#40;str: String&#41;{
+  def opt&#40;&#41;: Option&#91;String&#93; = if &#40;str.isEmpty&#41; None else Some&#40;str&#41;
+}
+</code></pre></p><p>これは、次のように使える。</p><pre><code class="scala">scala&gt; &quot;&quot;.opt
+res2: Option&#91;String&#93; = None
+
+scala&gt; &quot;abc&quot;.opt
+res3: Option&#91;String&#93; = Some&#40;abc&#41;
+</code></pre><p>上記の場合、<code>OptionString</code>の名前自体には特に意味はない。<code>str: String</code>がレシーバを表している。 よりGenericに書きたい場合は、型パラメータを入れられる。</p><h2 id="暗黙のパラメータ(implicit&#95;parameter)">暗黙のパラメータ(implicit parameter)</h2><ul><li>暗黙に受け渡しされる引数。</li><li>implicit修飾子により定義された変数を暗黙的にimplicit修飾子が付けられた引数に代入する。</li><li>単に暗黙的に引数を補完するだけだが、暗黙のパラメータを応用することで型クラスを実装することができる。</li></ul><p>次のコードでは、二番目の引数をimplicitとしている。<pre><code class="scala">scala&gt; implicit val x = 20
+x: Int = 20
+
+scala&gt; def f&#40;a: Int&#41;&#40;implicit b: Int&#41;:Int = a + b
+f: &#40;a: Int&#41;&#40;implicit b: Int&#41;Int
+
+scala&gt; f&#40;1&#41;
+res4: Int = 21
+</code></pre></p><ul><li>コンパイラが自動的に暗黙のパラメータを認識し、必要としている時に自動的にimplicitパラメータを探索する。</li><li>(多分)静的型付言語に動的スコープを導入したような物(?)<ul><li><a href='https://galois.com/wp-content/uploads/2014/08/pub_JL_ImplicitParameters.pdf'>Implicit Parameters: Dynamic Scoping with Static Types</a> というタイトルの論文がある。</li><li>関数を実行する場所やその瞬間によって値をコロコロ変えることが出来る。</li><li>暗黙のパラメータ自体は、Haskellの型クラスをエミュレートするために実装されたらしい。</li></ul></li><li>引数の数が大量にある、または、同じような引数を取る関数を大量に呼び出している時などに有効と思われる。</li><li>割とホントに見えない所で代入が発生しているので、普段意識せずに使ってる人が多そうな機能の一つだと思われる(Futureなど)。</li><li>暗黙のパラメータに関するエラー<ul><li>暗黙のパラメータを必要としているにもかかわらず、必要となるimplicitな変数が定義されていない場合はエラーが出る。<ul><li>あるクラスの関数を別のクラスの関数に移した時などに、この手のエラーがよく発生する。</li><li>移植元のimplicitな変数と移植先のimplicitの変数の何が違うかを考えると見つけやすい。エラーメッセージもヒントになる。</li></ul></li><li>暗黙のパラメータによる複数の代入候補が存在する場合にもエラーが発生する。(一応優先順位はあるらしいが)</li></ul></li><li>暗黙のパラメータによる代入を許したくない場合は、明示的に引数を指定することでそれを回避できる。前述の例で言うと、次のように書けば、暗黙のパラメータは回避される。</li></ul><pre><code class="scala">scala&gt; f&#40;1&#41;&#40;30&#41;
+res5: Int = 31
+</code></pre><ul><li>implicit parameterを使用することで、型クラスを構成できる。(←ここが重要)</li></ul>
 </div>
 
 <div id="post-tags">
   <b><img src="/img/frame/tag.png" width="16"/>&nbsp;</b>
   
-  <a href="/tags-output/Cryogen/">Cryogen</a>
+  <a href="/tags-output/Implicit parameters/">Implicit parameters</a>
   
-  <a href="/tags-output/blog/">blog</a>
+  <a href="/tags-output/拡張メソッド/">拡張メソッド</a>
+  
+  <a href="/tags-output/Implicit conversion/">Implicit conversion</a>
+  
+  <a href="/tags-output/暗黙のパラメータ/">暗黙のパラメータ</a>
+  
+  <a href="/tags-output/Scala/">Scala</a>
+  
+  <a href="/tags-output/型クラス/">型クラス</a>
   
 </div>
 <hr/>
@@ -94,8 +129,8 @@
 
     <div id="prev-next">
         
-        <a href="/posts-output/2017-08-02-cryogen-workflow/">&laquo; Cryogen/Github-Pagesでブログを書く</a>
         
+        <a class="right" href="/posts-output/2018-04-18-scala-for/">Scalaのfor式/for内包記法(For comprehension) &raquo;</a>
         
     </div>
 

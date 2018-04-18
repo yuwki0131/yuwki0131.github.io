@@ -2,8 +2,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
   <head>
     <meta charset="utf-8"/>
-    <title>何で走っているのだろう: キーワード</title>
-    <link rel="canonical" href="https://yuwki0131.github.io/tags/">
+    <title>何で走っているのだろう: Scalaのfor式/for内包記法(For comprehension)</title>
+    <link rel="canonical" href="https://yuwki0131.github.io/posts-output/2018-04-18-scala-for/">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href='https://fonts.googleapis.com/css?family=Alegreya:400italic,700italic,400,700' rel='stylesheet'
           type='text/css'>
@@ -67,54 +67,78 @@
         <div class="col-lg-9">
           <div id="content">
             
-<div id="tags-page">
-    <div id="page-header">
-        <h2>Tags</h2>
+<div id="post">
+    <div class="post-header">
+  <div id="post-meta" class="row">
+    <div class="col-lg-6">2018/04/18</div>
+    
+  </div>
+  <h2><img src="/img/frame/bird.png" width="32" />&emsp;Scalaのfor式/for内包記法(For comprehension)</h2>
+</div>
+<hr/>
+<div>
+  
+  <p>Scalaについて勉強した時のメモ(その4)です。for式の扱い方について。</p><p>※ 元々はmarkdownで書いていたテキストの転載。</p><pre><code class="scala">for {
+  a &lt;- abcDao.find&#40;id&#41;
+  b &lt;- abcDao.find&#40;a&#41;
+} yeild f&#40;a, b&#41;
+</code></pre><ul><li>Scalaのfor文はJavaなどと同様に、foreach文の役割を持つ。</li><li>Haskellのdo記法に由来するという話をどこかで読んだ気がするが出典は不明。</li><li>ただし、yield節を追加することで、for-yield式(for内包記法)となり、map/flatMap/filter(With)を使ったジェネレータとなる。<ul><li>基本的にはListのジェネレータを他のデータ型(OptionやFuture)向けに一般化したものとして考えるのが筋のような気がする    (が実際のところは分からない)。</li></ul></li><li>map/flatMap/withFilter等が定義されたデータ型に対して、これらの関数を使用したコードの別の書き方を提供する。<ul><li>よくTwitterなどでモナドがほしいという人がいるが、実は本当に求めているのは、モナドそのものではなく、    このfor-yield風の構文(Haskellだとdo記法)の事だったりする(らしい)。。。</li></ul></li><li>FutureやOption、Eitherなどでは、後続の処理を記述するためにmap/flatMapを使用する。  しかし、このような書き方は、ネストが深くなると、可読性が落ち、括弧の対応関係を追いづらくなる。  (いわゆるJavaScriptで言うところのcallback地獄?)  また、どの結果がどの変数に代入されているかも読み取ることが難しくなる。</li><li>for式を導入することで、変数束縛の対応関係が明確になり、括弧の数が減少し、処理の流れが明確になる。</li></ul><p>例えば、このネスト。<pre><code class="scala">abcDao.find&#40;id&#41; // 戻り値はFuture&#91;Option&#91;String&#93;&#93;
+  .flatMap {
+    case a =&gt; a.map&#40;f&#41;  // aはOption&#91;String&#93;
+      .map {
+        case b =&gt; abcDao.findByName&#40;b&#41; // 戻り値は、Future&#91;Option&#91;String&#93;&#93;
+          .map { c =&gt;　&#40;a, c&#41; } }.getOrElse&#40; ... &#41; }
+</code></pre></p><p>for式で書き換えることで各関係が明確になる。</p><pre><code class="scala">for {
+  a &lt;- abcDao.find&#40;id&#41;
+  b = a.map&#40;f&#41;
+  c &lt;- abcDao.findByName&#40;b&#41;
+} yield &#40;a, c&#41;
+</code></pre><ul><li>for式は、コンテクストとなる型(コンストラクタ)は必ず一つしか持てない。<ul><li>Future用のfor式は、Future型専用、Option型のfor式は、Option型専用になる。</li><li>Scalazのモナド変換子だと複数のコンテクストを合成した(複数のコンテクストを持つ)新たなのコンテクストを作ることも可能。。。    例えば、FutureとEitherを組み合わせたfor式が使える: <a href='http://koff.io/posts/290071-make-async-with-scalaz-either-and-futures/'>Practical Scalaz: Make async operations with scalaz.Either and Futures · KOFF.io</a></li></ul></li><li>yieldの手前のfor式内で使える記法は、主に3つ。そして最後にyield節がくる。<ul><li>flatMap: <code>a &lt;- b</code>    : for式と同じコンテクストの型(コンストラクタ)を持つ式(<code>b</code>)があり、その結果がfor式内でアンラップされた変数<code>a</code>に代入される。</li><li>map: <code>a = b</code>    : for式が表しているコンテクストとは無関係な型を持つ<code>b</code>を変数<code>a</code>に代入する。</li><li>filter(With): <code>if exp</code>    : ガード節。filterとも言う。<code>exp</code>がfalseだった場合、後続の処理を実行しない。(FutureだとFailureとなる)<ul><li><a href='https://stackoverflow.com/questions/17869624/scala-future-with-filter-in-for-comprehension'>Scala Future with filter in for comprehension - StackOverFlow</a></li></ul></li><li>yield(map)    : yield節の式の結果をfor式の型(コンストラクタ)でラップした結果を返す。</li></ul></li><li>関連したテクニック<ul><li>式の実行結果が不要な場合は、次のようにアンダースコアを使う事で、余計な変数を避けることが出来る。</li></ul></li></ul><pre><code class="scala">for {
+  &#95; &lt;- abcDao.find&#40;id&#41;
+} yield ...
+</code></pre><p>_を使うことで余計な束縛を回避している。</p><ul><li>for式中の=形式の束縛は、for式内でfor式のコンテクストとは無関係な処理を実行できる。</li></ul><p>次の書き方、<pre><code class="scala">for {
+  〜
+  b　= methodA&#40;a&#41;
+} yield ...
+</code></pre></p><p>は、Futureがコンテクストの場合、以下の書き方と同じ。</p><pre><code class="scala">for {
+  〜
+  b　&lt;- Future { methodA&#40;a&#41; }
+} yield ...
+</code></pre><p>flatMapがmapになっていることが分かる。</p><ul><li>for式はネストしたmap/flatMap/fiterWith(filter)に変換される。<ul><li>このため、mapが複雑にネストするケースやflatMapやfilterを多用するコードは、for式の使用を検討したほうがいい。<ul><li>プログラムがネストしすぎるのは可読性の観点から好ましくないため。</li></ul></li><li>一般的には、map/flatMapなどのネストよりはコードが読みやすくなる(はず)。</li><li><a href='http://scala-lang.org/files/archive/spec/2.12/06-expressions.html'>For Comprehensions and For Loops</a></li></ul></li></ul><p>for式がある時、<pre><code class="scala">for {
+  a &lt;- abcDao.find&#40;id&#41;
+  b &lt;- abcDao.find&#40;a&#41;
+} yeild f&#40;a, b&#41;
+</code></pre></p><p>コンパイル時に次のように、map/flatMapに展開される。</p><pre><code class="scala">abcDao.find&#40;id&#41;
+  .flatMap {
+    case a =&gt; abcDao.find&#40;a&#41;
+      .map { case b =&gt; f&#40;a, b&#41; } }
+</code></pre><ul><li>(その他)Try型を使うことで例外もfor-yield形式で書ける。<ul><li><a href='https://www.slideshare.net/TakashiKawachi/scala-16023052'>Scalaでの例外 - SlideShare</a></li></ul></li></ul>
+</div>
+
+<div id="post-tags">
+  <b><img src="/img/frame/tag.png" width="16"/>&nbsp;</b>
+  
+  <a href="/tags-output/for式/">for式</a>
+  
+  <a href="/tags-output/Scala/">Scala</a>
+  
+  <a href="/tags-output/リスト内包記法/">リスト内包記法</a>
+  
+</div>
+<hr/>
+
+
+    <div id="prev-next">
+        
+        <a href="/posts-output/2018-04-18-scala-implicit/">&laquo; Scalaの3つのimplicit</a>
+        
+        
+        <a class="right" href="/posts-output/2018-04-14-scala-functions-memo/">Scalaでの関数のしくみと使い方 &raquo;</a>
+        
     </div>
 
-    <ul>
-        
-        <li><a href="/tags-output/型推論/">型推論</a></li>
-        
-        <li><a href="/tags-output/for式/">for式</a></li>
-        
-        <li><a href="/tags-output/デバッグ/">デバッグ</a></li>
-        
-        <li><a href="/tags-output/Implicit parameters/">Implicit parameters</a></li>
-        
-        <li><a href="/tags-output/スコープ/">スコープ</a></li>
-        
-        <li><a href="/tags-output/拡張メソッド/">拡張メソッド</a></li>
-        
-        <li><a href="/tags-output/Lisp/">Lisp</a></li>
-        
-        <li><a href="/tags-output/Implicit conversion/">Implicit conversion</a></li>
-        
-        <li><a href="/tags-output/例外/">例外</a></li>
-        
-        <li><a href="/tags-output/Cryogen/">Cryogen</a></li>
-        
-        <li><a href="/tags-output/暗黙のパラメータ/">暗黙のパラメータ</a></li>
-        
-        <li><a href="/tags-output/言語処理系/">言語処理系</a></li>
-        
-        <li><a href="/tags-output/Scala/">Scala</a></li>
-        
-        <li><a href="/tags-output/型クラス/">型クラス</a></li>
-        
-        <li><a href="/tags-output/blog/">blog</a></li>
-        
-        <li><a href="/tags-output/関数型プログラミング/">関数型プログラミング</a></li>
-        
-        <li><a href="/tags-output/代数的データ型/">代数的データ型</a></li>
-        
-        <li><a href="/tags-output/リスト内包記法/">リスト内包記法</a></li>
-        
-        <li><a href="/tags-output/再帰/">再帰</a></li>
-        
-        <li><a href="/tags-output/クロージャ/">クロージャ</a></li>
-        
-    </ul>
+    
+
 </div>
 
           </div>
