@@ -1,0 +1,1565 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>何で走っているのだろう: GCPのNLP APIを使ってみる</title>
+    <link rel="canonical" href="https://yuwki0131.github.io/posts-output/2018-04-19-gcp-nlp-api/">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Alegreya:400italic,700italic,400,700' rel='stylesheet'
+          type='text/css'>
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.7.0/styles/default.min.css">
+    <link rel="icon" href="/img/frame/bird.png">
+    <link href="https://fonts.googleapis.com/earlyaccess/mplus1p.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Fira+Sans" rel="stylesheet">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-103811007-1"></script>
+    <script>
+     window.dataLayer = window.dataLayer || [];
+     function gtag(){dataLayer.push(arguments);}
+     gtag('js', new Date());
+
+     gtag('config', 'UA-103811007-1');
+    </script>
+    <link href="/css/screen.css" rel="stylesheet" type="text/css" />
+  </head>
+  <body>
+    <nav class="navbar navbar-default">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed"
+                  data-toggle="collapse" data-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <p style="line-height:40px;">
+            <img src="/img/frame/run.png" width="32" style="padding-top:10px;padding-bot:10px"/>
+            <img src="/img/frame/cow.png" width="32" style="padding-top:10px;padding-bot:10px"/>
+            <a class="navbar-brand" href="/">何で走っているのだろう</a>
+          </p>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav navbar-right">
+            <li >
+              <a href="/"><img src="/img/frame/home.png" width="16"/>&nbsp;ホーム</a></li>
+            <li
+              >
+              <a href="/archives/"><img src="/img/frame/edit.png" width="16"/>&nbsp;過去の投稿</a></li>
+            
+            <li
+              >
+              <a href="/pages-output/about/"><img src="/img/frame/surprised.png" width="16"/>&nbsp;投稿者</a>
+            </li>
+            
+            <li><a href="/feed.xml"><img src="/img/frame/rss.png" width="16"/>&nbsp;RSS</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div><!--/.container-fluid -->
+    </nav>
+
+
+    <div class="container">
+
+      <div class="row">
+        <div class="col-lg-9">
+          <div id="content">
+            
+<div id="post">
+    <div class="post-header">
+  <div id="post-meta" class="row">
+    <div class="col-lg-6">2018/04/19</div>
+    
+  </div>
+  <h2><img src="/img/frame/bird.png" width="32" />&emsp;GCPのNLP APIを使ってみる</h2>
+</div>
+<hr/>
+<div>
+  <ol class="content"><li><a href="#使い方">使い方</a></li><li><a href="#感想">感想</a></li></ol>
+  <p>GCPのnlp apiを使ってみた。Yahooの形態素解析APIと同様、結構簡単に使うことができる。</p><p><a href='https://cloud.google.com/natural-language/?hl=ja'>Cloud Natural Language | Google Cloud</a></p><h2 id="使い方">使い方</h2><p>リクエストのurlは以下のような感じ。</p><pre><code>https://language.googleapis.com/v1/documents:analyzeSyntax?key=ここにAPIキーが入る
+</code></pre><p>以下がPOSTするJSON。</p><pre><code>{
+  &quot;document&quot;: {
+    &quot;type&quot;: &quot;PLAIN&#95;TEXT&quot;,
+    &quot;content&quot;: &quot;健三が遠い所から帰って来て駒込の奥に世帯を持ったのは東京を出てから何年目になるだろう。彼は故郷の土を踏む珍らしさのうちに一種の淋し味さえ感じた。&quot;
+  },
+  &quot;encodingType&quot;: &quot;UTF8&quot;
+}
+</code></pre><p>次のレスポンスが返ってくる。</p><pre><code>{
+    &quot;sentences&quot;: &#91;
+        {
+            &quot;text&quot;: {
+                &quot;content&quot;: &quot;健三が遠い所から帰って来て駒込の奥に世帯を持ったのは東京を出てから何年目になるだろう。&quot;,
+                &quot;beginOffset&quot;: 0
+            }
+        },
+        {
+            &quot;text&quot;: {
+                &quot;content&quot;: &quot;彼は故郷の土を踏む珍らしさのうちに一種の淋し味さえ感じた。&quot;,
+                &quot;beginOffset&quot;: 129
+            }
+        }
+    &#93;,
+    &quot;tokens&quot;: &#91;
+        {
+            &quot;text&quot;: {
+                &quot;content&quot;: &quot;健三&quot;,
+                &quot;beginOffset&quot;: 0
+            },
+            &quot;partOfSpeech&quot;: {
+                &quot;tag&quot;: &quot;NOUN&quot;,
+                &quot;aspect&quot;: &quot;ASPECT&#95;UNKNOWN&quot;,
+                &quot;case&quot;: &quot;CASE&#95;UNKNOWN&quot;,
+                &quot;form&quot;: &quot;FORM&#95;UNKNOWN&quot;,
+                &quot;gender&quot;: &quot;GENDER&#95;UNKNOWN&quot;,
+                &quot;mood&quot;: &quot;MOOD&#95;UNKNOWN&quot;,
+                &quot;number&quot;: &quot;NUMBER&#95;UNKNOWN&quot;,
+                &quot;person&quot;: &quot;PERSON&#95;UNKNOWN&quot;,
+                &quot;proper&quot;: &quot;PROPER&quot;,
+                &quot;reciprocity&quot;: &quot;RECIPROCITY&#95;UNKNOWN&quot;,
+                &quot;tense&quot;: &quot;TENSE&#95;UNKNOWN&quot;,
+                &quot;voice&quot;: &quot;VOICE&#95;UNKNOWN&quot;
+            },
+            &quot;dependencyEdge&quot;: {
+                &quot;headTokenIndex&quot;: 5,
+                &quot;label&quot;: &quot;NSUBJ&quot;
+            },
+            &quot;lemma&quot;: &quot;健三&quot;
+        },
+        {
+            &quot;text&quot;: {
+                &quot;content&quot;: &quot;が&quot;,
+                &quot;beginOffset&quot;: 6
+            },
+            &quot;partOfSpeech&quot;: {
+                &quot;tag&quot;: &quot;PRT&quot;,
+                &quot;aspect&quot;: &quot;ASPECT&#95;UNKNOWN&quot;,
+                &quot;case&quot;: &quot;NOMINATIVE&quot;,
+                &quot;form&quot;: &quot;FORM&#95;UNKNOWN&quot;,
+                &quot;gender&quot;: &quot;GENDER&#95;UNKNOWN&quot;,
+                &quot;mood&quot;: &quot;MOOD&#95;UNKNOWN&quot;,
+                &quot;number&quot;: &quot;NUMBER&#95;UNKNOWN&quot;,
+                &quot;person&quot;: &quot;PERSON&#95;UNKNOWN&quot;,
+                &quot;proper&quot;: &quot;NOT&#95;PROPER&quot;,
+                &quot;reciprocity&quot;: &quot;RECIPROCITY&#95;UNKNOWN&quot;,
+                &quot;tense&quot;: &quot;TENSE&#95;UNKNOWN&quot;,
+                &quot;voice&quot;: &quot;VOICE&#95;UNKNOWN&quot;
+            },
+            &quot;dependencyEdge&quot;: {
+                &quot;headTokenIndex&quot;: 0,
+                &quot;label&quot;: &quot;PRT&quot;
+            },
+            &quot;lemma&quot;: &quot;が&quot;
+        },
+        {
+            &quot;text&quot;: {
+                &quot;content&quot;: &quot;遠い&quot;,
+                &quot;beginOffset&quot;: 9
+            },
+            &quot;partOfSpeech&quot;: {
+                &quot;tag&quot;: &quot;ADJ&quot;,
+                &quot;aspect&quot;: &quot;ASPECT&#95;UNKNOWN&quot;,
+                &quot;case&quot;: &quot;CASE&#95;UNKNOWN&quot;,
+                &quot;form&quot;: &quot;ADNOMIAL&quot;,
+                &quot;gender&quot;: &quot;GENDER&#95;UNKNOWN&quot;,
+                &quot;mood&quot;: &quot;MOOD&#95;UNKNOWN&quot;,
+                &quot;number&quot;: &quot;NUMBER&#95;UNKNOWN&quot;,
+                &quot;person&quot;: &quot;PERSON&#95;UNKNOWN&quot;,
+                &quot;proper&quot;: &quot;NOT&#95;PROPER&quot;,
+                &quot;reciprocity&quot;: &quot;RECIPROCITY&#95;UNKNOWN&quot;,
+                &quot;tense&quot;: &quot;TENSE&#95;UNKNOWN&quot;,
+                &quot;voice&quot;: &quot;VOICE&#95;UNKNOWN&quot;
+            },
+            &quot;dependencyEdge&quot;: {
+                &quot;headTokenIndex&quot;: 3,
+                &quot;label&quot;: &quot;AMOD&quot;
+            },
+            &quot;lemma&quot;: &quot;遠い&quot;
+        },
+        {
+            &quot;text&quot;: {
+                &quot;content&quot;: &quot;所&quot;,
+                &quot;beginOffset&quot;: 15
+            },
+            &quot;partOfSpeech&quot;: {
+                &quot;tag&quot;: &quot;NOUN&quot;,
+                &quot;aspect&quot;: &quot;ASPECT&#95;UNKNOWN&quot;,
+                &quot;case&quot;: &quot;CASE&#95;UNKNOWN&quot;,
+                &quot;form&quot;: &quot;FORM&#95;UNKNOWN&quot;,
+                &quot;gender&quot;: &quot;GENDER&#95;UNKNOWN&quot;,
+                &quot;mood&quot;: &quot;MOOD&#95;UNKNOWN&quot;,
+                &quot;number&quot;: &quot;NUMBER&#95;UNKNOWN&quot;,
+                &quot;person&quot;: &quot;PERSON&#95;UNKNOWN&quot;,
+                &quot;proper&quot;: &quot;NOT&#95;PROPER&quot;,
+                &quot;reciprocity&quot;: &quot;RECIPROCITY&#95;UNKNOWN&quot;,
+                &quot;tense&quot;: &quot;TENSE&#95;UNKNOWN&quot;,
+                &quot;voice&quot;: &quot;VOICE&#95;UNKNOWN&quot;
+            },
+            &quot;dependencyEdge&quot;: {
+                &quot;headTokenIndex&quot;: 5,
+                &quot;label&quot;: &quot;ADVPHMOD&quot;
+            },
+            &quot;lemma&quot;: &quot;所&quot;
+        },
+        {
+            &quot;text&quot;: {
+                &quot;content&quot;: &quot;から&quot;,
+                &quot;beginOffset&quot;: 18
+            },
+            &quot;partOfSpeech&quot;: {
+                &quot;tag&quot;: &quot;PRT&quot;,
+                &quot;aspect&quot;: &quot;ASPECT&#95;UNKNOWN&quot;,
+                &quot;case&quot;: &quot;ADVERBIAL&quot;,
+                &quot;form&quot;: &quot;FORM&#95;UNKNOWN&quot;,
+                &quot;gender&quot;: &quot;GENDER&#95;UNKNOWN&quot;,
+                &quot;mood&quot;: &quot;MOOD&#95;UNKNOWN&quot;,
+                &quot;number&quot;: &quot;NUMBER&#95;UNKNOWN&quot;,
+                &quot;person&quot;: &quot;PERSON&#95;UNKNOWN&quot;,
+                &quot;proper&quot;: &quot;NOT&#95;PROPER&quot;,
+                &quot;reciprocity&quot;: &quot;RECIPROCITY&#95;UNKNOWN&quot;,
+                &quot;tense&quot;: &quot;TENSE&#95;UNKNOWN&quot;,
+                &quot;voice&quot;: &quot;VOICE&#95;UNKNOWN&quot;
+            },
+            &quot;dependencyEdge&quot;: {
+                &quot;headTokenIndex&quot;: 3,
+                &quot;label&quot;: &quot;PRT&quot;
+            },
+            &quot;lemma&quot;: &quot;から&quot;
+        },
+        {
+            &quot;text&quot;: {
+                &quot;content&quot;: &quot;帰っ&quot;,
+                &quot;beginOffset&quot;: 24
+            },
+            &quot;partOfSpeech&quot;: {
+                &quot;tag&quot;: &quot;VERB&quot;,
+                &quot;aspect&quot;: &quot;ASPECT&#95;UNKNOWN&quot;,
+                &quot;case&quot;: &quot;CASE&#95;UNKNOWN&quot;,
+                &quot;form&quot;: &quot;GERUND&quot;,
+                &quot;gender&quot;: &quot;GENDER&#95;UNKNOWN&quot;,
+                &quot;mood&quot;: &quot;MOOD&#95;UNKNOWN&quot;,
+                &quot;number&quot;: &quot;NUMBER&#95;UNKNOWN&quot;,
+                &quot;person&quot;: &quot;PERSON&#95;UNKNOWN&quot;,
+                &quot;proper&quot;: &quot;NOT&#95;PROPER&quot;,
+                &quot;reciprocity&quot;: &quot;RECIPROCITY&#95;UNKNOWN&quot;,
+                &quot;tense&quot;: &quot;TENSE&#95;UNKNOWN&quot;,
+                &quot;voice&quot;: &quot;VOICE&#95;UNKNOWN&quot;
+            },
+            &quot;dependencyEdge&quot;: {
+                &quot;headTokenIndex&quot;: 15,
+                &quot;label&quot;: &quot;ADVCL&quot;
+            },
+            &quot;lemma&quot;: &quot;帰っ&quot;
+        },
+        {
+            &quot;text&quot;: {
+                &quot;content&quot;: &quot;て&quot;,
+                &quot;beginOffset&quot;: 30
+            },
+            &quot;partOfSpeech&quot;: {
+                &quot;tag&quot;: &quot;PRT&quot;,
+                &quot;aspect&quot;: &quot;ASPECT&#95;UNKNOWN&quot;,
+                &quot;case&quot;: &quot;CASE&#95;UNKNOWN&quot;,
+                &quot;form&quot;: &quot;FORM&#95;UNKNOWN&quot;,
+                &quot;gender&quot;: &quot;GENDER&#95;UNKNOWN&quot;,
+                &quot;mood&quot;: &quot;MOOD&#95;UNKNOWN&quot;,
+                &quot;number&quot;: &quot;NUMBER&#95;UNKNOWN&quot;,
+                &quot;person&quot;: &quot;PERSON&#95;UNKNOWN&quot;,
+                &quot;proper&quot;: &quot;NOT&#95;PROPER&quot;,
+                &quot;reciprocity&quot;: &quot;RECIPROCITY&#95;UNKNOWN&quot;,
+                &quot;tense&quot;: &quot;TENSE&#95;UNKNOWN&quot;,
+                &quot;voice&quot;: &quot;VOICE&#95;UNKNOWN&quot;
+            },
+            &quot;dependencyEdge&quot;: {
+                &quot;headTokenIndex&quot;: 5,
+                &quot;label&quot;: &quot;PRT&quot;
+            },
+            &quot;lemma&quot;: &quot;て&quot;
+        },
+        {
+            &quot;text&quot;: {
+                &quot;content&quot;: &quot;来&quot;,
+                &quot;beginOffset&quot;: 33
+            },
+            &quot;partOfSpeech&quot;: {
+                &quot;tag&quot;: &quot;VERB&quot;,
+                &quot;aspect&quot;: &quot;ASPECT&#95;UNKNOWN&quot;,
+                &quot;case&quot;: &quot;CASE&#95;UNKNOWN&quot;,
+                &quot;form&quot;: &quot;GERUND&quot;,
+                &quot;gender&quot;: &quot;GENDER&#95;UNKNOWN&quot;,
+                &quot;mood&quot;: &quot;MOOD&#95;UNKNOWN&quot;,
+                &quot;number&quot;: &quot;NUMBER&#95;UNKNOWN&quot;,
+                &quot;person&quot;: &quot;PERSON&#95;UNKNOWN&quot;,
+                &quot;proper&quot;: &quot;NOT&#95;PROPER&quot;,
+                &quot;reciprocity&quot;: &quot;RECIPROCITY&#95;UNKNOWN&quot;,
+                &quot;tense&quot;: &quot;TENSE&#95;UNKNOWN&quot;,
+                &quot;voice&quot;: &quot;VOICE&#95;UNKNOWN&quot;
+            },
+            &quot;dependencyEdge&quot;: {
+                &quot;headTokenIndex&quot;: 5,
+                &quot;label&quot;: &quot;AUXVV&quot;
+            },
+            &quot;lemma&quot;: &quot;来る&quot;
+        },
+        {
+            &quot;text&quot;: {
+                &quot;content&quot;: &quot;て&quot;,
+                &quot;beginOffset&quot;: 36
+            },
+            &quot;partOfSpeech&quot;: {
+                &quot;tag&quot;: &quot;PRT&quot;,
+                &quot;aspect&quot;: &quot;ASPECT&#95;UNKNOWN&quot;,
+                &quot;case&quot;: &quot;CASE&#95;UNKNOWN&quot;,
+                &quot;form&quot;: &quot;FORM&#95;UNKNOWN&quot;,
+                &quot;gender&quot;: &quot;GENDER&#95;UNKNOWN&quot;,
+                &quot;mood&quot;: &quot;MOOD&#95;UNKNOWN&quot;,
+                &quot;number&quot;: &quot;NUMBER&#95;UNKNOWN&quot;,
+                &quot;person&quot;: &quot;PERSON&#95;UNKNOWN&quot;,
+                &quot;proper&quot;: &quot;NOT&#95;PROPER&quot;,
+                &quot;reciprocity&quot;: &quot;RECIPROCITY&#95;UNKNOWN&quot;,
+                &quot;tense&quot;: &quot;TENSE&#95;UNKNOWN&quot;,
+                &quot;voice&quot;: &quot;VOICE&#95;UNKNOWN&quot;
+            },
+            &quot;dependencyEdge&quot;: {
+                &quot;headTokenIndex&quot;: 5,
+                &quot;label&quot;: &quot;PRT&quot;
+            },
+            &quot;lemma&quot;: &quot;て&quot;
+        },
+        {
+            &quot;text&quot;: {
+                &quot;content&quot;: &quot;駒込&quot;,
+                &quot;beginOffset&quot;: 39
+            },
+            &quot;partOfSpeech&quot;: {
+                &quot;tag&quot;: &quot;NOUN&quot;,
+                &quot;aspect&quot;: &quot;ASPECT&#95;UNKNOWN&quot;,
+                &quot;case&quot;: &quot;CASE&#95;UNKNOWN&quot;,
+                &quot;form&quot;: &quot;FORM&#95;UNKNOWN&quot;,
+                &quot;gender&quot;: &quot;GENDER&#95;UNKNOWN&quot;,
+                &quot;mood&quot;: &quot;MOOD&#95;UNKNOWN&quot;,
+                &quot;number&quot;: &quot;NUMBER&#95;UNKNOWN&quot;,
+                &quot;person&quot;: &quot;PERSON&#95;UNKNOWN&quot;,
+                &quot;proper&quot;: &quot;PROPER&quot;,
+                &quot;reciprocity&quot;: &quot;RECIPROCITY&#95;UNKNOWN&quot;,
+                &quot;tense&quot;: &quot;TENSE&#95;UNKNOWN&quot;,
+                &quot;voice&quot;: &quot;VOICE&#95;UNKNOWN&quot;
+            },
+            &quot;dependencyEdge&quot;: {
+                &quot;headTokenIndex&quot;: 11,
+                &quot;label&quot;: &quot;NN&quot;
+            },
+            &quot;lemma&quot;: &quot;駒込&quot;
+        },
+        {
+            &quot;text&quot;: {
+                &quot;content&quot;: &quot;の&quot;,
+                &quot;beginOffset&quot;: 45
+            },
+            &quot;partOfSpeech&quot;: {
+                &quot;tag&quot;: &quot;PRT&quot;,
+                &quot;aspect&quot;: &quot;ASPECT&#95;UNKNOWN&quot;,
+                &quot;case&quot;: &quot;GENITIVE&quot;,
+                &quot;form&quot;: &quot;FORM&#95;UNKNOWN&quot;,
+                &quot;gender&quot;: &quot;GENDER&#95;UNKNOWN&quot;,
+                &quot;mood&quot;: &quot;MOOD&#95;UNKNOWN&quot;,
+                &quot;number&quot;: &quot;NUMBER&#95;UNKNOWN&quot;,
+                &quot;person&quot;: &quot;PERSON&#95;UNKNOWN&quot;,
+                &quot;proper&quot;: &quot;NOT&#95;PROPER&quot;,
+                &quot;reciprocity&quot;: &quot;RECIPROCITY&#95;UNKNOWN&quot;,
+                &quot;tense&quot;: &quot;TENSE&#95;UNKNOWN&quot;,
+                &quot;voice&quot;: &quot;VOICE&#95;UNKNOWN&quot;
+            },
+            &quot;dependencyEdge&quot;: {
+                &quot;headTokenIndex&quot;: 9,
+                &quot;label&quot;: &quot;PRT&quot;
+            },
+            &quot;lemma&quot;: &quot;の&quot;
+        },
+        {
+            &quot;text&quot;: {
+                &quot;content&quot;: &quot;奥&quot;,
+                &quot;beginOffset&quot;: 48
+            },
+            &quot;partOfSpeech&quot;: {
+                &quot;tag&quot;: &quot;NOUN&quot;,
+                &quot;aspect&quot;: &quot;ASPECT&#95;UNKNOWN&quot;,
+                &quot;case&quot;: &quot;CASE&#95;UNKNOWN&quot;,
+                &quot;form&quot;: &quot;FORM&#95;UNKNOWN&quot;,
+                &quot;gender&quot;: &quot;GENDER&#95;UNKNOWN&quot;,
+                &quot;mood&quot;: &quot;MOOD&#95;UNKNOWN&quot;,
+                &quot;number&quot;: &quot;NUMBER&#95;UNKNOWN&quot;,
+                &quot;person&quot;: &quot;PERSON&#95;UNKNOWN&quot;,
+                &quot;proper&quot;: &quot;NOT&#95;PROPER&quot;,
+                &quot;reciprocity&quot;: &quot;RECIPROCITY&#95;UNKNOWN&quot;,
+                &quot;tense&quot;: &quot;TENSE&#95;UNKNOWN&quot;,
+                &quot;voice&quot;: &quot;VOICE&#95;UNKNOWN&quot;
+            },
+            &quot;dependencyEdge&quot;: {
+                &quot;headTokenIndex&quot;: 15,
+                &quot;label&quot;: &quot;ADVPHMOD&quot;
+            },
+            &quot;lemma&quot;: &quot;奥&quot;
+        },
+        {
+            &quot;text&quot;: {
+                &quot;content&quot;: &quot;に&quot;,
+                &quot;beginOffset&quot;: 51
+            },
+            &quot;partOfSpeech&quot;: {
+                &quot;tag&quot;: &quot;PRT&quot;,
+                &quot;aspect&quot;: &quot;ASPECT&#95;UNKNOWN&quot;,
+                &quot;case&quot;: &quot;ADVERBIAL&quot;,
+                &quot;form&quot;: &quot;FORM&#95;UNKNOWN&quot;,
+                &quot;gender&quot;: &quot;GENDER&#95;UNKNOWN&quot;,
+                &quot;mood&quot;: &quot;MOOD&#95;UNKNOWN&quot;,
+                &quot;number&quot;: &quot;NUMBER&#95;UNKNOWN&quot;,
+                &quot;person&quot;: &quot;PERSON&#95;UNKNOWN&quot;,
+                &quot;proper&quot;: &quot;NOT&#95;PROPER&quot;,
+                &quot;reciprocity&quot;: &quot;RECIPROCITY&#95;UNKNOWN&quot;,
+                &quot;tense&quot;: &quot;TENSE&#95;UNKNOWN&quot;,
+                &quot;voice&quot;: &quot;VOICE&#95;UNKNOWN&quot;
+            },
+            &quot;dependencyEdge&quot;: {
+                &quot;headTokenIndex&quot;: 11,
+                &quot;label&quot;: &quot;PRT&quot;
+            },
+            &quot;lemma&quot;: &quot;に&quot;
+        },
+        {
+            &quot;text&quot;: {
+                &quot;content&quot;: &quot;世帯&quot;,
+                &quot;beginOffset&quot;: 54
+            },
+            &quot;partOfSpeech&quot;: {
+                &quot;tag&quot;: &quot;NOUN&quot;,
+                &quot;aspect&quot;: &quot;ASPECT&#95;UNKNOWN&quot;,
+                &quot;case&quot;: &quot;CASE&#95;UNKNOWN&quot;,
+                &quot;form&quot;: &quot;FORM&#95;UNKNOWN&quot;,
+                &quot;gender&quot;: &quot;GENDER&#95;UNKNOWN&quot;,
+                &quot;mood&quot;: &quot;MOOD&#95;UNKNOWN&quot;,
+                &quot;number&quot;: &quot;NUMBER&#95;UNKNOWN&quot;,
+                &quot;person&quot;: &quot;PERSON&#95;UNKNOWN&quot;,
+                &quot;proper&quot;: &quot;NOT&#95;PROPER&quot;,
+                &quot;reciprocity&quot;: &quot;RECIPROCITY&#95;UNKNOWN&quot;,
+                &quot;tense&quot;: &quot;TENSE&#95;UNKNOWN&quot;,
+                &quot;voice&quot;: &quot;VOICE&#95;UNKNOWN&quot;
+            },
+            &quot;dependencyEdge&quot;: {
+                &quot;headTokenIndex&quot;: 15,
+                &quot;label&quot;: &quot;DOBJ&quot;
+            },
+            &quot;lemma&quot;: &quot;世帯&quot;
+        },
+        {
+            &quot;text&quot;: {
+                &quot;content&quot;: &quot;を&quot;,
+                &quot;beginOffset&quot;: 60
+            },
+            &quot;partOfSpeech&quot;: {
+                &quot;tag&quot;: &quot;PRT&quot;,
+                &quot;aspect&quot;: &quot;ASPECT&#95;UNKNOWN&quot;,
+                &quot;case&quot;: &quot;ACCUSATIVE&quot;,
+                &quot;form&quot;: &quot;FORM&#95;UNKNOWN&quot;,
+                &quot;gender&quot;: &quot;GENDER&#95;UNKNOWN&quot;,
+                &quot;mood&quot;: &quot;MOOD&#95;UNKNOWN&quot;,
+                &quot;number&quot;: &quot;NUMBER&#95;UNKNOWN&quot;,
+                &quot;person&quot;: &quot;PERSON&#95;UNKNOWN&quot;,
+                &quot;proper&quot;: &quot;NOT&#95;PROPER&quot;,
+                &quot;reciprocity&quot;: &quot;RECIPROCITY&#95;UNKNOWN&quot;,
+                &quot;tense&quot;: &quot;TENSE&#95;UNKNOWN&quot;,
+                &quot;voice&quot;: &quot;VOICE&#95;UNKNOWN&quot;
+            },
+            &quot;dependencyEdge&quot;: {
+                &quot;headTokenIndex&quot;: 13,
+                &quot;label&quot;: &quot;PRT&quot;
+            },
+            &quot;lemma&quot;: &quot;を&quot;
+        },
+        {
+            &quot;text&quot;: {
+                &quot;content&quot;: &quot;持っ&quot;,
+                &quot;beginOffset&quot;: 63
+            },
+            &quot;partOfSpeech&quot;: {
+                &quot;tag&quot;: &quot;VERB&quot;,
+                &quot;aspect&quot;: &quot;ASPECT&#95;UNKNOWN&quot;,
+                &quot;case&quot;: &quot;CASE&#95;UNKNOWN&quot;,
+                &quot;form&quot;: &quot;GERUND&quot;,
+                &quot;gender&quot;: &quot;GENDER&#95;UNKNOWN&quot;,
+                &quot;mood&quot;: &quot;MOOD&#95;UNKNOWN&quot;,
+                &quot;number&quot;: &quot;NUMBER&#95;UNKNOWN&quot;,
+                &quot;person&quot;: &quot;PERSON&#95;UNKNOWN&quot;,
+                &quot;proper&quot;: &quot;NOT&#95;PROPER&quot;,
+                &quot;reciprocity&quot;: &quot;RECIPROCITY&#95;UNKNOWN&quot;,
+                &quot;tense&quot;: &quot;TENSE&#95;UNKNOWN&quot;,
+                &quot;voice&quot;: &quot;VOICE&#95;UNKNOWN&quot;
+            },
+            &quot;dependencyEdge&quot;: {
+                &quot;headTokenIndex&quot;: 17,
+                &quot;label&quot;: &quot;NOMC&quot;
+            },
+            &quot;lemma&quot;: &quot;持っ&quot;
+        },
+        {
+            &quot;text&quot;: {
+                &quot;content&quot;: &quot;た&quot;,
+                &quot;beginOffset&quot;: 69
+            },
+            &quot;partOfSpeech&quot;: {
+                &quot;tag&quot;: &quot;VERB&quot;,
+                &quot;aspect&quot;: &quot;ASPECT&#95;UNKNOWN&quot;,
+                &quot;case&quot;: &quot;CASE&#95;UNKNOWN&quot;,
+                &quot;form&quot;: &quot;ADNOMIAL&quot;,
+                &quot;gender&quot;: &quot;GENDER&#95;UNKNOWN&quot;,
+                &quot;mood&quot;: &quot;MOOD&#95;UNKNOWN&quot;,
+                &quot;number&quot;: &quot;NUMBER&#95;UNKNOWN&quot;,
+                &quot;person&quot;: &quot;PERSON&#95;UNKNOWN&quot;,
+                &quot;proper&quot;: &quot;NOT&#95;PROPER&quot;,
+                &quot;reciprocity&quot;: &quot;RECIPROCITY&#95;UNKNOWN&quot;,
+                &quot;tense&quot;: &quot;PAST&quot;,
+                &quot;voice&quot;: &quot;VOICE&#95;UNKNOWN&quot;
+            },
+            &quot;dependencyEdge&quot;: {
+                &quot;headTokenIndex&quot;: 15,
+                &quot;label&quot;: &quot;AUX&quot;
+            },
+            &quot;lemma&quot;: &quot;た&quot;
+        },
+        {
+            &quot;text&quot;: {
+                &quot;content&quot;: &quot;の&quot;,
+                &quot;beginOffset&quot;: 72
+            },
+            &quot;partOfSpeech&quot;: {
+                &quot;tag&quot;: &quot;PRT&quot;,
+                &quot;aspect&quot;: &quot;ASPECT&#95;UNKNOWN&quot;,
+                &quot;case&quot;: &quot;CASE&#95;UNKNOWN&quot;,
+                &quot;form&quot;: &quot;FORM&#95;UNKNOWN&quot;,
+                &quot;gender&quot;: &quot;GENDER&#95;UNKNOWN&quot;,
+                &quot;mood&quot;: &quot;MOOD&#95;UNKNOWN&quot;,
+                &quot;number&quot;: &quot;NUMBER&#95;UNKNOWN&quot;,
+                &quot;person&quot;: &quot;PERSON&#95;UNKNOWN&quot;,
+                &quot;proper&quot;: &quot;NOT&#95;PROPER&quot;,
+                &quot;reciprocity&quot;: &quot;RECIPROCITY&#95;UNKNOWN&quot;,
+                &quot;tense&quot;: &quot;TENSE&#95;UNKNOWN&quot;,
+                &quot;voice&quot;: &quot;VOICE&#95;UNKNOWN&quot;
+            },
+            &quot;dependencyEdge&quot;: {
+                &quot;headTokenIndex&quot;: 28,
+                &quot;label&quot;: &quot;NOMCSUBJ&quot;
+            },
+            &quot;lemma&quot;: &quot;の&quot;
+        },
+        {
+            &quot;text&quot;: {
+                &quot;content&quot;: &quot;は&quot;,
+                &quot;beginOffset&quot;: 75
+            },
+            &quot;partOfSpeech&quot;: {
+                &quot;tag&quot;: &quot;PRT&quot;,
+                &quot;aspect&quot;: &quot;ASPECT&#95;UNKNOWN&quot;,
+                &quot;case&quot;: &quot;CASE&#95;UNKNOWN&quot;,
+                &quot;form&quot;: &quot;FORM&#95;UNKNOWN&quot;,
+                &quot;gender&quot;: &quot;GENDER&#95;UNKNOWN&quot;,
+                &quot;mood&quot;: &quot;MOOD&#95;UNKNOWN&quot;,
+                &quot;number&quot;: &quot;NUMBER&#95;UNKNOWN&quot;,
+                &quot;person&quot;: &quot;PERSON&#95;UNKNOWN&quot;,
+                &quot;proper&quot;: &quot;NOT&#95;PROPER&quot;,
+                &quot;reciprocity&quot;: &quot;RECIPROCITY&#95;UNKNOWN&quot;,
+                &quot;tense&quot;: &quot;TENSE&#95;UNKNOWN&quot;,
+                &quot;voice&quot;: &quot;VOICE&#95;UNKNOWN&quot;
+            },
+            &quot;dependencyEdge&quot;: {
+                &quot;headTokenIndex&quot;: 17,
+                &quot;label&quot;: &quot;PRT&quot;
+            },
+            &quot;lemma&quot;: &quot;は&quot;
+        },
+        {
+            &quot;text&quot;: {
+                &quot;content&quot;: &quot;東京&quot;,
+                &quot;beginOffset&quot;: 78
+            },
+            &quot;partOfSpeech&quot;: {
+                &quot;tag&quot;: &quot;NOUN&quot;,
+                &quot;aspect&quot;: &quot;ASPECT&#95;UNKNOWN&quot;,
+                &quot;case&quot;: &quot;CASE&#95;UNKNOWN&quot;,
+                &quot;form&quot;: &quot;FORM&#95;UNKNOWN&quot;,
+                &quot;gender&quot;: &quot;GENDER&#95;UNKNOWN&quot;,
+                &quot;mood&quot;: &quot;MOOD&#95;UNKNOWN&quot;,
+                &quot;number&quot;: &quot;NUMBER&#95;UNKNOWN&quot;,
+                &quot;person&quot;: &quot;PERSON&#95;UNKNOWN&quot;,
+                &quot;proper&quot;: &quot;PROPER&quot;,
+                &quot;reciprocity&quot;: &quot;RECIPROCITY&#95;UNKNOWN&quot;,
+                &quot;tense&quot;: &quot;TENSE&#95;UNKNOWN&quot;,
+                &quot;voice&quot;: &quot;VOICE&#95;UNKNOWN&quot;
+            },
+            &quot;dependencyEdge&quot;: {
+                &quot;headTokenIndex&quot;: 21,
+                &quot;label&quot;: &quot;DOBJ&quot;
+            },
+            &quot;lemma&quot;: &quot;東京&quot;
+        },
+        {
+            &quot;text&quot;: {
+                &quot;content&quot;: &quot;を&quot;,
+                &quot;beginOffset&quot;: 84
+            },
+            &quot;partOfSpeech&quot;: {
+                &quot;tag&quot;: &quot;PRT&quot;,
+                &quot;aspect&quot;: &quot;ASPECT&#95;UNKNOWN&quot;,
+                &quot;case&quot;: &quot;ACCUSATIVE&quot;,
+                &quot;form&quot;: &quot;FORM&#95;UNKNOWN&quot;,
+                &quot;gender&quot;: &quot;GENDER&#95;UNKNOWN&quot;,
+                &quot;mood&quot;: &quot;MOOD&#95;UNKNOWN&quot;,
+                &quot;number&quot;: &quot;NUMBER&#95;UNKNOWN&quot;,
+                &quot;person&quot;: &quot;PERSON&#95;UNKNOWN&quot;,
+                &quot;proper&quot;: &quot;NOT&#95;PROPER&quot;,
+                &quot;reciprocity&quot;: &quot;RECIPROCITY&#95;UNKNOWN&quot;,
+                &quot;tense&quot;: &quot;TENSE&#95;UNKNOWN&quot;,
+                &quot;voice&quot;: &quot;VOICE&#95;UNKNOWN&quot;
+            },
+            &quot;dependencyEdge&quot;: {
+                &quot;headTokenIndex&quot;: 19,
+                &quot;label&quot;: &quot;PRT&quot;
+            },
+            &quot;lemma&quot;: &quot;を&quot;
+        },
+        {
+            &quot;text&quot;: {
+                &quot;content&quot;: &quot;出&quot;,
+                &quot;beginOffset&quot;: 87
+            },
+            &quot;partOfSpeech&quot;: {
+                &quot;tag&quot;: &quot;VERB&quot;,
+                &quot;aspect&quot;: &quot;ASPECT&#95;UNKNOWN&quot;,
+                &quot;case&quot;: &quot;CASE&#95;UNKNOWN&quot;,
+                &quot;form&quot;: &quot;GERUND&quot;,
+                &quot;gender&quot;: &quot;GENDER&#95;UNKNOWN&quot;,
+                &quot;mood&quot;: &quot;MOOD&#95;UNKNOWN&quot;,
+                &quot;number&quot;: &quot;NUMBER&#95;UNKNOWN&quot;,
+                &quot;person&quot;: &quot;PERSON&#95;UNKNOWN&quot;,
+                &quot;proper&quot;: &quot;NOT&#95;PROPER&quot;,
+                &quot;reciprocity&quot;: &quot;RECIPROCITY&#95;UNKNOWN&quot;,
+                &quot;tense&quot;: &quot;TENSE&#95;UNKNOWN&quot;,
+                &quot;voice&quot;: &quot;VOICE&#95;UNKNOWN&quot;
+            },
+            &quot;dependencyEdge&quot;: {
+                &quot;headTokenIndex&quot;: 28,
+                &quot;label&quot;: &quot;ADVCL&quot;
+            },
+            &quot;lemma&quot;: &quot;出る&quot;
+        },
+        {
+            &quot;text&quot;: {
+                &quot;content&quot;: &quot;て&quot;,
+                &quot;beginOffset&quot;: 90
+            },
+            &quot;partOfSpeech&quot;: {
+                &quot;tag&quot;: &quot;PRT&quot;,
+                &quot;aspect&quot;: &quot;ASPECT&#95;UNKNOWN&quot;,
+                &quot;case&quot;: &quot;CASE&#95;UNKNOWN&quot;,
+                &quot;form&quot;: &quot;FORM&#95;UNKNOWN&quot;,
+                &quot;gender&quot;: &quot;GENDER&#95;UNKNOWN&quot;,
+                &quot;mood&quot;: &quot;MOOD&#95;UNKNOWN&quot;,
+                &quot;number&quot;: &quot;NUMBER&#95;UNKNOWN&quot;,
+                &quot;person&quot;: &quot;PERSON&#95;UNKNOWN&quot;,
+                &quot;proper&quot;: &quot;NOT&#95;PROPER&quot;,
+                &quot;reciprocity&quot;: &quot;RECIPROCITY&#95;UNKNOWN&quot;,
+                &quot;tense&quot;: &quot;TENSE&#95;UNKNOWN&quot;,
+                &quot;voice&quot;: &quot;VOICE&#95;UNKNOWN&quot;
+            },
+            &quot;dependencyEdge&quot;: {
+                &quot;headTokenIndex&quot;: 21,
+                &quot;label&quot;: &quot;PRT&quot;
+            },
+            &quot;lemma&quot;: &quot;て&quot;
+        },
+        {
+            &quot;text&quot;: {
+                &quot;content&quot;: &quot;から&quot;,
+                &quot;beginOffset&quot;: 93
+            },
+            &quot;partOfSpeech&quot;: {
+                &quot;tag&quot;: &quot;PRT&quot;,
+                &quot;aspect&quot;: &quot;ASPECT&#95;UNKNOWN&quot;,
+                &quot;case&quot;: &quot;ADVERBIAL&quot;,
+                &quot;form&quot;: &quot;FORM&#95;UNKNOWN&quot;,
+                &quot;gender&quot;: &quot;GENDER&#95;UNKNOWN&quot;,
+                &quot;mood&quot;: &quot;MOOD&#95;UNKNOWN&quot;,
+                &quot;number&quot;: &quot;NUMBER&#95;UNKNOWN&quot;,
+                &quot;person&quot;: &quot;PERSON&#95;UNKNOWN&quot;,
+                &quot;proper&quot;: &quot;NOT&#95;PROPER&quot;,
+                &quot;reciprocity&quot;: &quot;RECIPROCITY&#95;UNKNOWN&quot;,
+                &quot;tense&quot;: &quot;TENSE&#95;UNKNOWN&quot;,
+                &quot;voice&quot;: &quot;VOICE&#95;UNKNOWN&quot;
+            },
+            &quot;dependencyEdge&quot;: {
+                &quot;headTokenIndex&quot;: 21,
+                &quot;label&quot;: &quot;PRT&quot;
+            },
+            &quot;lemma&quot;: &quot;から&quot;
+        },
+        {
+            &quot;text&quot;: {
+                &quot;content&quot;: &quot;何&quot;,
+                &quot;beginOffset&quot;: 99
+            },
+            &quot;partOfSpeech&quot;: {
+                &quot;tag&quot;: &quot;PRON&quot;,
+                &quot;aspect&quot;: &quot;ASPECT&#95;UNKNOWN&quot;,
+                &quot;case&quot;: &quot;CASE&#95;UNKNOWN&quot;,
+                &quot;form&quot;: &quot;FORM&#95;UNKNOWN&quot;,
+                &quot;gender&quot;: &quot;GENDER&#95;UNKNOWN&quot;,
+                &quot;mood&quot;: &quot;MOOD&#95;UNKNOWN&quot;,
+                &quot;number&quot;: &quot;NUMBER&#95;UNKNOWN&quot;,
+                &quot;person&quot;: &quot;PERSON&#95;UNKNOWN&quot;,
+                &quot;proper&quot;: &quot;NOT&#95;PROPER&quot;,
+                &quot;reciprocity&quot;: &quot;RECIPROCITY&#95;UNKNOWN&quot;,
+                &quot;tense&quot;: &quot;TENSE&#95;UNKNOWN&quot;,
+                &quot;voice&quot;: &quot;VOICE&#95;UNKNOWN&quot;
+            },
+            &quot;dependencyEdge&quot;: {
+                &quot;headTokenIndex&quot;: 28,
+                &quot;label&quot;: &quot;ATTR&quot;
+            },
+            &quot;lemma&quot;: &quot;何&quot;
+        },
+        {
+            &quot;text&quot;: {
+                &quot;content&quot;: &quot;年&quot;,
+                &quot;beginOffset&quot;: 102
+            },
+            &quot;partOfSpeech&quot;: {
+                &quot;tag&quot;: &quot;AFFIX&quot;,
+                &quot;aspect&quot;: &quot;ASPECT&#95;UNKNOWN&quot;,
+                &quot;case&quot;: &quot;CASE&#95;UNKNOWN&quot;,
+                &quot;form&quot;: &quot;FORM&#95;UNKNOWN&quot;,
+                &quot;gender&quot;: &quot;GENDER&#95;UNKNOWN&quot;,
+                &quot;mood&quot;: &quot;MOOD&#95;UNKNOWN&quot;,
+                &quot;number&quot;: &quot;NUMBER&#95;UNKNOWN&quot;,
+                &quot;person&quot;: &quot;PERSON&#95;UNKNOWN&quot;,
+                &quot;proper&quot;: &quot;NOT&#95;PROPER&quot;,
+                &quot;reciprocity&quot;: &quot;RECIPROCITY&#95;UNKNOWN&quot;,
+                &quot;tense&quot;: &quot;TENSE&#95;UNKNOWN&quot;,
+                &quot;voice&quot;: &quot;VOICE&#95;UNKNOWN&quot;
+            },
+            &quot;dependencyEdge&quot;: {
+                &quot;headTokenIndex&quot;: 24,
+                &quot;label&quot;: &quot;SNUM&quot;
+            },
+            &quot;lemma&quot;: &quot;年&quot;
+        },
+        {
+            &quot;text&quot;: {
+                &quot;content&quot;: &quot;目&quot;,
+                &quot;beginOffset&quot;: 105
+            },
+            &quot;partOfSpeech&quot;: {
+                &quot;tag&quot;: &quot;AFFIX&quot;,
+                &quot;aspect&quot;: &quot;ASPECT&#95;UNKNOWN&quot;,
+                &quot;case&quot;: &quot;CASE&#95;UNKNOWN&quot;,
+                &quot;form&quot;: &quot;FORM&#95;UNKNOWN&quot;,
+                &quot;gender&quot;: &quot;GENDER&#95;UNKNOWN&quot;,
+                &quot;mood&quot;: &quot;MOOD&#95;UNKNOWN&quot;,
+                &quot;number&quot;: &quot;NUMBER&#95;UNKNOWN&quot;,
+                &quot;person&quot;: &quot;PERSON&#95;UNKNOWN&quot;,
+                &quot;proper&quot;: &quot;NOT&#95;PROPER&quot;,
+                &quot;reciprocity&quot;: &quot;RECIPROCITY&#95;UNKNOWN&quot;,
+                &quot;tense&quot;: &quot;TENSE&#95;UNKNOWN&quot;,
+                &quot;voice&quot;: &quot;VOICE&#95;UNKNOWN&quot;
+            },
+            &quot;dependencyEdge&quot;: {
+                &quot;headTokenIndex&quot;: 24,
+                &quot;label&quot;: &quot;SUFF&quot;
+            },
+            &quot;lemma&quot;: &quot;目&quot;
+        },
+        {
+            &quot;text&quot;: {
+                &quot;content&quot;: &quot;に&quot;,
+                &quot;beginOffset&quot;: 108
+            },
+            &quot;partOfSpeech&quot;: {
+                &quot;tag&quot;: &quot;PRT&quot;,
+                &quot;aspect&quot;: &quot;ASPECT&#95;UNKNOWN&quot;,
+                &quot;case&quot;: &quot;COMPLEMENTIVE&quot;,
+                &quot;form&quot;: &quot;FORM&#95;UNKNOWN&quot;,
+                &quot;gender&quot;: &quot;GENDER&#95;UNKNOWN&quot;,
+                &quot;mood&quot;: &quot;MOOD&#95;UNKNOWN&quot;,
+                &quot;number&quot;: &quot;NUMBER&#95;UNKNOWN&quot;,
+                &quot;person&quot;: &quot;PERSON&#95;UNKNOWN&quot;,
+                &quot;proper&quot;: &quot;NOT&#95;PROPER&quot;,
+                &quot;reciprocity&quot;: &quot;RECIPROCITY&#95;UNKNOWN&quot;,
+                &quot;tense&quot;: &quot;TENSE&#95;UNKNOWN&quot;,
+                &quot;voice&quot;: &quot;VOICE&#95;UNKNOWN&quot;
+            },
+            &quot;dependencyEdge&quot;: {
+                &quot;headTokenIndex&quot;: 24,
+                &quot;label&quot;: &quot;PRT&quot;
+            },
+            &quot;lemma&quot;: &quot;に&quot;
+        },
+        {
+            &quot;text&quot;: {
+                &quot;content&quot;: &quot;なる&quot;,
+                &quot;beginOffset&quot;: 111
+            },
+            &quot;partOfSpeech&quot;: {
+                &quot;tag&quot;: &quot;VERB&quot;,
+                &quot;aspect&quot;: &quot;ASPECT&#95;UNKNOWN&quot;,
+                &quot;case&quot;: &quot;CASE&#95;UNKNOWN&quot;,
+                &quot;form&quot;: &quot;FINAL&#95;ENDING&quot;,
+                &quot;gender&quot;: &quot;GENDER&#95;UNKNOWN&quot;,
+                &quot;mood&quot;: &quot;MOOD&#95;UNKNOWN&quot;,
+                &quot;number&quot;: &quot;NUMBER&#95;UNKNOWN&quot;,
+                &quot;person&quot;: &quot;PERSON&#95;UNKNOWN&quot;,
+                &quot;proper&quot;: &quot;NOT&#95;PROPER&quot;,
+                &quot;reciprocity&quot;: &quot;RECIPROCITY&#95;UNKNOWN&quot;,
+                &quot;tense&quot;: &quot;TENSE&#95;UNKNOWN&quot;,
+                &quot;voice&quot;: &quot;VOICE&#95;UNKNOWN&quot;
+            },
+            &quot;dependencyEdge&quot;: {
+                &quot;headTokenIndex&quot;: 28,
+                &quot;label&quot;: &quot;ROOT&quot;
+            },
+            &quot;lemma&quot;: &quot;なる&quot;
+        },
+        {
+            &quot;text&quot;: {
+                &quot;content&quot;: &quot;だろ&quot;,
+                &quot;beginOffset&quot;: 117
+            },
+            &quot;partOfSpeech&quot;: {
+                &quot;tag&quot;: &quot;VERB&quot;,
+                &quot;aspect&quot;: &quot;ASPECT&#95;UNKNOWN&quot;,
+                &quot;case&quot;: &quot;CASE&#95;UNKNOWN&quot;,
+                &quot;form&quot;: &quot;IRREALIS&quot;,
+                &quot;gender&quot;: &quot;GENDER&#95;UNKNOWN&quot;,
+                &quot;mood&quot;: &quot;MOOD&#95;UNKNOWN&quot;,
+                &quot;number&quot;: &quot;NUMBER&#95;UNKNOWN&quot;,
+                &quot;person&quot;: &quot;PERSON&#95;UNKNOWN&quot;,
+                &quot;proper&quot;: &quot;NOT&#95;PROPER&quot;,
+                &quot;reciprocity&quot;: &quot;RECIPROCITY&#95;UNKNOWN&quot;,
+                &quot;tense&quot;: &quot;TENSE&#95;UNKNOWN&quot;,
+                &quot;voice&quot;: &quot;VOICE&#95;UNKNOWN&quot;
+            },
+            &quot;dependencyEdge&quot;: {
+                &quot;headTokenIndex&quot;: 28,
+                &quot;label&quot;: &quot;AUX&quot;
+            },
+            &quot;lemma&quot;: &quot;だろ&quot;
+        },
+        {
+            &quot;text&quot;: {
+                &quot;content&quot;: &quot;う&quot;,
+                &quot;beginOffset&quot;: 123
+            },
+            &quot;partOfSpeech&quot;: {
+                &quot;tag&quot;: &quot;VERB&quot;,
+                &quot;aspect&quot;: &quot;ASPECT&#95;UNKNOWN&quot;,
+                &quot;case&quot;: &quot;CASE&#95;UNKNOWN&quot;,
+                &quot;form&quot;: &quot;FINAL&#95;ENDING&quot;,
+                &quot;gender&quot;: &quot;GENDER&#95;UNKNOWN&quot;,
+                &quot;mood&quot;: &quot;MOOD&#95;UNKNOWN&quot;,
+                &quot;number&quot;: &quot;NUMBER&#95;UNKNOWN&quot;,
+                &quot;person&quot;: &quot;PERSON&#95;UNKNOWN&quot;,
+                &quot;proper&quot;: &quot;NOT&#95;PROPER&quot;,
+                &quot;reciprocity&quot;: &quot;RECIPROCITY&#95;UNKNOWN&quot;,
+                &quot;tense&quot;: &quot;TENSE&#95;UNKNOWN&quot;,
+                &quot;voice&quot;: &quot;VOICE&#95;UNKNOWN&quot;
+            },
+            &quot;dependencyEdge&quot;: {
+                &quot;headTokenIndex&quot;: 28,
+                &quot;label&quot;: &quot;AUX&quot;
+            },
+            &quot;lemma&quot;: &quot;う&quot;
+        },
+        {
+            &quot;text&quot;: {
+                &quot;content&quot;: &quot;。&quot;,
+                &quot;beginOffset&quot;: 126
+            },
+            &quot;partOfSpeech&quot;: {
+                &quot;tag&quot;: &quot;PUNCT&quot;,
+                &quot;aspect&quot;: &quot;ASPECT&#95;UNKNOWN&quot;,
+                &quot;case&quot;: &quot;CASE&#95;UNKNOWN&quot;,
+                &quot;form&quot;: &quot;FORM&#95;UNKNOWN&quot;,
+                &quot;gender&quot;: &quot;GENDER&#95;UNKNOWN&quot;,
+                &quot;mood&quot;: &quot;MOOD&#95;UNKNOWN&quot;,
+                &quot;number&quot;: &quot;NUMBER&#95;UNKNOWN&quot;,
+                &quot;person&quot;: &quot;PERSON&#95;UNKNOWN&quot;,
+                &quot;proper&quot;: &quot;NOT&#95;PROPER&quot;,
+                &quot;reciprocity&quot;: &quot;RECIPROCITY&#95;UNKNOWN&quot;,
+                &quot;tense&quot;: &quot;TENSE&#95;UNKNOWN&quot;,
+                &quot;voice&quot;: &quot;VOICE&#95;UNKNOWN&quot;
+            },
+            &quot;dependencyEdge&quot;: {
+                &quot;headTokenIndex&quot;: 28,
+                &quot;label&quot;: &quot;P&quot;
+            },
+            &quot;lemma&quot;: &quot;。&quot;
+        },
+        {
+            &quot;text&quot;: {
+                &quot;content&quot;: &quot;彼&quot;,
+                &quot;beginOffset&quot;: 129
+            },
+            &quot;partOfSpeech&quot;: {
+                &quot;tag&quot;: &quot;PRON&quot;,
+                &quot;aspect&quot;: &quot;ASPECT&#95;UNKNOWN&quot;,
+                &quot;case&quot;: &quot;CASE&#95;UNKNOWN&quot;,
+                &quot;form&quot;: &quot;FORM&#95;UNKNOWN&quot;,
+                &quot;gender&quot;: &quot;GENDER&#95;UNKNOWN&quot;,
+                &quot;mood&quot;: &quot;MOOD&#95;UNKNOWN&quot;,
+                &quot;number&quot;: &quot;NUMBER&#95;UNKNOWN&quot;,
+                &quot;person&quot;: &quot;THIRD&quot;,
+                &quot;proper&quot;: &quot;NOT&#95;PROPER&quot;,
+                &quot;reciprocity&quot;: &quot;RECIPROCITY&#95;UNKNOWN&quot;,
+                &quot;tense&quot;: &quot;TENSE&#95;UNKNOWN&quot;,
+                &quot;voice&quot;: &quot;VOICE&#95;UNKNOWN&quot;
+            },
+            &quot;dependencyEdge&quot;: {
+                &quot;headTokenIndex&quot;: 50,
+                &quot;label&quot;: &quot;NSUBJ&quot;
+            },
+            &quot;lemma&quot;: &quot;彼&quot;
+        },
+        {
+            &quot;text&quot;: {
+                &quot;content&quot;: &quot;は&quot;,
+                &quot;beginOffset&quot;: 132
+            },
+            &quot;partOfSpeech&quot;: {
+                &quot;tag&quot;: &quot;PRT&quot;,
+                &quot;aspect&quot;: &quot;ASPECT&#95;UNKNOWN&quot;,
+                &quot;case&quot;: &quot;CASE&#95;UNKNOWN&quot;,
+                &quot;form&quot;: &quot;FORM&#95;UNKNOWN&quot;,
+                &quot;gender&quot;: &quot;GENDER&#95;UNKNOWN&quot;,
+                &quot;mood&quot;: &quot;MOOD&#95;UNKNOWN&quot;,
+                &quot;number&quot;: &quot;NUMBER&#95;UNKNOWN&quot;,
+                &quot;person&quot;: &quot;PERSON&#95;UNKNOWN&quot;,
+                &quot;proper&quot;: &quot;NOT&#95;PROPER&quot;,
+                &quot;reciprocity&quot;: &quot;RECIPROCITY&#95;UNKNOWN&quot;,
+                &quot;tense&quot;: &quot;TENSE&#95;UNKNOWN&quot;,
+                &quot;voice&quot;: &quot;VOICE&#95;UNKNOWN&quot;
+            },
+            &quot;dependencyEdge&quot;: {
+                &quot;headTokenIndex&quot;: 32,
+                &quot;label&quot;: &quot;PRT&quot;
+            },
+            &quot;lemma&quot;: &quot;は&quot;
+        },
+        {
+            &quot;text&quot;: {
+                &quot;content&quot;: &quot;故郷&quot;,
+                &quot;beginOffset&quot;: 135
+            },
+            &quot;partOfSpeech&quot;: {
+                &quot;tag&quot;: &quot;NOUN&quot;,
+                &quot;aspect&quot;: &quot;ASPECT&#95;UNKNOWN&quot;,
+                &quot;case&quot;: &quot;CASE&#95;UNKNOWN&quot;,
+                &quot;form&quot;: &quot;FORM&#95;UNKNOWN&quot;,
+                &quot;gender&quot;: &quot;GENDER&#95;UNKNOWN&quot;,
+                &quot;mood&quot;: &quot;MOOD&#95;UNKNOWN&quot;,
+                &quot;number&quot;: &quot;NUMBER&#95;UNKNOWN&quot;,
+                &quot;person&quot;: &quot;PERSON&#95;UNKNOWN&quot;,
+                &quot;proper&quot;: &quot;NOT&#95;PROPER&quot;,
+                &quot;reciprocity&quot;: &quot;RECIPROCITY&#95;UNKNOWN&quot;,
+                &quot;tense&quot;: &quot;TENSE&#95;UNKNOWN&quot;,
+                &quot;voice&quot;: &quot;VOICE&#95;UNKNOWN&quot;
+            },
+            &quot;dependencyEdge&quot;: {
+                &quot;headTokenIndex&quot;: 36,
+                &quot;label&quot;: &quot;NN&quot;
+            },
+            &quot;lemma&quot;: &quot;故郷&quot;
+        },
+        {
+            &quot;text&quot;: {
+                &quot;content&quot;: &quot;の&quot;,
+                &quot;beginOffset&quot;: 141
+            },
+            &quot;partOfSpeech&quot;: {
+                &quot;tag&quot;: &quot;PRT&quot;,
+                &quot;aspect&quot;: &quot;ASPECT&#95;UNKNOWN&quot;,
+                &quot;case&quot;: &quot;GENITIVE&quot;,
+                &quot;form&quot;: &quot;FORM&#95;UNKNOWN&quot;,
+                &quot;gender&quot;: &quot;GENDER&#95;UNKNOWN&quot;,
+                &quot;mood&quot;: &quot;MOOD&#95;UNKNOWN&quot;,
+                &quot;number&quot;: &quot;NUMBER&#95;UNKNOWN&quot;,
+                &quot;person&quot;: &quot;PERSON&#95;UNKNOWN&quot;,
+                &quot;proper&quot;: &quot;NOT&#95;PROPER&quot;,
+                &quot;reciprocity&quot;: &quot;RECIPROCITY&#95;UNKNOWN&quot;,
+                &quot;tense&quot;: &quot;TENSE&#95;UNKNOWN&quot;,
+                &quot;voice&quot;: &quot;VOICE&#95;UNKNOWN&quot;
+            },
+            &quot;dependencyEdge&quot;: {
+                &quot;headTokenIndex&quot;: 34,
+                &quot;label&quot;: &quot;PRT&quot;
+            },
+            &quot;lemma&quot;: &quot;の&quot;
+        },
+        {
+            &quot;text&quot;: {
+                &quot;content&quot;: &quot;土&quot;,
+                &quot;beginOffset&quot;: 144
+            },
+            &quot;partOfSpeech&quot;: {
+                &quot;tag&quot;: &quot;NOUN&quot;,
+                &quot;aspect&quot;: &quot;ASPECT&#95;UNKNOWN&quot;,
+                &quot;case&quot;: &quot;CASE&#95;UNKNOWN&quot;,
+                &quot;form&quot;: &quot;FORM&#95;UNKNOWN&quot;,
+                &quot;gender&quot;: &quot;GENDER&#95;UNKNOWN&quot;,
+                &quot;mood&quot;: &quot;MOOD&#95;UNKNOWN&quot;,
+                &quot;number&quot;: &quot;NUMBER&#95;UNKNOWN&quot;,
+                &quot;person&quot;: &quot;PERSON&#95;UNKNOWN&quot;,
+                &quot;proper&quot;: &quot;NOT&#95;PROPER&quot;,
+                &quot;reciprocity&quot;: &quot;RECIPROCITY&#95;UNKNOWN&quot;,
+                &quot;tense&quot;: &quot;TENSE&#95;UNKNOWN&quot;,
+                &quot;voice&quot;: &quot;VOICE&#95;UNKNOWN&quot;
+            },
+            &quot;dependencyEdge&quot;: {
+                &quot;headTokenIndex&quot;: 38,
+                &quot;label&quot;: &quot;DOBJ&quot;
+            },
+            &quot;lemma&quot;: &quot;土&quot;
+        },
+        {
+            &quot;text&quot;: {
+                &quot;content&quot;: &quot;を&quot;,
+                &quot;beginOffset&quot;: 147
+            },
+            &quot;partOfSpeech&quot;: {
+                &quot;tag&quot;: &quot;PRT&quot;,
+                &quot;aspect&quot;: &quot;ASPECT&#95;UNKNOWN&quot;,
+                &quot;case&quot;: &quot;ACCUSATIVE&quot;,
+                &quot;form&quot;: &quot;FORM&#95;UNKNOWN&quot;,
+                &quot;gender&quot;: &quot;GENDER&#95;UNKNOWN&quot;,
+                &quot;mood&quot;: &quot;MOOD&#95;UNKNOWN&quot;,
+                &quot;number&quot;: &quot;NUMBER&#95;UNKNOWN&quot;,
+                &quot;person&quot;: &quot;PERSON&#95;UNKNOWN&quot;,
+                &quot;proper&quot;: &quot;NOT&#95;PROPER&quot;,
+                &quot;reciprocity&quot;: &quot;RECIPROCITY&#95;UNKNOWN&quot;,
+                &quot;tense&quot;: &quot;TENSE&#95;UNKNOWN&quot;,
+                &quot;voice&quot;: &quot;VOICE&#95;UNKNOWN&quot;
+            },
+            &quot;dependencyEdge&quot;: {
+                &quot;headTokenIndex&quot;: 36,
+                &quot;label&quot;: &quot;PRT&quot;
+            },
+            &quot;lemma&quot;: &quot;を&quot;
+        },
+        {
+            &quot;text&quot;: {
+                &quot;content&quot;: &quot;踏む&quot;,
+                &quot;beginOffset&quot;: 150
+            },
+            &quot;partOfSpeech&quot;: {
+                &quot;tag&quot;: &quot;VERB&quot;,
+                &quot;aspect&quot;: &quot;ASPECT&#95;UNKNOWN&quot;,
+                &quot;case&quot;: &quot;CASE&#95;UNKNOWN&quot;,
+                &quot;form&quot;: &quot;ADNOMIAL&quot;,
+                &quot;gender&quot;: &quot;GENDER&#95;UNKNOWN&quot;,
+                &quot;mood&quot;: &quot;MOOD&#95;UNKNOWN&quot;,
+                &quot;number&quot;: &quot;NUMBER&#95;UNKNOWN&quot;,
+                &quot;person&quot;: &quot;PERSON&#95;UNKNOWN&quot;,
+                &quot;proper&quot;: &quot;NOT&#95;PROPER&quot;,
+                &quot;reciprocity&quot;: &quot;RECIPROCITY&#95;UNKNOWN&quot;,
+                &quot;tense&quot;: &quot;TENSE&#95;UNKNOWN&quot;,
+                &quot;voice&quot;: &quot;VOICE&#95;UNKNOWN&quot;
+            },
+            &quot;dependencyEdge&quot;: {
+                &quot;headTokenIndex&quot;: 40,
+                &quot;label&quot;: &quot;RCMOD&quot;
+            },
+            &quot;lemma&quot;: &quot;踏む&quot;
+        },
+        {
+            &quot;text&quot;: {
+                &quot;content&quot;: &quot;珍&quot;,
+                &quot;beginOffset&quot;: 156
+            },
+            &quot;partOfSpeech&quot;: {
+                &quot;tag&quot;: &quot;NOUN&quot;,
+                &quot;aspect&quot;: &quot;ASPECT&#95;UNKNOWN&quot;,
+                &quot;case&quot;: &quot;CASE&#95;UNKNOWN&quot;,
+                &quot;form&quot;: &quot;FORM&#95;UNKNOWN&quot;,
+                &quot;gender&quot;: &quot;GENDER&#95;UNKNOWN&quot;,
+                &quot;mood&quot;: &quot;MOOD&#95;UNKNOWN&quot;,
+                &quot;number&quot;: &quot;NUMBER&#95;UNKNOWN&quot;,
+                &quot;person&quot;: &quot;PERSON&#95;UNKNOWN&quot;,
+                &quot;proper&quot;: &quot;PROPER&quot;,
+                &quot;reciprocity&quot;: &quot;RECIPROCITY&#95;UNKNOWN&quot;,
+                &quot;tense&quot;: &quot;TENSE&#95;UNKNOWN&quot;,
+                &quot;voice&quot;: &quot;VOICE&#95;UNKNOWN&quot;
+            },
+            &quot;dependencyEdge&quot;: {
+                &quot;headTokenIndex&quot;: 40,
+                &quot;label&quot;: &quot;DEP&quot;
+            },
+            &quot;lemma&quot;: &quot;珍&quot;
+        },
+        {
+            &quot;text&quot;: {
+                &quot;content&quot;: &quot;らし&quot;,
+                &quot;beginOffset&quot;: 159
+            },
+            &quot;partOfSpeech&quot;: {
+                &quot;tag&quot;: &quot;ADJ&quot;,
+                &quot;aspect&quot;: &quot;ASPECT&#95;UNKNOWN&quot;,
+                &quot;case&quot;: &quot;CASE&#95;UNKNOWN&quot;,
+                &quot;form&quot;: &quot;SPECIFIC&quot;,
+                &quot;gender&quot;: &quot;GENDER&#95;UNKNOWN&quot;,
+                &quot;mood&quot;: &quot;MOOD&#95;UNKNOWN&quot;,
+                &quot;number&quot;: &quot;NUMBER&#95;UNKNOWN&quot;,
+                &quot;person&quot;: &quot;PERSON&#95;UNKNOWN&quot;,
+                &quot;proper&quot;: &quot;NOT&#95;PROPER&quot;,
+                &quot;reciprocity&quot;: &quot;RECIPROCITY&#95;UNKNOWN&quot;,
+                &quot;tense&quot;: &quot;TENSE&#95;UNKNOWN&quot;,
+                &quot;voice&quot;: &quot;VOICE&#95;UNKNOWN&quot;
+            },
+            &quot;dependencyEdge&quot;: {
+                &quot;headTokenIndex&quot;: 43,
+                &quot;label&quot;: &quot;NN&quot;
+            },
+            &quot;lemma&quot;: &quot;らし&quot;
+        },
+        {
+            &quot;text&quot;: {
+                &quot;content&quot;: &quot;さ&quot;,
+                &quot;beginOffset&quot;: 165
+            },
+            &quot;partOfSpeech&quot;: {
+                &quot;tag&quot;: &quot;AFFIX&quot;,
+                &quot;aspect&quot;: &quot;ASPECT&#95;UNKNOWN&quot;,
+                &quot;case&quot;: &quot;CASE&#95;UNKNOWN&quot;,
+                &quot;form&quot;: &quot;FORM&#95;UNKNOWN&quot;,
+                &quot;gender&quot;: &quot;GENDER&#95;UNKNOWN&quot;,
+                &quot;mood&quot;: &quot;MOOD&#95;UNKNOWN&quot;,
+                &quot;number&quot;: &quot;NUMBER&#95;UNKNOWN&quot;,
+                &quot;person&quot;: &quot;PERSON&#95;UNKNOWN&quot;,
+                &quot;proper&quot;: &quot;NOT&#95;PROPER&quot;,
+                &quot;reciprocity&quot;: &quot;RECIPROCITY&#95;UNKNOWN&quot;,
+                &quot;tense&quot;: &quot;TENSE&#95;UNKNOWN&quot;,
+                &quot;voice&quot;: &quot;VOICE&#95;UNKNOWN&quot;
+            },
+            &quot;dependencyEdge&quot;: {
+                &quot;headTokenIndex&quot;: 40,
+                &quot;label&quot;: &quot;SUFF&quot;
+            },
+            &quot;lemma&quot;: &quot;さ&quot;
+        },
+        {
+            &quot;text&quot;: {
+                &quot;content&quot;: &quot;の&quot;,
+                &quot;beginOffset&quot;: 168
+            },
+            &quot;partOfSpeech&quot;: {
+                &quot;tag&quot;: &quot;PRT&quot;,
+                &quot;aspect&quot;: &quot;ASPECT&#95;UNKNOWN&quot;,
+                &quot;case&quot;: &quot;GENITIVE&quot;,
+                &quot;form&quot;: &quot;FORM&#95;UNKNOWN&quot;,
+                &quot;gender&quot;: &quot;GENDER&#95;UNKNOWN&quot;,
+                &quot;mood&quot;: &quot;MOOD&#95;UNKNOWN&quot;,
+                &quot;number&quot;: &quot;NUMBER&#95;UNKNOWN&quot;,
+                &quot;person&quot;: &quot;PERSON&#95;UNKNOWN&quot;,
+                &quot;proper&quot;: &quot;NOT&#95;PROPER&quot;,
+                &quot;reciprocity&quot;: &quot;RECIPROCITY&#95;UNKNOWN&quot;,
+                &quot;tense&quot;: &quot;TENSE&#95;UNKNOWN&quot;,
+                &quot;voice&quot;: &quot;VOICE&#95;UNKNOWN&quot;
+            },
+            &quot;dependencyEdge&quot;: {
+                &quot;headTokenIndex&quot;: 40,
+                &quot;label&quot;: &quot;PRT&quot;
+            },
+            &quot;lemma&quot;: &quot;の&quot;
+        },
+        {
+            &quot;text&quot;: {
+                &quot;content&quot;: &quot;うち&quot;,
+                &quot;beginOffset&quot;: 171
+            },
+            &quot;partOfSpeech&quot;: {
+                &quot;tag&quot;: &quot;NOUN&quot;,
+                &quot;aspect&quot;: &quot;ASPECT&#95;UNKNOWN&quot;,
+                &quot;case&quot;: &quot;CASE&#95;UNKNOWN&quot;,
+                &quot;form&quot;: &quot;FORM&#95;UNKNOWN&quot;,
+                &quot;gender&quot;: &quot;GENDER&#95;UNKNOWN&quot;,
+                &quot;mood&quot;: &quot;MOOD&#95;UNKNOWN&quot;,
+                &quot;number&quot;: &quot;NUMBER&#95;UNKNOWN&quot;,
+                &quot;person&quot;: &quot;PERSON&#95;UNKNOWN&quot;,
+                &quot;proper&quot;: &quot;NOT&#95;PROPER&quot;,
+                &quot;reciprocity&quot;: &quot;RECIPROCITY&#95;UNKNOWN&quot;,
+                &quot;tense&quot;: &quot;TENSE&#95;UNKNOWN&quot;,
+                &quot;voice&quot;: &quot;VOICE&#95;UNKNOWN&quot;
+            },
+            &quot;dependencyEdge&quot;: {
+                &quot;headTokenIndex&quot;: 50,
+                &quot;label&quot;: &quot;ADVPHMOD&quot;
+            },
+            &quot;lemma&quot;: &quot;うち&quot;
+        },
+        {
+            &quot;text&quot;: {
+                &quot;content&quot;: &quot;に&quot;,
+                &quot;beginOffset&quot;: 177
+            },
+            &quot;partOfSpeech&quot;: {
+                &quot;tag&quot;: &quot;PRT&quot;,
+                &quot;aspect&quot;: &quot;ASPECT&#95;UNKNOWN&quot;,
+                &quot;case&quot;: &quot;ADVERBIAL&quot;,
+                &quot;form&quot;: &quot;FORM&#95;UNKNOWN&quot;,
+                &quot;gender&quot;: &quot;GENDER&#95;UNKNOWN&quot;,
+                &quot;mood&quot;: &quot;MOOD&#95;UNKNOWN&quot;,
+                &quot;number&quot;: &quot;NUMBER&#95;UNKNOWN&quot;,
+                &quot;person&quot;: &quot;PERSON&#95;UNKNOWN&quot;,
+                &quot;proper&quot;: &quot;NOT&#95;PROPER&quot;,
+                &quot;reciprocity&quot;: &quot;RECIPROCITY&#95;UNKNOWN&quot;,
+                &quot;tense&quot;: &quot;TENSE&#95;UNKNOWN&quot;,
+                &quot;voice&quot;: &quot;VOICE&#95;UNKNOWN&quot;
+            },
+            &quot;dependencyEdge&quot;: {
+                &quot;headTokenIndex&quot;: 43,
+                &quot;label&quot;: &quot;PRT&quot;
+            },
+            &quot;lemma&quot;: &quot;に&quot;
+        },
+        {
+            &quot;text&quot;: {
+                &quot;content&quot;: &quot;一種&quot;,
+                &quot;beginOffset&quot;: 180
+            },
+            &quot;partOfSpeech&quot;: {
+                &quot;tag&quot;: &quot;NOUN&quot;,
+                &quot;aspect&quot;: &quot;ASPECT&#95;UNKNOWN&quot;,
+                &quot;case&quot;: &quot;CASE&#95;UNKNOWN&quot;,
+                &quot;form&quot;: &quot;FORM&#95;UNKNOWN&quot;,
+                &quot;gender&quot;: &quot;GENDER&#95;UNKNOWN&quot;,
+                &quot;mood&quot;: &quot;MOOD&#95;UNKNOWN&quot;,
+                &quot;number&quot;: &quot;NUMBER&#95;UNKNOWN&quot;,
+                &quot;person&quot;: &quot;PERSON&#95;UNKNOWN&quot;,
+                &quot;proper&quot;: &quot;NOT&#95;PROPER&quot;,
+                &quot;reciprocity&quot;: &quot;RECIPROCITY&#95;UNKNOWN&quot;,
+                &quot;tense&quot;: &quot;TENSE&#95;UNKNOWN&quot;,
+                &quot;voice&quot;: &quot;VOICE&#95;UNKNOWN&quot;
+            },
+            &quot;dependencyEdge&quot;: {
+                &quot;headTokenIndex&quot;: 48,
+                &quot;label&quot;: &quot;NN&quot;
+            },
+            &quot;lemma&quot;: &quot;一種&quot;
+        },
+        {
+            &quot;text&quot;: {
+                &quot;content&quot;: &quot;の&quot;,
+                &quot;beginOffset&quot;: 186
+            },
+            &quot;partOfSpeech&quot;: {
+                &quot;tag&quot;: &quot;PRT&quot;,
+                &quot;aspect&quot;: &quot;ASPECT&#95;UNKNOWN&quot;,
+                &quot;case&quot;: &quot;GENITIVE&quot;,
+                &quot;form&quot;: &quot;FORM&#95;UNKNOWN&quot;,
+                &quot;gender&quot;: &quot;GENDER&#95;UNKNOWN&quot;,
+                &quot;mood&quot;: &quot;MOOD&#95;UNKNOWN&quot;,
+                &quot;number&quot;: &quot;NUMBER&#95;UNKNOWN&quot;,
+                &quot;person&quot;: &quot;PERSON&#95;UNKNOWN&quot;,
+                &quot;proper&quot;: &quot;NOT&#95;PROPER&quot;,
+                &quot;reciprocity&quot;: &quot;RECIPROCITY&#95;UNKNOWN&quot;,
+                &quot;tense&quot;: &quot;TENSE&#95;UNKNOWN&quot;,
+                &quot;voice&quot;: &quot;VOICE&#95;UNKNOWN&quot;
+            },
+            &quot;dependencyEdge&quot;: {
+                &quot;headTokenIndex&quot;: 45,
+                &quot;label&quot;: &quot;PRT&quot;
+            },
+            &quot;lemma&quot;: &quot;の&quot;
+        },
+        {
+            &quot;text&quot;: {
+                &quot;content&quot;: &quot;淋し&quot;,
+                &quot;beginOffset&quot;: 189
+            },
+            &quot;partOfSpeech&quot;: {
+                &quot;tag&quot;: &quot;NOUN&quot;,
+                &quot;aspect&quot;: &quot;ASPECT&#95;UNKNOWN&quot;,
+                &quot;case&quot;: &quot;CASE&#95;UNKNOWN&quot;,
+                &quot;form&quot;: &quot;FORM&#95;UNKNOWN&quot;,
+                &quot;gender&quot;: &quot;GENDER&#95;UNKNOWN&quot;,
+                &quot;mood&quot;: &quot;MOOD&#95;UNKNOWN&quot;,
+                &quot;number&quot;: &quot;NUMBER&#95;UNKNOWN&quot;,
+                &quot;person&quot;: &quot;PERSON&#95;UNKNOWN&quot;,
+                &quot;proper&quot;: &quot;NOT&#95;PROPER&quot;,
+                &quot;reciprocity&quot;: &quot;RECIPROCITY&#95;UNKNOWN&quot;,
+                &quot;tense&quot;: &quot;TENSE&#95;UNKNOWN&quot;,
+                &quot;voice&quot;: &quot;VOICE&#95;UNKNOWN&quot;
+            },
+            &quot;dependencyEdge&quot;: {
+                &quot;headTokenIndex&quot;: 48,
+                &quot;label&quot;: &quot;DEP&quot;
+            },
+            &quot;lemma&quot;: &quot;淋し&quot;
+        },
+        {
+            &quot;text&quot;: {
+                &quot;content&quot;: &quot;味&quot;,
+                &quot;beginOffset&quot;: 195
+            },
+            &quot;partOfSpeech&quot;: {
+                &quot;tag&quot;: &quot;NOUN&quot;,
+                &quot;aspect&quot;: &quot;ASPECT&#95;UNKNOWN&quot;,
+                &quot;case&quot;: &quot;CASE&#95;UNKNOWN&quot;,
+                &quot;form&quot;: &quot;FORM&#95;UNKNOWN&quot;,
+                &quot;gender&quot;: &quot;GENDER&#95;UNKNOWN&quot;,
+                &quot;mood&quot;: &quot;MOOD&#95;UNKNOWN&quot;,
+                &quot;number&quot;: &quot;NUMBER&#95;UNKNOWN&quot;,
+                &quot;person&quot;: &quot;PERSON&#95;UNKNOWN&quot;,
+                &quot;proper&quot;: &quot;NOT&#95;PROPER&quot;,
+                &quot;reciprocity&quot;: &quot;RECIPROCITY&#95;UNKNOWN&quot;,
+                &quot;tense&quot;: &quot;TENSE&#95;UNKNOWN&quot;,
+                &quot;voice&quot;: &quot;VOICE&#95;UNKNOWN&quot;
+            },
+            &quot;dependencyEdge&quot;: {
+                &quot;headTokenIndex&quot;: 50,
+                &quot;label&quot;: &quot;NSUBJ&quot;
+            },
+            &quot;lemma&quot;: &quot;味&quot;
+        },
+        {
+            &quot;text&quot;: {
+                &quot;content&quot;: &quot;さえ&quot;,
+                &quot;beginOffset&quot;: 198
+            },
+            &quot;partOfSpeech&quot;: {
+                &quot;tag&quot;: &quot;PRT&quot;,
+                &quot;aspect&quot;: &quot;ASPECT&#95;UNKNOWN&quot;,
+                &quot;case&quot;: &quot;CASE&#95;UNKNOWN&quot;,
+                &quot;form&quot;: &quot;FORM&#95;UNKNOWN&quot;,
+                &quot;gender&quot;: &quot;GENDER&#95;UNKNOWN&quot;,
+                &quot;mood&quot;: &quot;MOOD&#95;UNKNOWN&quot;,
+                &quot;number&quot;: &quot;NUMBER&#95;UNKNOWN&quot;,
+                &quot;person&quot;: &quot;PERSON&#95;UNKNOWN&quot;,
+                &quot;proper&quot;: &quot;NOT&#95;PROPER&quot;,
+                &quot;reciprocity&quot;: &quot;RECIPROCITY&#95;UNKNOWN&quot;,
+                &quot;tense&quot;: &quot;TENSE&#95;UNKNOWN&quot;,
+                &quot;voice&quot;: &quot;VOICE&#95;UNKNOWN&quot;
+            },
+            &quot;dependencyEdge&quot;: {
+                &quot;headTokenIndex&quot;: 48,
+                &quot;label&quot;: &quot;PRT&quot;
+            },
+            &quot;lemma&quot;: &quot;さえ&quot;
+        },
+        {
+            &quot;text&quot;: {
+                &quot;content&quot;: &quot;感じ&quot;,
+                &quot;beginOffset&quot;: 204
+            },
+            &quot;partOfSpeech&quot;: {
+                &quot;tag&quot;: &quot;VERB&quot;,
+                &quot;aspect&quot;: &quot;ASPECT&#95;UNKNOWN&quot;,
+                &quot;case&quot;: &quot;CASE&#95;UNKNOWN&quot;,
+                &quot;form&quot;: &quot;GERUND&quot;,
+                &quot;gender&quot;: &quot;GENDER&#95;UNKNOWN&quot;,
+                &quot;mood&quot;: &quot;MOOD&#95;UNKNOWN&quot;,
+                &quot;number&quot;: &quot;NUMBER&#95;UNKNOWN&quot;,
+                &quot;person&quot;: &quot;PERSON&#95;UNKNOWN&quot;,
+                &quot;proper&quot;: &quot;NOT&#95;PROPER&quot;,
+                &quot;reciprocity&quot;: &quot;RECIPROCITY&#95;UNKNOWN&quot;,
+                &quot;tense&quot;: &quot;TENSE&#95;UNKNOWN&quot;,
+                &quot;voice&quot;: &quot;VOICE&#95;UNKNOWN&quot;
+            },
+            &quot;dependencyEdge&quot;: {
+                &quot;headTokenIndex&quot;: 50,
+                &quot;label&quot;: &quot;ROOT&quot;
+            },
+            &quot;lemma&quot;: &quot;感じる&quot;
+        },
+        {
+            &quot;text&quot;: {
+                &quot;content&quot;: &quot;た&quot;,
+                &quot;beginOffset&quot;: 210
+            },
+            &quot;partOfSpeech&quot;: {
+                &quot;tag&quot;: &quot;VERB&quot;,
+                &quot;aspect&quot;: &quot;ASPECT&#95;UNKNOWN&quot;,
+                &quot;case&quot;: &quot;CASE&#95;UNKNOWN&quot;,
+                &quot;form&quot;: &quot;FINAL&#95;ENDING&quot;,
+                &quot;gender&quot;: &quot;GENDER&#95;UNKNOWN&quot;,
+                &quot;mood&quot;: &quot;MOOD&#95;UNKNOWN&quot;,
+                &quot;number&quot;: &quot;NUMBER&#95;UNKNOWN&quot;,
+                &quot;person&quot;: &quot;PERSON&#95;UNKNOWN&quot;,
+                &quot;proper&quot;: &quot;NOT&#95;PROPER&quot;,
+                &quot;reciprocity&quot;: &quot;RECIPROCITY&#95;UNKNOWN&quot;,
+                &quot;tense&quot;: &quot;PAST&quot;,
+                &quot;voice&quot;: &quot;VOICE&#95;UNKNOWN&quot;
+            },
+            &quot;dependencyEdge&quot;: {
+                &quot;headTokenIndex&quot;: 50,
+                &quot;label&quot;: &quot;AUX&quot;
+            },
+            &quot;lemma&quot;: &quot;た&quot;
+        },
+        {
+            &quot;text&quot;: {
+                &quot;content&quot;: &quot;。&quot;,
+                &quot;beginOffset&quot;: 213
+            },
+            &quot;partOfSpeech&quot;: {
+                &quot;tag&quot;: &quot;PUNCT&quot;,
+                &quot;aspect&quot;: &quot;ASPECT&#95;UNKNOWN&quot;,
+                &quot;case&quot;: &quot;CASE&#95;UNKNOWN&quot;,
+                &quot;form&quot;: &quot;FORM&#95;UNKNOWN&quot;,
+                &quot;gender&quot;: &quot;GENDER&#95;UNKNOWN&quot;,
+                &quot;mood&quot;: &quot;MOOD&#95;UNKNOWN&quot;,
+                &quot;number&quot;: &quot;NUMBER&#95;UNKNOWN&quot;,
+                &quot;person&quot;: &quot;PERSON&#95;UNKNOWN&quot;,
+                &quot;proper&quot;: &quot;NOT&#95;PROPER&quot;,
+                &quot;reciprocity&quot;: &quot;RECIPROCITY&#95;UNKNOWN&quot;,
+                &quot;tense&quot;: &quot;TENSE&#95;UNKNOWN&quot;,
+                &quot;voice&quot;: &quot;VOICE&#95;UNKNOWN&quot;
+            },
+            &quot;dependencyEdge&quot;: {
+                &quot;headTokenIndex&quot;: 50,
+                &quot;label&quot;: &quot;P&quot;
+            },
+            &quot;lemma&quot;: &quot;。&quot;
+        }
+    &#93;,
+    &quot;language&quot;: &quot;ja&quot;
+}
+</code></pre><p>ちなみに、Chromeには、Restlet ClientというChrome拡張があり、簡単にRestful APIを叩く事ができる。</p><p><a href='https://chrome.google.com/webstore/detail/restlet-client-rest-api-t/aejoelaoggembcahagimdiliamlcdmfm'>Restlet Client - REST API Testing - Chrome ウェブストア</a></p><h2 id="感想">感想</h2><ul><li>ローカルなど各環境にmecabやjumanをインストールしなくても簡単に自然言語処理を行うことができる。</li><li>通常、お金がかかってしまうが、まあ、仕方がない。</li><li>構文解析/形態素解析だけでなく、感情分析やエンティティ認識など様々な機能がデフォルトでついてくるので、  色々使えそうではある。</li></ul>
+</div>
+
+<div id="post-tags">
+  <b><img src="/img/frame/tag.png" width="16"/>&nbsp;</b>
+  
+  <a href="/tags-output/GCP/">GCP</a>
+  
+  <a href="/tags-output/自然言語処理/">自然言語処理</a>
+  
+</div>
+<hr/>
+
+
+    <div id="prev-next">
+        
+        <a href="/posts-output/2018-04-20-scala-types/">&laquo; Scalaの型と型関連の機能</a>
+        
+        
+        <a class="right" href="/posts-output/2018-04-18-scala-implicit/">Scalaの3つのimplicit &raquo;</a>
+        
+    </div>
+
+    
+
+</div>
+
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div id="sidebar">
+            <p class="sub-menu-bar-item">
+              <h3><img src="/img/frame/link.png" width="16"/>&nbsp;外部リンク</h3>
+            </p>
+            <ul id="links">
+              <li><a href="https://uid0130.blogspot.com">yuwki0131-blog(旧ブログ)</a></li>
+              <li><a href="https://github.com/yuwki0131">Github</a></li>
+              
+            </ul>
+            
+            <div id="recent">
+              <p class="sub-menu-bar-item">
+                <h3><img src="/img/frame/edit.png" width="16"/>&nbsp;最近の投稿</h3>
+              </p>
+              <ul>
+                
+                <li><a href="/posts-output/2018-04-20-scala-types/">Scalaの型と型関連の機能</a></li>
+                
+                <li><a href="/posts-output/2018-04-19-gcp-nlp-api/">GCPのNLP APIを使ってみる</a></li>
+                
+                <li><a href="/posts-output/2018-04-18-scala-implicit/">Scalaの3つのimplicit</a></li>
+                
+              </ul>
+            </div>
+            
+            
+            <div id="tags">
+              <p class="sub-menu-bar-item">
+                <h3><img src="/img/frame/tag.png" width="16"/>&nbsp;キーワード</h3>
+              </p>
+              <ul>
+                
+                <li><a href="/tags-output/型推論/">型推論</a></li>
+                
+                <li><a href="/tags-output/for式/">for式</a></li>
+                
+                <li><a href="/tags-output/デバッグ/">デバッグ</a></li>
+                
+                <li><a href="/tags-output/Implicit parameters/">Implicit parameters</a></li>
+                
+                <li><a href="/tags-output/スコープ/">スコープ</a></li>
+                
+                <li><a href="/tags-output/拡張メソッド/">拡張メソッド</a></li>
+                
+                <li><a href="/tags-output/Lisp/">Lisp</a></li>
+                
+                <li><a href="/tags-output/Implicit conversion/">Implicit conversion</a></li>
+                
+                <li><a href="/tags-output/例外/">例外</a></li>
+                
+                <li><a href="/tags-output/Cryogen/">Cryogen</a></li>
+                
+                <li><a href="/tags-output/暗黙のパラメータ/">暗黙のパラメータ</a></li>
+                
+                <li><a href="/tags-output/言語処理系/">言語処理系</a></li>
+                
+                <li><a href="/tags-output/Scala/">Scala</a></li>
+                
+                <li><a href="/tags-output/型クラス/">型クラス</a></li>
+                
+                <li><a href="/tags-output/blog/">blog</a></li>
+                
+                <li><a href="/tags-output/GCP/">GCP</a></li>
+                
+                <li><a href="/tags-output/関数型プログラミング/">関数型プログラミング</a></li>
+                
+                <li><a href="/tags-output/自然言語処理/">自然言語処理</a></li>
+                
+                <li><a href="/tags-output/代数的データ型/">代数的データ型</a></li>
+                
+                <li><a href="/tags-output/リスト内包記法/">リスト内包記法</a></li>
+                
+                <li><a href="/tags-output/再帰/">再帰</a></li>
+                
+                <li><a href="/tags-output/クロージャ/">クロージャ</a></li>
+                
+              </ul>
+            </div>
+            
+          </div>
+        </div>
+      </div>
+      <footer>Copyright &copy; 2018 yuwki0131
+        <p style="text-align: center;">
+          Powered by <a href="http://cryogenweb.org">Cryogen</a>
+          <br/>
+          All Icons and Illustrations are designed by Freepik
+          <br/>
+          and distributed by Flaticon (<a href="https://www.flaticon.com/">flaticon.com</a>)
+          <br/>
+          <a href="http://yuwki0131.github.io/index.html">
+            <img src="https://ga-beacon.appspot.com/UA-103811007-3/yourusername.github.io/index.html"/>
+          </a>
+        </p>
+      </footer>
+    </div>
+    <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+    <script src="/js/highlight.pack.js" type="text/javascript"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+  </body>
+</html>

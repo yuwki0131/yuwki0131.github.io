@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>何で走っているのだろう: Scalaの型と型関連の機能</title>
+    <link rel="canonical" href="https://yuwki0131.github.io/posts-output/2018-04-20-scala-types/">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Alegreya:400italic,700italic,400,700' rel='stylesheet'
+          type='text/css'>
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.7.0/styles/default.min.css">
+    <link rel="icon" href="/img/frame/bird.png">
+    <link href="https://fonts.googleapis.com/earlyaccess/mplus1p.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Fira+Sans" rel="stylesheet">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-103811007-1"></script>
+    <script>
+     window.dataLayer = window.dataLayer || [];
+     function gtag(){dataLayer.push(arguments);}
+     gtag('js', new Date());
+
+     gtag('config', 'UA-103811007-1');
+    </script>
+    <link href="/css/screen.css" rel="stylesheet" type="text/css" />
+  </head>
+  <body>
+    <nav class="navbar navbar-default">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed"
+                  data-toggle="collapse" data-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <p style="line-height:40px;">
+            <img src="/img/frame/run.png" width="32" style="padding-top:10px;padding-bot:10px"/>
+            <img src="/img/frame/cow.png" width="32" style="padding-top:10px;padding-bot:10px"/>
+            <a class="navbar-brand" href="/">何で走っているのだろう</a>
+          </p>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav navbar-right">
+            <li >
+              <a href="/"><img src="/img/frame/home.png" width="16"/>&nbsp;ホーム</a></li>
+            <li
+              >
+              <a href="/archives/"><img src="/img/frame/edit.png" width="16"/>&nbsp;過去の投稿</a></li>
+            
+            <li
+              >
+              <a href="/pages-output/about/"><img src="/img/frame/surprised.png" width="16"/>&nbsp;投稿者</a>
+            </li>
+            
+            <li><a href="/feed.xml"><img src="/img/frame/rss.png" width="16"/>&nbsp;RSS</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div><!--/.container-fluid -->
+    </nav>
+
+
+    <div class="container">
+
+      <div class="row">
+        <div class="col-lg-9">
+          <div id="content">
+            
+<div id="post">
+    <div class="post-header">
+  <div id="post-meta" class="row">
+    <div class="col-lg-6">2018/04/20</div>
+    
+  </div>
+  <h2><img src="/img/frame/bird.png" width="32" />&emsp;Scalaの型と型関連の機能</h2>
+</div>
+<hr/>
+<div>
+  <ol class="content"><li><a href="#scalaと型">Scalaと型</a></li><li><a href="#型クラス">型クラス</a></li><li><a href="#構造的部分型(structural_subtyping)">構造的部分型(Structural subtyping)</a></li><li><a href="#scalaの3つのdependent_&lt;em&gt;_type">Scalaの3つのdependent  type</a></li><li><a href="#まとめ">まとめ</a></li></ol>
+  <p>Scalaについて勉強した時のメモ(その6)です。Scalaの型の機能とそれに関連するテクニックについて。</p><p>※ 元々はmarkdownで書いていたテキストの転載。</p><h2 id="scalaと型">Scalaと型</h2><ul><li>Scalaの型推論は漸進的型付と呼ばれ、基本的に前から推論していく。<ul><li>(余談)HaskellやOCamlの型推論は、Hindley-Minler(の派生)と呼ばれる推論方式。    この方法は、最も一般的な型を自動的に導出していく手法で、通常の場合、いわゆる型注釈(型ヒント)に相当するものが不要。</li></ul></li><li>型注釈: 変数や引数などに対する型の指定。いわゆる、<code>val x: String = 〜</code>のコロンの後ろの型指定のこと。</li><li>型パラメータ: Javaで言う所のジェネリクス。<ul><li><code>trait A&#91;B&#93; { def b&#40;&#41;:B; }</code>の<code>B</code></li><li>型パラメータで指定できる共変、反変、非変については、<a href='https://dwango.github.io/scala_text/type-parameter.html'>型パラメータと変位指定 - dwango on GitHub</a> を参照。以下、自分用のメモ。<ul><li>共変(<code>&#91;+B&#93;</code>): A extends Bの時のみ、val a:G[B] = b:G[A]が可。</li><li>反変(<code>&#91;-B&#93;</code>): A extends Bの時のみ、val a:G[A] = b:G[B]が可。</li><li>非変(<code>&#91;B&#93;</code>): A = Bの時のみ、val a:G[A] = b:G[B]が可。</li><li>上界(<code>&#91;B &lt;: A&#93;</code>): BがAを継承の性質。</li><li>下界(<code>&#91;B &gt;: A&#93;</code>): BがAのスーパークラスである性質。</li></ul></li><li>型パラメータに様々な制約を付ける事で、クラス、インターフェースなしにジェネリックな関数を定義できる。(構造的部分型を参照)</li></ul></li><li>型エイリアス: 型に別名を付けることができる。型定義の長さが絶望的に長くなった時に有効。<ul><li><code>type String3 = &#40;String, String, String&#41;</code></li></ul></li><li>型コンストラクタ: 型を引数にとり別の型を生成する型。<ul><li>プログラミングでよく目にするものとしては、Option, Either, Futureなどが典型的。</li><li>型パラメータが引数にとる。</li><li>Option[+A]という型コンストラクタに対して、Option[String]という型を定義する時などに使われる。</li><li>他の関数型言語だとFunctorなどがよく出てくる。</li></ul></li></ul><h2 id="型クラス">型クラス</h2><ul><li>"既存の型に後付けするタイプのインターフェース"(参考文献から引用)</li><li>ある型がどのような振る舞いをするかまとめた物。<ul><li>上記のような言い方をすると結局Javaのインターフェースと一緒じゃんって言われる。。。</li><li>型クラスの定義の流れ。<ol><li>振る舞いをまとめた<code>trait A&#91;T&#93;</code>を作る。(Tは型パラメータ。型クラスは必ず型パラメータを持つ)</li><li><code>trait A&#91;T&#93;</code>(型クラス)のインスタンス(実装)X, Y, Zを作り、implicitに定義する。</li><li>Aで使っている関数を使ったコードBを実装する。       この時、<code>trait A&#91;T&#93;</code>のインスタンス(実装)X, Y, Zをimplicitに切り替える。</li><li>以降、コードBに型ごとに機能を追加したい場合は、trait Aの実装を追加することで、コードBの機能が様々な型で使えるようになる。</li></ol></li><li>Javaで言うと、Interface(や抽象クラス)のインスタンスが暗黙に選択される(切り替えられる)イメージ。</li></ul></li><li>型クラスを使用したコード側で型クラス(の定義)に紐づく型クラスのインスタンス(実装)を切り替える。<ul><li>(Scalaの場合、)型クラスはimplicit(暗黙のパラメータ)で型クラスの実装を切り替える。</li><li>型で処理を切り替える所がポイント。</li></ul></li></ul><pre><code class="scala">
+class Firefox {
+}
+
+class Chrome {
+}
+
+trait BrowserShows&#91;A&#93; {
+  def show: String
+}
+
+implicit val firefox = new BrowserShows&#91;Firefox&#93; {
+  def show: String = &quot;Firefoxで表示&quot;
+}
+
+implicit val chrome = new BrowserShows&#91;Chrome&#93; {
+  def show: String = &quot;Chromeで表示&quot;
+}
+
+def exec&#91;B&#93;&#40;browser: B&#41;&#40;implicit s: BrowserShows&#91;B&#93;&#41;: String = s.show
+
+def main&#40;args: Array&#91;String&#93;&#41;: Unit = {
+  println&#40;exec&#40;new Chrome&#40;&#41;&#41;&#41;
+  println&#40;exec&#40;new Chrome&#40;&#41;&#41;&#41;
+  println&#40;exec&#40;new Firefox&#40;&#41;&#41;&#41;
+}
+</code></pre><ul><li>参考文献<ul><li><a href='https://togetter.com/li/1113557'>型クラスに関するここ数日の議論 - togetter</a></li><li><a href='http://amaya382.hatenablog.jp/entry/2017/05/13/195913'>型クラスの雰囲気をつかんでScala標準ライブラリの型クラスを使ってみる回 - 水底</a></li><li><a href='https://dwango.github.io/scala_text/implicit.html'>implicit - dwango on GitHub</a></li><li><a href='http://nekogata.hatenablog.com/entry/2014/06/30/062342'>Scala の implicit parameter は型クラスの一種とはどういうことなのか</a></li><li><a href='http://ropas.snu.ac.kr/~bruno/papers/TypeClasses.pdf'>Type Classes as Objects and Implicits</a></li></ul></li></ul><h2 id="構造的部分型(structural&#95;subtyping)">構造的部分型(Structural subtyping)</h2><ul><li>特定の性質を持った型を型パラメータとして定義(宣言)できる。<ul><li>部分的な型を表すという意味では、traitに近いが、オブジェクトを使用する側でのみ必要な型を定義するという点がtraitとは異なる。    traitによる定義は、あくまでクラスの性質を表すが、構造的部分型は引数や変数に代入可能な一般的なオブジェクトの型を表す    (その型が必要な場面でのみ表現することができる)。</li><li>動的型付け言語におけるDuck-typingの性質を静的型付言語で使用したい場合に使用できる。<ul><li>Duck-typing: もしもそれがアヒルのように歩き、アヒルのように鳴くのなら、それはアヒルである。      : <a href='https://ja.wikipedia.org/wiki/%E3%83%80%E3%83%83%E3%82%AF%E3%83%BB%E3%82%BF%E3%82%A4%E3%83%94%E3%83%B3%E3%82%B0'>ダック・タイピング - Wikipedia</a></li></ul></li><li>その場面のコードの変数で最も一般的な型を必要な箇所で定義することで、静的に型付したままDuck-typing的な性質を実現する。</li></ul></li><li>動的型付け言語(Ruby, Pythonなど)は、名前でメソッドを引っ張ってくる。</li></ul><pre><code class="python">class A:
+    def func1&#40;self, i&#41;:
+        〜
+
+class B:
+    def func1&#40;self, i&#41;:
+        〜
+
+def func2&#40;objX&#41;:
+  objX.func1&#40;1&#41;
+  〜
+
+func2&#40;A&#40;&#41;&#41;
+func2&#40;B&#40;&#41;&#41;
+</code></pre><p>となるような、一般的な<code>func2</code>を定義できる。Scalaでも、<code>func1</code>を持つようなオブジェクトを一般的に引き受けるような関数を定義したい。</p><p>class Aやclass Bの定義を変更することなしに。そして、関数<code>func1</code>を持つオブジェクトは知らされることなく常に増えていく。。。 もちろん、(Javaの)interfaceや(Scalaの)traitだとfunc2に与えられるオブジェクトのクラス全てにinterfaceを付けなければいけない。</p><p>例えば、idとnameを持つようなRow型について考える。</p><pre><code class="scala">case class AbcRow&#40;id: Long, name: String, paramA: String, paramB: String&#41;
+case class DefRow&#40;id: Long, name: String, idA: Int, flagB: Boolean&#41;
+case class GhiRow&#40;id: Long, name: String, id: Long&#41;
+case class JklRow&#40;id: Long, name: String, messageA: String&#41;
+</code></pre><p>このRowのリスト(Seq[AbcRow]やSeq[DefRow]のようなオブジェクト)から、 idとnameのタプルのリストを抽出する一般的な関数を定義したい。。。</p><p>この場合、次のような関数を定義できる。</p><pre><code class="scala">def getIdName&#91;R &lt;: {val id: Long; val name: String;}&#93;&#40;rows: Seq&#91;R&#93;&#41;: Seq&#91;&#40;Long, String&#41;&#93; =
+    rows.map { row =&gt; &#40;row.id, row.name&#41; }
+</code></pre><p>これは次のようにも書ける。</p><pre><code class="scala">def getIdName&#40;rows: Seq&#91;{val id: Long; val name: String;}&#93;&#41;: Seq&#91;&#40;Long, String&#41;&#93; =
+    rows.map { row =&gt; &#40;row.id, row.name&#41; }
+</code></pre><p>Long型のidとString型のnameを持つ最も一般的な型を引数にもち、その型のインスタンスからidとnameを抽出する関数を定義できる。 他の型(クラス)定義を書き換えること無く、アドホックに静的な型チェックを維持した関数を定義できる。 (Duck-typingの性質を引き継げる。) 次のように実行する。</p><pre><code class="scala">scala&gt; val row = Seq&#40;AbcRow&#40;1, &quot;a&quot;, &quot;paramA&quot;, &quot;paramB&quot;&#41;, AbcRow&#40;2, &quot;b&quot;, &quot;paramA&quot;, &quot;paramB&quot;&#41;, AbcRow&#40;3, &quot;c&quot;, &quot;paramA&quot;, &quot;paramB&quot;&#41;&#41;;
+row: Seq&#91;AbcRow&#93; = List&#40;AbcRow&#40;1,a,paramA,paramB&#41;, AbcRow&#40;2,b,paramA,paramB&#41;, AbcRow&#40;3,c,paramA,paramB&#41;&#41;
+scala&gt; getIdName&#40;row&#41;
+res3: Seq&#91;&#40;Long, String&#41;&#93; = List&#40;&#40;1,a&#41;, &#40;2,b&#41;, &#40;3,c&#41;&#41;
+</code></pre><ul><li>条件を満たす型(データ型)を定義しておき、テンプレートを書く。</li><li>(余談)この辺の型の推論をOCamlだと自動でやってくれる。。。Scalaは割と自分で書かないといけないという面倒くささはある。</li><li>上記以外だとローンパターン(ローンパターン自体は、構造的部分型の特殊な利用パターンの一種)などで頻繁に使うことができる。</li></ul><h2 id="scalaの3つのdependent&#95;<em>&#95;type">Scalaの3つのdependent </em> type</h2><ul><li><a href='http://wheaties.github.io/Presentations/Scala-Dep-Types/dependent-types.html#/'>Dependent Types in Scala</a></li><li>Scalaのdependent type。(普通、関数型言語で言われる所の依存型とは違う)</li><li>path-dependent type<ul><li>生成された経路によって、同じpackageの同一オブジェクト(クラス)の型の場合でも、別々の型とみなされる。</li><li><a href='https://stackoverflow.com/questions/2693067/what-is-meant-by-scalas-path-dependent-types'>What is meant by Scala's path-dependent types? - StackOverFlow</a></li></ul></li><li>dependent method type<ul><li><a href='https://gist.github.com/xuwei-k/1306328/82530a4d2451b68a17f7c03448d6ab88da0bc575'>Scala dependent method types ? - Gist</a></li></ul></li><li>dependent object type<ul><li><a href='https://github.com/namin/dot'>Dependent Object Types (DOT)</a><ul><li>"The DOT calculus proposes a new type-theoretic foundation for languages like Scala."</li></ul></li><li>Dotty向けの型システム。Scala3以降の話なので今回は言及しない。</li></ul></li></ul><h2 id="まとめ">まとめ</h2><ul><li>型推論という点ではHaskellやOCamlにはかなわない(?)ものの、様々なケースで静的に型付けしながらも柔軟な型定義を実現するための  仕組みが備わっている事がわかる。</li></ul>
+</div>
+
+<div id="post-tags">
+  <b><img src="/img/frame/tag.png" width="16"/>&nbsp;</b>
+  
+  <a href="/tags-output/Implicit parameters/">Implicit parameters</a>
+  
+  <a href="/tags-output/拡張メソッド/">拡張メソッド</a>
+  
+  <a href="/tags-output/Implicit conversion/">Implicit conversion</a>
+  
+  <a href="/tags-output/暗黙のパラメータ/">暗黙のパラメータ</a>
+  
+  <a href="/tags-output/Scala/">Scala</a>
+  
+  <a href="/tags-output/型クラス/">型クラス</a>
+  
+</div>
+<hr/>
+
+
+    <div id="prev-next">
+        
+        
+        <a class="right" href="/posts-output/2018-04-19-gcp-nlp-api/">GCPのNLP APIを使ってみる &raquo;</a>
+        
+    </div>
+
+    
+
+</div>
+
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div id="sidebar">
+            <p class="sub-menu-bar-item">
+              <h3><img src="/img/frame/link.png" width="16"/>&nbsp;外部リンク</h3>
+            </p>
+            <ul id="links">
+              <li><a href="https://uid0130.blogspot.com">yuwki0131-blog(旧ブログ)</a></li>
+              <li><a href="https://github.com/yuwki0131">Github</a></li>
+              
+            </ul>
+            
+            <div id="recent">
+              <p class="sub-menu-bar-item">
+                <h3><img src="/img/frame/edit.png" width="16"/>&nbsp;最近の投稿</h3>
+              </p>
+              <ul>
+                
+                <li><a href="/posts-output/2018-04-20-scala-types/">Scalaの型と型関連の機能</a></li>
+                
+                <li><a href="/posts-output/2018-04-19-gcp-nlp-api/">GCPのNLP APIを使ってみる</a></li>
+                
+                <li><a href="/posts-output/2018-04-18-scala-implicit/">Scalaの3つのimplicit</a></li>
+                
+              </ul>
+            </div>
+            
+            
+            <div id="tags">
+              <p class="sub-menu-bar-item">
+                <h3><img src="/img/frame/tag.png" width="16"/>&nbsp;キーワード</h3>
+              </p>
+              <ul>
+                
+                <li><a href="/tags-output/型推論/">型推論</a></li>
+                
+                <li><a href="/tags-output/for式/">for式</a></li>
+                
+                <li><a href="/tags-output/デバッグ/">デバッグ</a></li>
+                
+                <li><a href="/tags-output/Implicit parameters/">Implicit parameters</a></li>
+                
+                <li><a href="/tags-output/スコープ/">スコープ</a></li>
+                
+                <li><a href="/tags-output/拡張メソッド/">拡張メソッド</a></li>
+                
+                <li><a href="/tags-output/Lisp/">Lisp</a></li>
+                
+                <li><a href="/tags-output/Implicit conversion/">Implicit conversion</a></li>
+                
+                <li><a href="/tags-output/例外/">例外</a></li>
+                
+                <li><a href="/tags-output/Cryogen/">Cryogen</a></li>
+                
+                <li><a href="/tags-output/暗黙のパラメータ/">暗黙のパラメータ</a></li>
+                
+                <li><a href="/tags-output/言語処理系/">言語処理系</a></li>
+                
+                <li><a href="/tags-output/Scala/">Scala</a></li>
+                
+                <li><a href="/tags-output/型クラス/">型クラス</a></li>
+                
+                <li><a href="/tags-output/blog/">blog</a></li>
+                
+                <li><a href="/tags-output/GCP/">GCP</a></li>
+                
+                <li><a href="/tags-output/関数型プログラミング/">関数型プログラミング</a></li>
+                
+                <li><a href="/tags-output/自然言語処理/">自然言語処理</a></li>
+                
+                <li><a href="/tags-output/代数的データ型/">代数的データ型</a></li>
+                
+                <li><a href="/tags-output/リスト内包記法/">リスト内包記法</a></li>
+                
+                <li><a href="/tags-output/再帰/">再帰</a></li>
+                
+                <li><a href="/tags-output/クロージャ/">クロージャ</a></li>
+                
+              </ul>
+            </div>
+            
+          </div>
+        </div>
+      </div>
+      <footer>Copyright &copy; 2018 yuwki0131
+        <p style="text-align: center;">
+          Powered by <a href="http://cryogenweb.org">Cryogen</a>
+          <br/>
+          All Icons and Illustrations are designed by Freepik
+          <br/>
+          and distributed by Flaticon (<a href="https://www.flaticon.com/">flaticon.com</a>)
+          <br/>
+          <a href="http://yuwki0131.github.io/index.html">
+            <img src="https://ga-beacon.appspot.com/UA-103811007-3/yourusername.github.io/index.html"/>
+          </a>
+        </p>
+      </footer>
+    </div>
+    <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+    <script src="/js/highlight.pack.js" type="text/javascript"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+  </body>
+</html>

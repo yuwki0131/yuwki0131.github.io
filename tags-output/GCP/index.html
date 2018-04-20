@@ -2,8 +2,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
   <head>
     <meta charset="utf-8"/>
-    <title>何で走っているのだろう: Cryogen/Github-Pagesでブログを書く</title>
-    <link rel="canonical" href="https://yuwki0131.github.io/posts-output/2017-08-02-cryogen-workflow/">
+    <title>何で走っているのだろう: キーワード &quot;GCP&quot;</title>
+    <link rel="canonical" href="https://yuwki0131.github.io/tags-output/GCP/">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href='https://fonts.googleapis.com/css?family=Alegreya:400italic,700italic,400,700' rel='stylesheet'
           type='text/css'>
@@ -67,50 +67,17 @@
         <div class="col-lg-9">
           <div id="content">
             
-<div id="post">
-    <div class="post-header">
-  <div id="post-meta" class="row">
-    <div class="col-lg-6">2017/08/02</div>
-    
+<div id="posts-by-tag">
+  <div id="page-header">
+    <h2><img src="/img/frame/tag.png" width="32"/>&emsp;キーワード &quot;GCP&quot;</h2>
   </div>
-  <h2><img src="/img/frame/bird.png" width="32" />&emsp;Cryogen/Github-Pagesでブログを書く</h2>
-</div>
-<hr/>
-<div>
-  <ol class="content"><li><a href="#cryogenでブログ作成〜github-pagesで公開まで">Cryogenでブログ作成〜Github-Pagesで公開まで</a></li><li><a href="#今後の記事を書く流れ">今後の記事を書く流れ</a></li><li><a href="#感想など">感想など</a></li></ol>
-  <p>とりあえず、一通り、Cryogen/Github-Pagesで静的なWebページの公開までたどり着いたので、その紹介などをざっくりと書きます。</p><h3 id="cryogenでブログ作成〜github-pagesで公開まで">Cryogenでブログ作成〜Github-Pagesで公開まで</h3><p>主にやったこととしては、</p><ol><li>Cryogenのプロジェクトをリモートリポジトリ(BitBucket<a href='#fn-1' id='fnref1'><sup>1</sup></a>)にまるごと登録</li><li>諸々の設定ファイルを修正</li><li>とりあえず、最初の記事を書く</li><li>ローカル環境で表示確認のテスト</li><li>username.github.ioのリポジトリを作成</li><li>Cryogenで作成生成されたpublicファイルをgithub.ioのリポジトリに登録<ul><li>とりあえず静的Webサイト(ブログ一式)が公開される</li></ul></li><li>ビーコン設置</li></ol><p>といった流れで作成しました。</p><p>Cryogenでのブログ作成については、公式の<a href='https://github.com/cryogen-project/cryogen/blob/master/README.md'>README.md</a> を見ながら作ったという感じです。</p><p>ドキュメント(<a href='http://cryogenweb.org'>cryogenweb.org</a>)も整備されていたりします。</p><p>設定ファイルですが、主に以下のファイルに必要な情報を書き込んでいきます。</p><pre><code>プロジェクトルート/resources/templates/config.edn
-</code></pre><p>テーマは、今後変更する予定ですが、とりあえずデフォルトのテーマを使うことにしてます。</p><pre><code>プロジェクトルート/resources/templates/themes/blue
-</code></pre><p>デフォルトのテーマは上記にあるので、その辺りを自分好みに修正しました。 今後は、もっと修正をかけまくる or 別テーマにする予定です。今のテーマ、 残念ながら私好みでないので。。。</p><p>ブログ記事の生成は通常のleiningenを走らせるのと同様、</p><pre><code>lein run
-</code></pre><p>で生成できます。ローカルで生成結果を確認したい場合は、</p><pre><code>lein ring server
-</code></pre><p>などとするとページが表示され確認可能です。</p><p>この時、サーバを立ち上げっぱなしにしておくと、記事を修正とブラウザの更新を繰り返すことで 記事を書きながらその内容を即座に確認するといったことが可能になります。</p><p>記事は日付とタイトルを付けて以下に格納します。</p><pre><code>プロジェクトルート/resources/templates/md/posts/YYYY-MM-dd-post-title.md
-</code></pre><p>Cryogenでは、resource/template配下のファイルを読み取り、resource/public配下に公開可能な静的Webコンテンツ一式を出力します。</p><pre><code>プロジェクトルート/resources/templates
-</code></pre><pre><code>プロジェクトルート/resources/public
-</code></pre><p>Github PagesのリポジトリにCryogenで生成したpublic下ファイルを登録することで、ブログとして公開できます。</p><p>後は、アクセス情報なんかも欲しいので、以下の記事を見ながら、ga-beaconを使って見ました。</p><p><a href='http://qiita.com/kabayan55/items/f15c822939b2ab7dba35'>GitHub Pagesでga-beaconを使ってリアルタイムアクセス解析 - Quiita</a></p><p>以下の記事を見た感じだと、Cryogenでページ生成した場合、Google Analiticsを使う場合は、 やっぱり、base.html<a href='#fn-2' id='fnref2'><sup>2</sup></a>下にタグを埋め込む(人が多い)のかなぁ、といった感じです。</p><p><a href='https://github.com/cryogen-project/cryogen/issues/88'>feature request - google analytics support (solved if i add docs :-)) #88</a></p><pre><code>プロジェクトルート/resources/templates/themes/blue/html/base.html
-</code></pre><h3 id="今後の記事を書く流れ">今後の記事を書く流れ</h3><p>今後の記事公開までの主な流れとしては、</p><ol><li>ローカルでブログ記事を書く</li><li>ページ生成とローカルで記事の表示テスト</li><li>リモートリポジトリにまるごと差分をコミット</li><li>生成されたページをGithub-Pagesにコミット/プッシュで、公開</li></ol><p>かな、と思ってます。</p><p>あとは、ブログのデザインについても適宜修正していく予定です。 特に最近は、<a href='https://www.flaticon.com/'>flaticon.com</a> がお気に入りなので、 ぜひ使わせていただければと考えています。</p><h3 id="感想など">感想など</h3><p>色々、設定は面倒ですが、Emacsで記事が書けるようになった点が幸せですね。 また、手元でファイル管理できるという点も既存のブログサイトの利用より、メリットがあるのではと思っています。 versionコントロールもしやすいので。 <ol class='footnotes'><li id='fn-1'>別にGithubに登録してもよかったのですが、無駄にリポジトリは公開したくない主義なので。。。<a href='#fnref1'>&#8617;</a></li><li id='fn-2'>base.htmlは、テーマ直下にあるテンプレートのベースとなるhtmlです。<a href='#fnref2'>&#8617;</a></li></ol></p>
-</div>
-
-<div id="post-tags">
-  <b><img src="/img/frame/tag.png" width="16"/>&nbsp;</b>
-  
-  <a href="/tags-output/Cryogen/">Cryogen</a>
-  
-  <a href="/tags-output/blog/">blog</a>
-  
-</div>
-<hr/>
-
-
-    <div id="prev-next">
-        
-        <a href="/posts-output/2017-08-05-rename-title/">&laquo; ブログのタイトル変えました</a>
-        
-        
-        <a class="right" href="/posts-output/2017-08-01-quickstart/">CryogenでブログのQuick Startをしてみた &raquo;</a>
-        
-    </div>
-
+  <ul>
     
-
+    <li>
+      <a href="/posts-output/2018-04-19-gcp-nlp-api/">GCPのNLP APIを使ってみる</a>
+    </li>
+    
+  </ul>
 </div>
 
           </div>
