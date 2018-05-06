@@ -2,8 +2,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
   <head>
     <meta charset="utf-8"/>
-    <title>何で走っているのだろう: キーワード &quot;自然言語処理&quot;</title>
-    <link rel="canonical" href="https://yuwki0131.github.io/tags-output/自然言語処理/">
+    <title>何で走っているのだろう: Scalaと関数型プログラミングに関連するトピックなど</title>
+    <link rel="canonical" href="https://yuwki0131.github.io/posts-output/2018-05-06-scala-fp-topics/">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href='https://fonts.googleapis.com/css?family=Alegreya:400italic,700italic,400,700' rel='stylesheet'
           type='text/css'>
@@ -67,17 +67,52 @@
         <div class="col-lg-9">
           <div id="content">
             
-<div id="posts-by-tag">
-  <div id="page-header">
-    <h2><img src="/img/frame/tag.png" width="32"/>&emsp;キーワード &quot;自然言語処理&quot;</h2>
+<div id="post">
+    <div class="post-header">
+  <div id="post-meta" class="row">
+    <div class="col-lg-6">2018/05/06</div>
+    
   </div>
-  <ul>
+  <h2><img src="/img/frame/bird.png" width="32" />&emsp;Scalaと関数型プログラミングに関連するトピックなど</h2>
+</div>
+<hr/>
+<div>
+  <ol class="content"><li><a href="#名前渡し(call-by-name)、評価戦略/遅延評価">名前渡し(Call-by-name)、評価戦略/遅延評価</a></li><li><a href="#プロパティベースのテスト">プロパティベースのテスト</a></li><li><a href="#recursion_scheme">Recursion Scheme</a></li><li><a href="#モナドなどの型クラス">モナドなどの型クラス</a></li><li><a href="#抽象解釈(abstract_interpretation)">抽象解釈(Abstract interpretation)</a></li><li><a href="#依存型(dependent_type)">依存型(Dependent type)</a></li><li><a href="#参考文献">参考文献</a></li><li><a href="#練習問題">練習問題</a></li><li><a href="#読み物">読み物</a></li></ol>
+  <p>Scalaについて勉強した時のメモ(その7)です。その他関数型プログラミング関連の話題について。</p><p>※ 元々はmarkdownで書いていたテキストの転載。</p><h2 id="名前渡し(call-by-name)、評価戦略/遅延評価">名前渡し(Call-by-name)、評価戦略/遅延評価</h2><ul><li>プログラムの実行順序のこと。</li><li>calaには、通常の評価戦略(call-by-value)に加えて、名前渡し(call-by-name)がある。  その他、stream型だと、遅延リストになる。</li></ul><h2 id="プロパティベースのテスト">プロパティベースのテスト</h2><ul><li>特定のケースのみを対象としたテストケースではなく、関数の引数に対する戻り値の性質をテストする。</li><li>固有のテストケースを持たないと言う意味で従来の関数に対するユニットテストとは大きく異なる。</li><li><a href='http://www.scalatest.org/user_guide/property_based_testing'>ScalaTestのProperty-based testing</a>  などで使用できる。</li></ul><h2 id="recursion&#95;scheme">Recursion Scheme</h2><ul><li>fold/unfold系関数の一般化。</li><li>catamorphism, anamorphism, hylomorphism ...などなんとかモルフィズムという名前が付いている。</li><li>Recursion Schemeに基づくプログラムの融合変換などもある。</li><li>Scalaだと<a href='https://github.com/slamdata/matryoshka'>Matryoshka</a> というライブラリが有名。</li></ul><h2 id="モナドなどの型クラス">モナドなどの型クラス</h2><ul><li>ファンクタ、アプリカティブファンクタ、モナド、コモナド、モノイド(Functor, applicative functor, monad, comonad, monoid)</li><li>特に公式の用語集(以下)にも出てこないので、Scalaでは特に普段は意識する必要はない(と思われる)。<ul><li><a href='https://docs.scala-lang.org/glossary/'>Glossary | Scala Documentation</a></li></ul></li><li>モナドはモナド則と呼ばれる関数の合成規則を持った型クラスの事。よく副作用を表現する時に使われる。(勿論、副作用以外も表すことができる)<ul><li>モナド同様、ファンクタはファンクタ則を、アプリカティブファンクタはアプリカティブファンクタ則がある型クラスのこと。</li><li>ファンクタ、アプリカティブファンクタ、モナドの順に制約(性質的な縛り)が強くなる。</li><li>コモナドはその双対(圏論の用語なので詳しく知りたい場合はその辺りを参照)</li></ul></li><li>単に副作用を表現するだけでなく、自分でカスタマイズできる事から愛好者も多い(と思われる。特にHaskeller)。</li><li>モノイドは、foldまわりでよく使われる二項演算の一般化。</li><li>Scalaだと<a href='https://github.com/scalaz/scalaz'>Scalaz</a> でよく使われる。</li></ul><h2 id="抽象解釈(abstract&#95;interpretation)">抽象解釈(Abstract interpretation)</h2><ul><li>プログラムの抽象的な実行のこと。静的型付けと同じ、静的解析の一種。</li><li>似たようなものとしてSymbolic Execution(記号的実行)というのもある。</li><li>Scalaだと、<a href='https://github.com/jandom-devel/Jandom'>Jadom</a> というのがあるらしいが。。。</li></ul><h2 id="依存型(dependent&#95;type)">依存型(Dependent type)</h2><ul><li>一般的なプログラムの型付けより詳細な型を付けることが出来る。例えば0以上のInt型など。</li><li>Scalaで言われているDependent typeと関数型言語で言われる依存型は意味が異なる。</li><li>Scalaだと<a href='https://github.com/epfl-lara/stainless'>Stainless</a> というライブラリがある。</li></ul><h2 id="参考文献">参考文献</h2><ul><li><a href='http://yuroyoro.hatenablog.com/entry/20120203/1328248662'>関数合成のススメ 〜 オブジェクト指向プログラマへ捧げる関数型言語への導入その1</a></li><li><a href='https://53ningen.com/path-dependent-types/'>Scalaの経路依存型（path-dependent type）とは？</a></li><li><a href='http://yuroyoro.hatenablog.com/entry/2013/01/23/192244'>Scala2.10.0のDependent method typesと型クラスを組み合わせた『The Magnet Pattern』がヤバい件</a></li><li><a href='http://kmizu.hatenablog.com/entry/20120504/1336087466'>Scalaに関して知っておくべきたった一つの重要な事</a></li><li><a href='http://xuwei-k.hatenablog.com/entry/20141207/1417940174'>代数的データ型とshapelessのマクロによる型クラスのインスタンスの自動導出</a></li><li><a href='http://xuwei-k.hatenablog.com/entry/20130709/1373330529'>Scalaにおける細かい最適化のプラクティス</a></li><li><a href='http://docs.scala-lang.org/ja/overviews/collections/performance-characteristics.html'>Scala COLLECTIONS 性能特性 | Scala Documentation</a></li></ul><h2 id="練習問題">練習問題</h2><ul><li><a href='http://aperiodic.net/phil/scala/s-99/'>S-99: Ninety-Nine Scala Problems</a></li></ul><h2 id="読み物">読み物</h2><ul><li><a href='https://togetter.com/li/25283'>関数型言語でのデザイン手法 - togetter</a></li><li><a href='https://www.infoq.com/jp/news/2014/03/oo-functional-programming'>オブジェクト指向設計の原則と関数型プログラミング</a></li><li><a href='https://github.com/yuroyoro/Japanese_Translations_of_Scala_Articles/tree/master/source/ja/type_level_programming_in_scala'>Scalaで型レベルプログラミング(日本語訳)</a><ul><li>4章まで(?)(2018/01/27現在)</li></ul></li><li><a href='http://delihiros.hatenablog.jp/entry/2012/05/01/032433'>Scalaは関数型プログラミング言語ではない</a></li></ul>
+</div>
+
+<div id="post-tags">
+  <b><img src="/img/frame/tag.png" width="16"/>&nbsp;</b>
+  
+  <a href="/tags-output/Recursion Scheme/">Recursion Scheme</a>
+  
+  <a href="/tags-output/モナド/">モナド</a>
+  
+  <a href="/tags-output/Scala/">Scala</a>
+  
+  <a href="/tags-output/型クラス/">型クラス</a>
+  
+  <a href="/tags-output/関数型プログラミング/">関数型プログラミング</a>
+  
+  <a href="/tags-output/依存型/">依存型</a>
+  
+  <a href="/tags-output/評価戦略/">評価戦略</a>
+  
+  <a href="/tags-output/抽象解釈/">抽象解釈</a>
+  
+</div>
+<hr/>
+
+
+    <div id="prev-next">
+        
+        
+        <a class="right" href="/posts-output/2018-04-20-scala-types/">Scalaの型と型関連の機能 &raquo;</a>
+        
+    </div>
+
     
-    <li>
-      <a href="/posts-output/2018-04-19-gcp-nlp-api/">GCPのNLP APIを使ってみる</a>
-    </li>
-    
-  </ul>
+
 </div>
 
           </div>
