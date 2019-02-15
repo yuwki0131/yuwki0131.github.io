@@ -44,37 +44,21 @@ body {
     border: none;
 }
 
-.navbar-header {
-    position: absolute;
-    top: 50%;
-    -ms-transform: translateY(-50%);
-    transform: translateY(-50%);
-}
-
 .h-cowrun-logo {
     width: 32px;
-    margin: 0px;
-    position: absolute;
-    top: 50%;
-    -ms-transform: translateY(-50%);
-    transform: translateY(-50%);
 
-}
-
-.h-run {
-    margin-left: 0px;
-}
-
-.h-cow {
-    margin-left: 32px;
 }
 
 .h-title {
-    margin-left: 85px;
+    padding-left: 80px;
+    padding-top: 2px;
 }
 
-.navbar-collapse {
-    height: 50px;
+.h-title-line {
+  padding-top: 18px;
+  position: absolute;
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
 }
 
 .navbar-default .navbar-brand {
@@ -110,6 +94,14 @@ body {
 
 .navbar-default .navbar-toggle .icon-bar {
     background-color: #ddd;
+}
+
+.sticky-header {
+  left:0;
+  position:fixed;
+  top:0;
+  width:100%;
+  z-index:24;
 }
 
 #sidebar {
