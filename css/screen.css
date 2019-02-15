@@ -44,6 +44,25 @@ body {
     border: none;
 }
 
+.h-run {
+    width: 32px;
+}
+
+.h-cow {
+    width: 32px;
+}
+
+/* .title-header:before { */
+/*     content: url(/img/frame/run.png) */
+/*              url(/img/frame/cow.png); */
+/*     position: relative; */
+/*     width:62px; */
+/* } */
+
+.navbar-default  {
+    padding-bot: 10px;
+}
+
 .navbar-default .navbar-brand {
     font-size: 20px;
     color: #0997b6;
@@ -70,13 +89,13 @@ body {
     background-color: #0997b6;
 }
 
-.navbar-default .navbar-toggle:hover{
+.navbar-default .navbar-toggle:hover {
     color: #ffffff;
     background-color: #0997b6;
 }
 
 .navbar-default .navbar-toggle .icon-bar {
-    background-color: #fff;
+    background-color: #ddd;
 }
 
 #sidebar {

@@ -21,7 +21,7 @@
 
      gtag('config', 'UA-103811007-1');
     </script>
-    <link href="/css/screen.css" rel="stylesheet" type="text/css" />
+    <link href="/css/screen.css?t=" rel="stylesheet" type="text/css" />
   </head>
   <body>
     <nav class="navbar navbar-default">
@@ -36,8 +36,8 @@
             <span class="icon-bar"></span>
           </button>
           <p style="line-height:40px;">
-            <img src="/img/frame/run.png" width="32" style="padding-top:10px;padding-bot:10px"/>
-            <img src="/img/frame/cow.png" width="32" style="padding-top:10px;padding-bot:10px"/>
+            <img class="h-run" src="/img/frame/run.png"/>
+            <img class="h-cow" src="/img/frame/cow.png"/>
             <a class="navbar-brand" href="/">何で走っているのだろう</a>
           </p>
         </div>
@@ -66,10 +66,21 @@
 <div id="post">
   
   <div class="post-header">
+    <h2>TravisCIでdocker-composeを起動して、テストしたい</h2>
+    <div id="post-meta">
+      
+      <div class="date">2019年2月15日</div>
+    </div>
+  </div>
+  <h2 id="travisciでdocker-composeを起動したい">TravisCIでdocker-composeを起動したい</h2><p>CIテスト環境でDBにデータが突っ込まれている状態でテストができると、確実に自動テストできる範囲が広がります。 DBをdockerで起動することで、CI環境でもDBへのアクセステストを行ってみました。</p>
+  <a href="/posts-output/2019-02-15-docker-travis/">Continue reading &#8594;</a>
+  <hr>
+  
+  <div class="post-header">
     <h2>Scalaと関数型プログラミングに関連するトピックなど</h2>
     <div id="post-meta">
       
-      <div class="date">2018/05/06</div>
+      <div class="date">2018年5月6日</div>
     </div>
   </div>
   <p>Scalaについて勉強した時のメモ(その7)です。その他関数型プログラミング関連の話題について。</p><p>※ 元々はmarkdownで書いていたテキストの転載。</p>
@@ -80,7 +91,7 @@
     <h2>Scalaの型と型関連の機能</h2>
     <div id="post-meta">
       
-      <div class="date">2018/04/20</div>
+      <div class="date">2018年4月20日</div>
     </div>
   </div>
   <p>Scalaについて勉強した時のメモ(その6)です。Scalaの型の機能とそれに関連するテクニックについて。</p><p>※ 元々はmarkdownで書いていたテキストの転載。</p>
@@ -91,7 +102,7 @@
     <h2>GCPのNLP APIを使ってみる</h2>
     <div id="post-meta">
       
-      <div class="date">2018/04/19</div>
+      <div class="date">2018年4月19日</div>
     </div>
   </div>
   <p>GCPのnlp apiを使ってみた。Yahooの形態素解析APIと同様、結構簡単に使うことができる。</p><p><a href="https://cloud.google.com/natural-language/?hl=ja">Cloud Natural Language | Google Cloud</a></p>
@@ -102,22 +113,11 @@
     <h2>Scalaの3つのimplicit</h2>
     <div id="post-meta">
       
-      <div class="date">2018/04/18</div>
+      <div class="date">2018年4月18日</div>
     </div>
   </div>
   <p>Scalaについて勉強した時のメモ(その5)です。Scalaのimplicitと呼ばれる系の機能について。</p><p>※ 元々はmarkdownで書いていたテキストの転載。</p>
   <a href="/posts-output/2018-04-18-scala-implicit/">Continue reading &#8594;</a>
-  <hr>
-  
-  <div class="post-header">
-    <h2>Scalaのfor式/for内包記法(For comprehension)</h2>
-    <div id="post-meta">
-      
-      <div class="date">2018/04/18</div>
-    </div>
-  </div>
-  <p>Scalaについて勉強した時のメモ(その4)です。for式の扱い方について。</p><p>※ 元々はmarkdownで書いていたテキストの転載。</p>
-  <a href="/posts-output/2018-04-18-scala-for/">Continue reading &#8594;</a>
   <hr>
   
 
@@ -149,11 +149,11 @@
               </p>
               <ul>
                 
+                <li><a href="/posts-output/2019-02-15-docker-travis/">TravisCIでdocker-composeを起動して、テストしたい</a></li>
+                
                 <li><a href="/posts-output/2018-05-06-scala-fp-topics/">Scalaと関数型プログラミングに関連するトピックなど</a></li>
                 
                 <li><a href="/posts-output/2018-04-20-scala-types/">Scalaの型と型関連の機能</a></li>
-                
-                <li><a href="/posts-output/2018-04-19-gcp-nlp-api/">GCPのNLP APIを使ってみる</a></li>
                 
               </ul>
             </div>
@@ -185,7 +185,11 @@
                 
                 <li><a href="/tags-output/Lisp/">Lisp</a></li>
                 
+                <li><a href="/tags-output/Python3/">Python3</a></li>
+                
                 <li><a href="/tags-output/Implicit conversion/">Implicit conversion</a></li>
+                
+                <li><a href="/tags-output/CI/">CI</a></li>
                 
                 <li><a href="/tags-output/例外/">例外</a></li>
                 
@@ -205,7 +209,13 @@
                 
                 <li><a href="/tags-output/GCP/">GCP</a></li>
                 
+                <li><a href="/tags-output/docker-compose/">docker-compose</a></li>
+                
+                <li><a href="/tags-output/TravisCI/">TravisCI</a></li>
+                
                 <li><a href="/tags-output/関数型プログラミング/">関数型プログラミング</a></li>
+                
+                <li><a href="/tags-output/docker/">docker</a></li>
                 
                 <li><a href="/tags-output/自然言語処理/">自然言語処理</a></li>
                 
@@ -229,7 +239,7 @@
           </div>
         </div>
       </div>
-      <footer>Copyright &copy; 2018 yuwki0131
+      <footer>Copyright &copy; 2019 yuwki0131
         <p style="text-align: center;">
           Powered by <a href="http://cryogenweb.org">Cryogen</a>
           <br/>

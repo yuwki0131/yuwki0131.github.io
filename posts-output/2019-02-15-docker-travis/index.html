@@ -2,8 +2,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
   <head>
     <meta charset="utf-8"/>
-    <title>何で走っているのだろう: キーワード &quot;構造的部分型&quot;</title>
-    <link rel="canonical" href="https://yuwki0131.github.io/tags-output/構造的部分型/">
+    <title>何で走っているのだろう: TravisCIでdocker-composeを起動して、テストしたい</title>
+    <link rel="canonical" href="https://yuwki0131.github.io/posts-output/2019-02-15-docker-travis/">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href='https://fonts.googleapis.com/css?family=Alegreya:400italic,700italic,400,700' rel='stylesheet'
           type='text/css'>
@@ -63,17 +63,116 @@
         <div class="col-lg-9">
           <div id="content">
             
-<div id="posts-by-tag">
-  <div id="page-header">
-    <h2><img src="/img/frame/tag.png" width="32"/>&emsp;キーワード &quot;構造的部分型&quot;</h2>
+<div id="post">
+  <div class="post-header">
+  <div id="post-meta" class="row">
+    <div class="col-lg-6">2019年2月15日</div>
+    
   </div>
-  <ul>
+  <h2><img src="/img/frame/bird.png" width="32" />&emsp;TravisCIでdocker-composeを起動して、テストしたい</h2>
+</div>
+<hr/>
+<div>
+  <ol class="content"><li><a href="#travisciでdocker-composeを起動したい">TravisCIでdocker-composeを起動したい</a></li><li><a href="#dbのmigration">dbのmigration</a></li><li><a href="#まとめ">まとめ</a></li><li><a href="#dbへのアクセステスト">DBへのアクセステスト</a></li><li><a href="#すべてのソース">すべてのソース</a></li><li><a href="#参考文献">参考文献</a></li></ol>
+  <h2 id="travisciでdocker-composeを起動したい">TravisCIでdocker-composeを起動したい</h2><p>CIテスト環境でDBにデータが突っ込まれている状態でテストができると、確実に自動テストできる範囲が広がります。 DBをdockerで起動することで、CI環境でもDBへのアクセステストを行ってみました。</p><p>Travisでは以下のようにinstallすることで、docker-composeが使用できるようになるようです。</p><pre><code>
+  - sudo rm /usr/local/bin/docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/1.18.0-rc2/docker-compose-`uname -s`-`uname -m` &gt; docker-compose
+  - chmod +x docker-compose
+  - sudo mv docker-compose /usr/local/bin
+
+</code></pre><p>docker-composeが使えるようになったら、daemonとしてdockerを起動。</p><pre><code>  - docker-compose up -d
+</code></pre><p>ちなみに、docker-compose.ymlは以下のような感じです。</p><pre><code class="yml">version: '3.2'
+services:
+  db:
+    image: mysql:5.7.22
+    ports:
+      - &quot;3307:3306&quot;
+    environment:
+        MYSQL&#95;ROOT&#95;PASSWORD: passwd
+        MYSQL&#95;USER: crudapp
+        MYSQL&#95;PASSWORD: passwd
+        MYSQL&#95;DATABASE: crudapp
+</code></pre><h2 id="dbのmigration">dbのmigration</h2><p>DBの初期化はalembicでmigrationファイルを作成し、コマンドでDBを構成してupdateします。 CIテストの度に、DBを構成、初期化します。</p><pre><code>  - alembic upgrade head
+</code></pre><h2 id="まとめ">まとめ</h2><p>最終的にできた.travis.ymlは以下のような感じ。</p><pre><code class="yml">language: python
+python:
+  - &quot;3.7-dev&quot;
+
+branches:
+  only:
+  - master
+
+env:
+  - DOCKER&#95;COMPOSE&#95;VERSION=1.4.2
+
+before&#95;install:
+  - sudo rm /usr/local/bin/docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/1.18.0-rc2/docker-compose-`uname -s`-`uname -m` &gt; docker-compose
+  - chmod +x docker-compose
+  - sudo mv docker-compose /usr/local/bin
+  - docker-compose up -d
+
+install:
+  - pip3 install -r requirements.txt
+
+script:
+  - alembic upgrade head
+  - python3 test.py
+</code></pre><h2 id="dbへのアクセステスト">DBへのアクセステスト</h2><p>dbにアクセスしてみます。</p><p>test.py</p><pre><code class="python"># -&#42;- coding: utf-8 -&#42;-
+
+import mysql.connector
+
+if &#95;&#95;name&#95;&#95; == '&#95;&#95;main&#95;&#95;':
+    print&#40;&quot;db connection test&quot;&#41;
+    conn = mysql.connector.connect&#40;
+        user='crudapp',
+        password='passwd',
+        host='localhost',
+        port='3307',
+        database='crudapp'&#41;
+    cur = conn.cursor&#40;&#41;
+    print&#40;&quot;db connected&quot;&#41;
+
+    cur.execute&#40;'insert into users &#40;name&#41; values &#40;&quot;test&quot;&#41;'&#41;
+
+    cur.execute&#40;&quot;select &#42; from users;&quot;&#41;
+    row = cur.fetchone&#40;&#41;
+
+    # output
+    print&#40;&quot;db: &quot; + str&#40;row&#41;&#41;
+
+    cur.close
+    conn.close
+    print&#40;&quot;db test exit&quot;&#41;
+    exit&#40;0&#41;
+</code></pre><h2 id="すべてのソース">すべてのソース</h2><ul><li><a href='https://github.com/yuwki0131/docker-travis-integration'>yuwki0131/docker-travis-integration: travis内でdockerを起動させるテスト</a></li></ul><h2 id="参考文献">参考文献</h2><ul><li><a href='https://docs.travis-ci.com/user/docker/'>Using Docker in Builds - Travis CI</a></li></ul>
+</div>
+
+<div id="post-tags">
+  <b><img src="/img/frame/tag.png" width="16"/>&nbsp;</b>
+  
+  <a href="/tags-output/Python3/">Python3</a>
+  
+  <a href="/tags-output/CI/">CI</a>
+  
+  <a href="/tags-output/docker-compose/">docker-compose</a>
+  
+  <a href="/tags-output/TravisCI/">TravisCI</a>
+  
+  <a href="/tags-output/docker/">docker</a>
+  
+</div>
+<hr/>
+
+
+  <div id="prev-next">
     
-    <li>
-      <a href="/posts-output/2018-04-20-scala-types/">Scalaの型と型関連の機能</a>
-    </li>
     
-  </ul>
+    <a class="right" href="/posts-output/2018-05-06-scala-fp-topics/">Scalaと関数型プログラミングに関連するトピックなど &raquo;</a>
+    
+  </div>
+
+  
+
 </div>
 
           </div>

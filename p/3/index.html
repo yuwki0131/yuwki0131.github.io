@@ -21,7 +21,7 @@
 
      gtag('config', 'UA-103811007-1');
     </script>
-    <link href="/css/screen.css" rel="stylesheet" type="text/css" />
+    <link href="/css/screen.css?t=" rel="stylesheet" type="text/css" />
   </head>
   <body>
     <nav class="navbar navbar-default">
@@ -36,8 +36,8 @@
             <span class="icon-bar"></span>
           </button>
           <p style="line-height:40px;">
-            <img src="/img/frame/run.png" width="32" style="padding-top:10px;padding-bot:10px"/>
-            <img src="/img/frame/cow.png" width="32" style="padding-top:10px;padding-bot:10px"/>
+            <img class="h-run" src="/img/frame/run.png"/>
+            <img class="h-cow" src="/img/frame/cow.png"/>
             <a class="navbar-brand" href="/">何で走っているのだろう</a>
           </p>
         </div>
@@ -66,10 +66,21 @@
 <div id="post">
   
   <div class="post-header">
+    <h2>Scalaで、再代入時にOptionを使おうとしたらtype-mismatch</h2>
+    <div id="post-meta">
+      
+      <div class="date">2017年8月11日</div>
+    </div>
+  </div>
+  <p>Scalaに入門して少し経ちましたが、コードを書いていると早速、型推論でのエラーが発生して少し悩みました。 Option型で再代入可能な変数(varで宣言した変数)に再代入しようとした箇所に、エラーが発生。</p><p>ざっくりと書くと、以下のような感じでエラーが発生しました。。。</p>
+  <a href="/posts-output/2017-08-11-scala-type-mismatch-option/">Continue reading &#8594;</a>
+  <hr>
+  
+  <div class="post-header">
     <h2>ブログのタイトル変えました</h2>
     <div id="post-meta">
       
-      <div class="date">2017/08/05</div>
+      <div class="date">2017年8月5日</div>
     </div>
   </div>
   <p>ブログのタイトル(yuwki0132-blog)が酷いので、パウル・クレーの絵画「何で走っているのだろう」からタイトルを拝借しました。</p>
@@ -80,7 +91,7 @@
     <h2>Cryogen/Github-Pagesでブログを書く</h2>
     <div id="post-meta">
       
-      <div class="date">2017/08/02</div>
+      <div class="date">2017年8月2日</div>
     </div>
   </div>
   <p>とりあえず、一通り、Cryogen/Github-Pagesで静的なWebページの公開までたどり着いたので、その紹介などをざっくりと書きます。</p><h3 id="cryogenでブログ作成〜github-pagesで公開まで">Cryogenでブログ作成〜Github-Pagesで公開まで</h3>
@@ -91,7 +102,7 @@
     <h2>CryogenでブログのQuick Startをしてみた</h2>
     <div id="post-meta">
       
-      <div class="date">2017/08/01</div>
+      <div class="date">2017年8月1日</div>
     </div>
   </div>
   <h3 id="ブログを書く時の物理的/心理的ハードル">ブログを書く時の物理的/心理的ハードル</h3><p>長らくGoogle Bloggerを使ってプログラミング関連をネタとしたブログを書いてきました。</p>
@@ -127,11 +138,11 @@
               </p>
               <ul>
                 
+                <li><a href="/posts-output/2019-02-15-docker-travis/">TravisCIでdocker-composeを起動して、テストしたい</a></li>
+                
                 <li><a href="/posts-output/2018-05-06-scala-fp-topics/">Scalaと関数型プログラミングに関連するトピックなど</a></li>
                 
                 <li><a href="/posts-output/2018-04-20-scala-types/">Scalaの型と型関連の機能</a></li>
-                
-                <li><a href="/posts-output/2018-04-19-gcp-nlp-api/">GCPのNLP APIを使ってみる</a></li>
                 
               </ul>
             </div>
@@ -163,7 +174,11 @@
                 
                 <li><a href="/tags-output/Lisp/">Lisp</a></li>
                 
+                <li><a href="/tags-output/Python3/">Python3</a></li>
+                
                 <li><a href="/tags-output/Implicit conversion/">Implicit conversion</a></li>
+                
+                <li><a href="/tags-output/CI/">CI</a></li>
                 
                 <li><a href="/tags-output/例外/">例外</a></li>
                 
@@ -183,7 +198,13 @@
                 
                 <li><a href="/tags-output/GCP/">GCP</a></li>
                 
+                <li><a href="/tags-output/docker-compose/">docker-compose</a></li>
+                
+                <li><a href="/tags-output/TravisCI/">TravisCI</a></li>
+                
                 <li><a href="/tags-output/関数型プログラミング/">関数型プログラミング</a></li>
+                
+                <li><a href="/tags-output/docker/">docker</a></li>
                 
                 <li><a href="/tags-output/自然言語処理/">自然言語処理</a></li>
                 
@@ -207,7 +228,7 @@
           </div>
         </div>
       </div>
-      <footer>Copyright &copy; 2018 yuwki0131
+      <footer>Copyright &copy; 2019 yuwki0131
         <p style="text-align: center;">
           Powered by <a href="http://cryogenweb.org">Cryogen</a>
           <br/>

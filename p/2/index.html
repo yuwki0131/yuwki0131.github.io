@@ -21,7 +21,7 @@
 
      gtag('config', 'UA-103811007-1');
     </script>
-    <link href="/css/screen.css" rel="stylesheet" type="text/css" />
+    <link href="/css/screen.css?t=" rel="stylesheet" type="text/css" />
   </head>
   <body>
     <nav class="navbar navbar-default">
@@ -36,8 +36,8 @@
             <span class="icon-bar"></span>
           </button>
           <p style="line-height:40px;">
-            <img src="/img/frame/run.png" width="32" style="padding-top:10px;padding-bot:10px"/>
-            <img src="/img/frame/cow.png" width="32" style="padding-top:10px;padding-bot:10px"/>
+            <img class="h-run" src="/img/frame/run.png"/>
+            <img class="h-cow" src="/img/frame/cow.png"/>
             <a class="navbar-brand" href="/">何で走っているのだろう</a>
           </p>
         </div>
@@ -66,32 +66,21 @@
 <div id="post">
   
   <div class="post-header">
-    <h2>Scalaでの関数のしくみと使い方</h2>
+    <h2>Scalaのfor式/for内包記法(For comprehension)</h2>
     <div id="post-meta">
       
-      <div class="date">2018/04/14</div>
+      <div class="date">2018年4月18日</div>
     </div>
   </div>
-  <p>Scalaについて勉強した時のメモ(その1)です。関数の扱い方について。</p><p>※ 元々はmarkdownで書いていたテキストの転載。</p>
-  <a href="/posts-output/2018-04-14-scala-functions-memo/">Continue reading &#8594;</a>
-  <hr>
-  
-  <div class="post-header">
-    <h2>Scalaでの代数的データ型のしくみと使い方</h2>
-    <div id="post-meta">
-      
-      <div class="date">2018/04/14</div>
-    </div>
-  </div>
-  <p>Scalaについて勉強した時のメモ(その2)です。代数的データ型の扱い方について。</p><p>※ 元々はmarkdownで書いていたテキストの転載。</p>
-  <a href="/posts-output/2018-04-14-scala-algebraic-data-types/">Continue reading &#8594;</a>
+  <p>Scalaについて勉強した時のメモ(その4)です。for式の扱い方について。</p><p>※ 元々はmarkdownで書いていたテキストの転載。</p>
+  <a href="/posts-output/2018-04-18-scala-for/">Continue reading &#8594;</a>
   <hr>
   
   <div class="post-header">
     <h2>Scalaでの例外系の処理のしくみと使い方</h2>
     <div id="post-meta">
       
-      <div class="date">2018/04/14</div>
+      <div class="date">2018年4月14日</div>
     </div>
   </div>
   <p>Scalaについて勉強した時のメモ(その3)です。例外系の扱い方について。OptionとEitherとException。</p><p>※ 元々はmarkdownで書いていたテキストの転載。</p>
@@ -99,25 +88,36 @@
   <hr>
   
   <div class="post-header">
+    <h2>Scalaでの代数的データ型のしくみと使い方</h2>
+    <div id="post-meta">
+      
+      <div class="date">2018年4月14日</div>
+    </div>
+  </div>
+  <p>Scalaについて勉強した時のメモ(その2)です。代数的データ型の扱い方について。</p><p>※ 元々はmarkdownで書いていたテキストの転載。</p>
+  <a href="/posts-output/2018-04-14-scala-algebraic-data-types/">Continue reading &#8594;</a>
+  <hr>
+  
+  <div class="post-header">
+    <h2>Scalaでの関数のしくみと使い方</h2>
+    <div id="post-meta">
+      
+      <div class="date">2018年4月14日</div>
+    </div>
+  </div>
+  <p>Scalaについて勉強した時のメモ(その1)です。関数の扱い方について。</p><p>※ 元々はmarkdownで書いていたテキストの転載。</p>
+  <a href="/posts-output/2018-04-14-scala-functions-memo/">Continue reading &#8594;</a>
+  <hr>
+  
+  <div class="post-header">
     <h2>最低限のLispを作るためのマイルストーン</h2>
     <div id="post-meta">
       
-      <div class="date">2017/08/26</div>
+      <div class="date">2017年8月26日</div>
     </div>
   </div>
   <p>最低限のLispを作るためのメモです。</p><h1 id="言語のアウトラインをパクる(r7rs)">言語のアウトラインをパクる(R7RS)</h1>
   <a href="/posts-output/2017-08-26-make-a-lisp-minimum/">Continue reading &#8594;</a>
-  <hr>
-  
-  <div class="post-header">
-    <h2>Scalaで、再代入時にOptionを使おうとしたらtype-mismatch</h2>
-    <div id="post-meta">
-      
-      <div class="date">2017/08/11</div>
-    </div>
-  </div>
-  <p>Scalaに入門して少し経ちましたが、コードを書いていると早速、型推論でのエラーが発生して少し悩みました。 Option型で再代入可能な変数(varで宣言した変数)に再代入しようとした箇所に、エラーが発生。</p><p>ざっくりと書くと、以下のような感じでエラーが発生しました。。。</p>
-  <a href="/posts-output/2017-08-11-scala-type-mismatch-option/">Continue reading &#8594;</a>
   <hr>
   
 
@@ -151,11 +151,11 @@
               </p>
               <ul>
                 
+                <li><a href="/posts-output/2019-02-15-docker-travis/">TravisCIでdocker-composeを起動して、テストしたい</a></li>
+                
                 <li><a href="/posts-output/2018-05-06-scala-fp-topics/">Scalaと関数型プログラミングに関連するトピックなど</a></li>
                 
                 <li><a href="/posts-output/2018-04-20-scala-types/">Scalaの型と型関連の機能</a></li>
-                
-                <li><a href="/posts-output/2018-04-19-gcp-nlp-api/">GCPのNLP APIを使ってみる</a></li>
                 
               </ul>
             </div>
@@ -187,7 +187,11 @@
                 
                 <li><a href="/tags-output/Lisp/">Lisp</a></li>
                 
+                <li><a href="/tags-output/Python3/">Python3</a></li>
+                
                 <li><a href="/tags-output/Implicit conversion/">Implicit conversion</a></li>
+                
+                <li><a href="/tags-output/CI/">CI</a></li>
                 
                 <li><a href="/tags-output/例外/">例外</a></li>
                 
@@ -207,7 +211,13 @@
                 
                 <li><a href="/tags-output/GCP/">GCP</a></li>
                 
+                <li><a href="/tags-output/docker-compose/">docker-compose</a></li>
+                
+                <li><a href="/tags-output/TravisCI/">TravisCI</a></li>
+                
                 <li><a href="/tags-output/関数型プログラミング/">関数型プログラミング</a></li>
+                
+                <li><a href="/tags-output/docker/">docker</a></li>
                 
                 <li><a href="/tags-output/自然言語処理/">自然言語処理</a></li>
                 
@@ -231,7 +241,7 @@
           </div>
         </div>
       </div>
-      <footer>Copyright &copy; 2018 yuwki0131
+      <footer>Copyright &copy; 2019 yuwki0131
         <p style="text-align: center;">
           Powered by <a href="http://cryogenweb.org">Cryogen</a>
           <br/>
