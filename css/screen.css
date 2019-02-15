@@ -44,23 +44,37 @@ body {
     border: none;
 }
 
-.h-run {
+.navbar-header {
+    position: absolute;
+    top: 50%;
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%);
+}
+
+.h-cowrun-logo {
     width: 32px;
+    margin: 0px;
+    position: absolute;
+    top: 50%;
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%);
+
+}
+
+.h-run {
+    margin-left: 0px;
 }
 
 .h-cow {
-    width: 32px;
+    margin-left: 32px;
 }
 
-/* .title-header:before { */
-/*     content: url(/img/frame/run.png) */
-/*              url(/img/frame/cow.png); */
-/*     position: relative; */
-/*     width:62px; */
-/* } */
+.h-title {
+    margin-left: 85px;
+}
 
-.navbar-default  {
-    padding-bot: 10px;
+.navbar-collapse {
+    height: 50px;
 }
 
 .navbar-default .navbar-brand {
