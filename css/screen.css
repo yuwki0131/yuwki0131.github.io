@@ -51,17 +51,14 @@ hr {
 
 .h-cowrun-logo {
     width: 32px;
-
 }
 
 .h-title {
     padding-left: 80px;
-    padding-top: 2px;
     font-size: 80%;
 }
 
 .h-title-line {
-    padding-top: 18px;
     position: absolute;
     -ms-transform: translateY(-50%);
     transform: translateY(-50%);
@@ -210,6 +207,12 @@ pre, code, .hljs {
 }
 
 @media (min-width: 1024px) {
+    .h-title {
+        padding-top: 8px;
+    }
+    .h-title-line {
+        padding-top: 28px;
+    }
     .navbar-nav>li>a {
         padding: 20px 20px;
     }
@@ -223,6 +226,12 @@ pre, code, .hljs {
 }
 
 @media (max-width: 1024px) {
+    .h-title {
+        padding-top: 2px;
+    }
+    .h-title-line {
+        padding-top: 18px;
+    }
     body{
         font-size: 14px;
     }
